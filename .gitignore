@@ -1,0 +1,27 @@
+# 비밀값. 절대 커밋 금지 (RDS 접속 정보가 들어있다)
+.env
+.env.local
+.env.*.local
+
+# 의존성
+node_modules/
+
+# 이 리포는 pnpm 을 쓴다. npm/yarn 락파일이 섞이지 않게 한다.
+package-lock.json
+yarn.lock
+
+# 로컬 embedded-postgres 데이터 디렉터리 (재생성 가능)
+pgdata/
+
+# 수집 스크립트의 중간 산출물. seed/games.json 만 커밋한다.
+**/seed/.checkpoint.json
+**/seed/.enrich-checkpoint.json
+**/seed/games.backup.json
+
+# 빌드/에디터/OS
+dist/
+.next/
+*.log
+.DS_Store
+.vscode/
+.idea/
