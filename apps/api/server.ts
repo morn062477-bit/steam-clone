@@ -11,6 +11,7 @@
  *   GET /api/home          첫 화면에 필요한 모든 섹션을 한 번에
  *   GET /api/game/:slug    게임 상세 (모달용)
  *   GET /api/search?q=     이름 검색
+ *   GET /api/category/:slug 카테고리(장르) 전용 페이지
  *   POST /api/login        로그인 (계정 이름 또는 이메일 + 비밀번호)
  *   POST /api/logout       로그아웃 (세션 폐기)
  *   GET  /api/cart          내 장바구니 (로그인 필요)
@@ -374,6 +375,45 @@ async function search(q: string) {
 }
 
 // ---------------------------------------------------------------
+// /api/category/:slug — 카테고리(장르) 전용 페이지
+// ---------------------------------------------------------------
+
+async function buildCategory(slug: string) {
+  const now = new Date();
+  const tag = await prisma.tag.findUnique({ where: { slug } });
+  if (!tag) return null;
+
+  const rows = await prisma.game.findMany({
+    where: { tags: { some: { tagId: tag.id } } },
+    orderBy: { steamReviewTotal: 'desc' },
+    take: 40,
+    select: cardArgs(now),
+  });
+  const games = rows.map((g) => toCard(g, now));
+
+  // 서브 탭: 이 카테고리 게임들에 이 태그 다음으로 많이 같이 붙는 태그 상위 9개
+  const subTagCount = new Map<string, number>();
+  for (const g of games) {
+    for (const t of g.tags) {
+      if (t === tag.name) continue;
+      subTagCount.set(t, (subTagCount.get(t) ?? 0) + 1);
+    }
+  }
+  const subTags = [...subTagCount.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 9)
+    .map(([name]) => name);
+
+  return {
+    name: tag.name,
+    slug: tag.slug,
+    hero: games.slice(0, 8),
+    subTags,
+    popular: games,
+  };
+}
+
+// ---------------------------------------------------------------
 // /api/cart (BE 2 담당)
 // ---------------------------------------------------------------
 
@@ -653,6 +693,12 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
 
   if (p === '/api/search') {
     return json(res, await search(url.searchParams.get('q') ?? ''));
+  }
+
+  if (p.startsWith('/api/category/') && req.method === 'GET') {
+    const slug = decodeURIComponent(p.slice('/api/category/'.length));
+    const result = await buildCategory(slug);
+    return result ? json(res, result) : json(res, { error: 'not found' }, 404);
   }
 
   if (p === '/api/auth/signup' && req.method === 'POST') {

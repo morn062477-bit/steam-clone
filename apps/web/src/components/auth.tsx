@@ -56,9 +56,9 @@ function Tiles({ className, count, pool }: { className: string; count: number; p
 }
 
 type Props = {
-  view: AuthView | "store" | "game" | "cart" | "wishlist";
+  view: AuthView | "store" | "game" | "cart" | "wishlist" | "category";
   pool: string[];
-  onView: (v: AuthView | "store" | "game" | "cart" | "wishlist") => void;
+  onView: (v: AuthView | "store" | "game" | "cart" | "wishlist" | "category") => void;
   onLogin: (u: User) => void;
 };
 
