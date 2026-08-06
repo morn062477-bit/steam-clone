@@ -404,8 +404,9 @@ button{font-family:inherit;cursor:pointer;border:0}
 .dot.on{background:#c7d5e0}
 
 /* ---------- 특집 및 추천 ---------- */
-.feat{display:flex;background:#1e3452;box-shadow:0 0 12px rgba(0,0,0,.35);cursor:pointer}
-.feat-art{flex:0 0 75%;height:550px;position:relative}
+.feat{display:flex;background:#1e3452;box-shadow:0 0 12px rgba(0,0,0,.35);cursor:pointer;overflow:hidden}
+.feat-art{flex:0 0 75%;height:550px;position:relative;overflow:hidden;transition:transform .3s ease}
+.feat:hover .feat-art{transform:scale(1.04)}
 .car-slide:not(.active) .feat-art{height:450px; filter:grayscale(1) blur(2px)}
 .car-slide.peek-prev .feat{flex-direction:row-reverse}
 .badge-live{
@@ -433,8 +434,10 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 할인 및 이벤트 ---------- */
 .deals{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:15px;background:#243953;padding:14px}
-.deal-sm{position:relative;cursor:pointer}
+.deal-sm,.deal-big{position:relative;cursor:pointer;overflow:hidden}
 .deal-sm .art{height:180px;border-radius:2px}
+.deal-sm .art,.deal-big .art{overflow:hidden;transition:transform .3s ease}
+.deal-sm:hover .art,.deal-big:hover .art{transform:scale(1.06)}
 .tagline{
   position:absolute;left:0;top:0;font-size:12px;color:#fff;padding:4px 12px;border-radius:0 0 2px 0;z-index:2;
 }
@@ -465,8 +468,9 @@ button{font-family:inherit;cursor:pointer;border:0}
 .spotlights{display:flex;gap:22px}
 .spot{flex:1}
 .spot-body{background:var(--blue-box);color:var(--bg-dark);font-size:12px;padding:19px 10px;display:grid;grid-template-columns:1fr 1fr;gap:29px;box-shadow:0 0 12px rgba(0,0,0,.3)}
-.spot-card{position:relative;cursor:pointer}
-.spot-card .art{height:150px;border-radius:2px}
+.spot-card{position:relative;cursor:pointer;overflow:hidden}
+.spot-card .art{height:150px;border-radius:2px;overflow:hidden;transition:transform .3s ease}
+.spot-card:hover .art{transform:scale(1.06)}
 .spot-foot{display:flex;justify-content:flex-end;margin-top:10px}
 
 /* ---------- 신규 출시 ---------- */
@@ -504,9 +508,13 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 저가 게임 ---------- */
 .cheap{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.cheap-card{position:relative;cursor:pointer}
-.cheap-card .art{height:135px;border-radius:2px}
+.cheap-card{position:relative;cursor:pointer;overflow:hidden}
+.cheap-card .art{height:135px;border-radius:2px;overflow:hidden;transition:transform .3s ease}
+.cheap-card:hover .art{transform:scale(1.06)}
 .headbtns{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)}
+
+/* ---------- 카드 호버 시 트레일러 영상 재생 ---------- */
+.hover-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none}
 
 /* ---------- 게임 상세 모달 ---------- */
 .modal-back{position:fixed;inset:0;background:rgba(6,10,15,.82);z-index:100;display:none;overflow-y:auto;padding:40px 12px}

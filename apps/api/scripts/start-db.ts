@@ -9,9 +9,12 @@
  */
 import EmbeddedPostgres from 'embedded-postgres';
 import path from 'node:path';
+import { existsSync } from 'node:fs';
+
+const dataDir = path.join(import.meta.dirname, '..', 'pgdata');
 
 const pg = new EmbeddedPostgres({
-  databaseDir: path.join(import.meta.dirname, '..', 'pgdata'),
+  databaseDir: dataDir,
   user: 'postgres',
   password: 'postgres',
   port: 5433,
@@ -19,7 +22,11 @@ const pg = new EmbeddedPostgres({
   authMethod: 'password',
 });
 
-await pg.initialise();
+// initialise()는 initdb를 무조건 실행한다. 이미 초기화된 데이터 디렉터리에 대고
+// 다시 부르면 "directory exists but is not empty"로 실패하므로, 첫 실행일 때만 부른다.
+if (!existsSync(path.join(dataDir, 'PG_VERSION'))) {
+  await pg.initialise();
+}
 await pg.start();
 try {
   await pg.createDatabase('steamclone');
