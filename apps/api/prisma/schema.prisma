@@ -182,6 +182,20 @@ model User {
   refreshTokens RefreshToken[]
 }
 
+// 회원가입 시 이메일 인증 전 임시 보관.
+// 실제 스팀처럼 이메일만 먼저 받아 인증 메일을 보내고, 링크를 클릭해 verifiedAt 이 찍히면
+// 그제서야 계정 이름/비밀번호를 입력받아(completeSignup) User 로 승격한다.
+model PendingSignup {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  nickname     String?   @unique // 2단계(계정 이름 입력)에서 채워짐
+  passwordHash String? // 2단계에서 채워짐
+  tokenHash    String    @unique // 평문 저장 금지
+  verifiedAt   DateTime? // 이메일 인증 링크 클릭 시각
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+}
+
 model RefreshToken {
   id        String   @id @default(cuid())
   userId    String
