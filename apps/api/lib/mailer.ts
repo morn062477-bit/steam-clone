@@ -14,8 +14,9 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// PNG를 쓰는 이유: SVG는 이메일 클라이언트 지원이 들쭉날쭉하다(Gmail은 되지만 네이버 등은 안 뜸).
-// PNG는 사실상 모든 클라이언트에서 뜬다.
+// PNG 를 쓴다. SVG(logo_steam_icon.svg)로 붙여서 보내 봤더니 Gmail 이 차단해
+// 깨진 이미지로 떴다. PNG 는 사실상 모든 클라이언트에서 뜬다.
+// logo_steam_icon.png 는 같은 아이콘을 200x200 으로 렌더한 것이라 모양은 동일하다.
 const ASSETS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets');
 const STEAM_LOGO_PNG = readFileSync(path.join(ASSETS_DIR, 'logo_steam_icon.png'));
 const LOGO_CID = 'steam-logo';
