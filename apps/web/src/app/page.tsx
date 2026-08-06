@@ -9,6 +9,29 @@ import WishlistPage from "@/components/wishlistpage";
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
 
+/** 결제창에서 고를 결제수단. 카카오페이는 간편결제(EASY_PAY)라 요청 형태가 카드결제와 다르다. */
+const PAY_METHODS = [
+  {
+    id: "kakaopay",
+    label: "카카오페이",
+    channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY,
+    payMethod: "EASY_PAY" as const,
+    easyPayProvider: "KAKAOPAY" as const,
+  },
+  {
+    id: "inicis",
+    label: "KG이니시스",
+    channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_INICIS,
+    payMethod: "CARD" as const,
+  },
+  {
+    id: "toss",
+    label: "토스페이먼츠",
+    channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_TOSS,
+    payMethod: "CARD" as const,
+  },
+];
+
 function ymd(iso: string | null) {
   if (!iso) return "출시일 미정";
   const d = new Date(iso);
@@ -404,6 +427,9 @@ export default function Home() {
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cart, setCart] = useState<any[]>([]);
   const [wishlist, setWishlist] = useState<any[]>([]);
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [payMethodId, setPayMethodId] = useState(PAY_METHODS[0].id);
   const [lang, setLang] = useState("한국어");
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
@@ -501,6 +527,59 @@ export default function Home() {
     }
     writeGuestCart(readGuestCart().filter((s) => s !== slug));
     await loadGuestCart();
+  }
+
+  /**
+   * 결제하기. 흐름:
+   *   1) 서버에 PENDING 주문 생성 (/api/checkout/prepare)
+   *   2) 포트원 결제창 (@portone/browser-sdk)
+   *   3) 결제 성공 콜백 → 서버가 실제 결제 결과를 재검증하며 확정 (/api/checkout/complete)
+   * 게스트는 로그인부터 시켜야 한다 (결제는 로그인 필요).
+   */
+  async function checkout() {
+    if (!user) { goView("login"); return; }
+    const method = PAY_METHODS.find((m) => m.id === payMethodId) ?? PAY_METHODS[0];
+    if (!method.channelKey) {
+      setCheckoutError(`${method.label} 채널 키가 설정되어 있지 않습니다 (apps/web/.env.local).`);
+      return;
+    }
+    setCheckoutError(null);
+    setCheckoutBusy(true);
+    try {
+      const prepRes = await fetch("/api/checkout/prepare", { method: "POST" });
+      const prep = await prepRes.json();
+      if (!prepRes.ok) throw new Error(prep.error ?? "주문 생성에 실패했습니다.");
+
+      const { requestPayment } = await import("@portone/browser-sdk/v2");
+      const response = await requestPayment({
+        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
+        channelKey: method.channelKey,
+        paymentId: prep.paymentId,
+        orderName: prep.orderName,
+        totalAmount: prep.totalKrw,
+        currency: "KRW",
+        payMethod: method.payMethod,
+        ...(method.payMethod === "EASY_PAY" ? { easyPayProvider: method.easyPayProvider } : {}),
+      });
+      if (!response || response.code) {
+        throw new Error(response?.message ?? "결제가 취소되었습니다.");
+      }
+
+      const completeRes = await fetch("/api/checkout/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: prep.orderId }),
+      });
+      const complete = await completeRes.json();
+      if (!completeRes.ok) throw new Error(complete.error ?? "결제 확인에 실패했습니다.");
+
+      setCart([]);
+      alert("결제가 완료됐습니다. 라이브러리에서 확인하세요.");
+    } catch (err: any) {
+      setCheckoutError(err.message ?? "결제 중 오류가 발생했습니다.");
+    } finally {
+      setCheckoutBusy(false);
+    }
   }
 
   // 찜 목록은 로그인했을 때만 쓸 수 있다. 게스트용 로컬 저장은 없음.
@@ -882,7 +961,18 @@ export default function Home() {
       )}
 
       {view === "cart" && (
-        <CartPage cart={cart} onBack={() => goView("store")} onRemove={removeFromCart} onOpenGame={openModal} />
+        <CartPage
+          cart={cart}
+          onBack={() => goView("store")}
+          onRemove={removeFromCart}
+          onOpenGame={openModal}
+          onCheckout={checkout}
+          checkoutBusy={checkoutBusy}
+          checkoutError={checkoutError}
+          payMethods={PAY_METHODS}
+          payMethodId={payMethodId}
+          onSelectPayMethod={setPayMethodId}
+        />
       )}
 
       {view === "wishlist" && (

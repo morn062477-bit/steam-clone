@@ -262,6 +262,8 @@ model Order {
   totalKrw    Int
   status      OrderStatus @default(PAID)
   createdAt   DateTime    @default(now())
+  // 포트원 결제건 식별자(merchant paymentId). 결제 검증/취소에 쓴다.
+  paymentId   String?     @unique
 
   user  User        @relation(fields: [userId], references: [id])
   items OrderItem[]
