@@ -13,7 +13,7 @@
 <header class="topbar">
   <div class="wrap">
     <a class="logo" href="#" data-view="store">
-      <img src="/header_logo.png" alt="Steam logo">
+      <img src="/logo_steam.svg" alt="STEAM" width="145" height="44">
     </a>
     <nav class="mainnav" id="mainnav">
       <a class="on" href="#" data-view="store">상점</a>
@@ -40,90 +40,232 @@
 <!-- ===== 상점 내비 ===== -->
 <div class="storenav">
   <div class="wrap">
+
+    <!-- ---------- 검색 ---------- -->
     <div class="navitem">
-      <a class="item" href="#" onclick="return false">검색 <i class="caret"></i></a>
-      <div class="navdrop mega">
-        <div class="mega-col mega-links">
-          <a href="#" data-tab="new">상점 홈</a>
-          <a href="#" class="mega-link-sub" data-tab="new"><b>신규 출시 게임</b><small>Steam에서 새로운 콘텐츠를 살펴보세요.</small></a>
-          <a href="#" class="mega-link-sub" data-tab="soon"><b>출시 예정 게임</b><small>출시 예정 게임을 살펴보세요.</small></a>
-          <a href="#" class="mega-link-sub" data-tab="top"><b>전체 차트 및 통계</b><small>주간, 월간, 연간 인기 게임을 살펴보세요.</small></a>
+      <button class="item" type="button">검색 <i class="caret"></i></button>
+      <div class="navdrop"><div class="navdrop-in nd-search">
+        <div class="nd-main nd-panel">
+          <div class="nd-guide">
+            <a href="#" data-tab="top"><b>상점 홈</b></a>
+            <a href="#" data-tab="new"><b>신규 출시 게임</b><small>Steam에서 새로운 콘텐츠를 살펴보세요.</small></a>
+            <a href="#" data-tab="soon"><b>출시 예정 게임</b><small>출시 예정 게임을 살펴보세요.</small></a>
+            <a href="#" data-tab="top"><b>전체 차트 및 통계</b><small>주간, 월간, 연간 인기 게임을 살펴보세요.</small></a>
+          </div>
+          <div class="nd-banners" id="navSearchBanners"></div>
         </div>
-        <div class="mega-col mega-banners" id="navSearchBanners"></div>
-        <div class="mega-col mega-plain">
-          <b>인기 페이지</b>
-          <a href="#">무료 플레이</a>
-          <a href="#">체험판</a>
-          <a href="#">뉴스 및 업데이트</a>
-          <a href="#">포인트 상점</a>
-          <a href="#">기프트 카드</a>
-        </div>
-        <div class="mega-col mega-plain">
-          <b>내 계정</b>
-          <a href="#">환경 설정</a>
-          <a href="#">찜 목록</a>
-          <a href="#">내 가족</a>
-        </div>
-      </div>
+        <aside class="nd-aside nd-cols">
+          <div class="nd-col">
+            <b class="nd-colhead">인기 페이지</b>
+            <div class="nd-links">
+              <a href="#">무료 플레이</a>
+              <a href="#">체험판</a>
+              <a href="#">뉴스 및 업데이트</a>
+              <a href="#">포인트 상점</a>
+              <a href="#">기프트 카드</a>
+            </div>
+          </div>
+          <div class="nd-col">
+            <b class="nd-colhead">내 계정</b>
+            <div class="nd-links">
+              <a href="#">환경 설정</a>
+              <a href="#">찜 목록</a>
+              <a href="#">내 가족</a>
+            </div>
+          </div>
+        </aside>
+      </div></div>
     </div>
+
+    <!-- ---------- 추천 제품 ---------- -->
     <div class="navitem">
-      <a class="item" href="#" onclick="return false">추천 제품 <i class="caret"></i></a>
-      <div class="navdrop mega">
-        <div class="mega-col mega-toplist">
-          <b>최고 인기 게임</b>
-          <div id="navTopGames"></div>
+      <button class="item" type="button">추천 제품 <i class="caret"></i></button>
+      <div class="navdrop"><div class="navdrop-in nd-featured">
+        <div class="nd-main">
+          <div class="nd-label">최고 인기 게임</div>
+          <div class="nd-toprow">
+            <div class="nd-toplist" id="navTopGames"></div>
+            <a class="nd-promo" href="#" data-tab="new">
+              <span class="nd-promo-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6">
+                  <rect x="3" y="5" width="18" height="16" rx="2"/>
+                  <path d="M3 10h18M8 3v4M16 3v4"/>
+                  <path d="M7 14h3M13 14h4M7 17h3M13 17h4"/>
+                </svg>
+              </span>
+              <span class="nd-promo-body">
+                <b>맞춤 캘린더 <i class="nd-badge">신규</i></b>
+                <small>사용자별로 맞춤 설정된 신규 출시 및 출시 예정 게임을 살펴보세요.</small>
+                <span class="nd-cta">맞춤 캘린더 살펴보기 →</span>
+              </span>
+            </a>
+          </div>
         </div>
-        <div class="mega-col mega-promo">
-          <a href="#" data-tab="deal" class="mega-promo-tile">
-            <span class="mega-promo-badge">할인</span>
-            <b>할인 및 이벤트</b>
-            <small>지금 진행 중인 특가를 살펴보세요.</small>
-          </a>
+        <aside class="nd-aside">
+          <div class="nd-links">
+            <a href="#">맞춤 대기열</a>
+            <a href="#">커뮤니티 추천</a>
+            <a href="#" data-tab="new">신규 출시 게임 대기열</a>
+            <a href="#">인터랙티브 추천기</a>
+            <a href="#">친구가 즐기는 게임</a>
+            <a href="#">Steam 큐레이터</a>
+            <a href="#">추천 DLC</a>
+          </div>
+        </aside>
+      </div></div>
+    </div>
+
+    <!-- ---------- 카테고리 ---------- -->
+    <div class="navitem">
+      <button class="item" type="button">카테고리 <i class="caret"></i></button>
+      <div class="navdrop"><div class="navdrop-in nd-cats" id="navCatMega">
+        <div class="nd-label">선호 카테고리</div>
+        <div class="nd-cat-tiles" id="navCatTiles"></div>
+        <div class="nd-cat-pills" id="navCatPills"></div>
+        <div class="nd-label nd-label-row">
+          모든 장르 및 테마
+          <button class="nd-expand" type="button" id="navCatExpand">펼치기 ⌄</button>
         </div>
-        <div class="mega-col mega-plain">
-          <a href="#">맞춤 대기열</a>
-          <a href="#">커뮤니티 추천</a>
-          <a href="#" data-tab="new">신규 출시 게임 대기열</a>
-          <a href="#">인터랙티브 추천기</a>
-          <a href="#">친구가 즐기는 게임</a>
-          <a href="#">Steam 큐레이터</a>
-          <a href="#">추천 DLC</a>
+        <div class="nd-genres" id="navCatGenres"></div>
+      </div></div>
+    </div>
+
+    <!-- ---------- 하드웨어 ---------- -->
+    <div class="navitem">
+      <button class="item" type="button">하드웨어 <i class="caret"></i></button>
+      <div class="navdrop"><div class="navdrop-in nd-hw">
+        <div class="nd-main">
+          <div class="nd-label">하드웨어</div>
+          <div class="nd-hw-tiles">
+            <a class="nd-hw-tile deck" href="#">
+              <svg class="nd-hw-art" viewBox="0 0 120 60" aria-hidden="true">
+                <rect x="26" y="8" width="68" height="44" rx="4" fill="#2b2f36"/>
+                <rect x="34" y="14" width="52" height="32" rx="2" fill="#4a6b8a"/>
+                <rect x="8" y="10" width="22" height="40" rx="10" fill="#23262b"/>
+                <rect x="90" y="10" width="22" height="40" rx="10" fill="#23262b"/>
+                <circle cx="19" cy="24" r="5" fill="#3b4048"/>
+                <circle cx="101" cy="24" r="5" fill="#3b4048"/>
+              </svg>
+              <span class="nd-chip">STEAM DECK</span>
+            </a>
+            <a class="nd-hw-tile machine" href="#">
+              <svg class="nd-hw-art" viewBox="0 0 120 60" aria-hidden="true">
+                <rect x="34" y="8" width="52" height="44" rx="3" fill="#23262b"/>
+                <rect x="40" y="44" width="40" height="3" rx="1.5" fill="#3b4048"/>
+                <circle cx="76" cy="16" r="2" fill="#4a6b8a"/>
+              </svg>
+              <span class="nd-chip">STEAM MACHINE</span>
+            </a>
+            <a class="nd-hw-tile frame" href="#">
+              <svg class="nd-hw-art" viewBox="0 0 120 60" aria-hidden="true">
+                <rect x="36" y="16" width="48" height="26" rx="8" fill="#23262b"/>
+                <rect x="44" y="22" width="32" height="12" rx="4" fill="#3b4048"/>
+                <rect x="10" y="14" width="12" height="32" rx="6" fill="#2b2f36"/>
+                <rect x="98" y="14" width="12" height="32" rx="6" fill="#2b2f36"/>
+              </svg>
+              <span class="nd-chip">STEAM FRAME</span>
+            </a>
+          </div>
         </div>
-      </div>
+        <aside class="nd-aside">
+          <div class="nd-links">
+            <a href="#">Steam Deck 도킹 스테이션</a>
+            <a href="#">Deck 완벽 호환</a>
+            <a href="#">VR 게임</a>
+            <a href="#">컨트롤러 지원</a>
+          </div>
+        </aside>
+      </div></div>
     </div>
+
+    <!-- ---------- 플레이 모드 ---------- -->
     <div class="navitem">
-      <a class="item" href="#" onclick="return false">카테고리 <i class="caret"></i></a>
-      <div class="navdrop mega mega-wide" id="navCatMega">
-        <div class="mega-cat-label">선호 카테고리</div>
-        <div class="mega-cat-tiles" id="navCatTiles"></div>
-        <div class="mega-cat-pills" id="navCatPills"></div>
-      </div>
+      <button class="item" type="button">플레이 모드 <i class="caret"></i></button>
+      <div class="navdrop"><div class="navdrop-in nd-play">
+        <div class="nd-main">
+          <div class="nd-label">게임 플레이 모드</div>
+          <div class="nd-play-tiles">
+            <a class="nd-blue" href="#">
+              <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="3"/><rect x="5" y="9" width="14" height="6" rx="1" fill="#3c6a9e"/></svg>
+              DECK 완벽 호환
+            </a>
+            <a class="nd-blue" href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M3 17a4 4 0 014 4M3 12a9 9 0 019 9"/><rect x="12" y="4" width="9" height="7" rx="1.5"/></svg>
+              REMOTE PLAY
+            </a>
+            <a class="nd-blue" href="#">
+              <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M3 9a2 2 0 012-2h14a2 2 0 012 2v4a3 3 0 01-3 3h-2l-2-2h-4l-2 2H6a3 3 0 01-3-3z"/></svg>
+              VR 게임
+            </a>
+            <a class="nd-blue wide" href="#">
+              <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><rect x="2" y="8" width="20" height="9" rx="4"/><circle cx="17" cy="11.5" r="1.2" fill="#3c6a9e"/><circle cx="19" cy="14" r="1.2" fill="#3c6a9e"/><rect x="5" y="11" width="5" height="1.6" fill="#3c6a9e"/><rect x="6.7" y="9.3" width="1.6" height="5" fill="#3c6a9e"/></svg>
+              컨트롤러 지원
+            </a>
+            <a class="nd-blue wide" href="#">
+              <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 19a6 6 0 0112 0zM12.5 19a6 6 0 019.5-4.9V19z"/></svg>
+              협동
+            </a>
+          </div>
+        </div>
+        <aside class="nd-aside">
+          <div class="nd-links">
+            <a href="#">로컬 지역 네트워크</a>
+            <a href="#">로컬 멀티플레이어 및 파티</a>
+            <a href="#">대규모 멀티플레이어</a>
+            <a href="#">멀티플레이어</a>
+            <a href="#">온라인 경쟁</a>
+            <a href="#">싱글 플레이어</a>
+          </div>
+        </aside>
+      </div></div>
     </div>
+
+    <!-- ---------- 특별 섹션 ---------- -->
     <div class="navitem">
-      <a class="item" href="#" onclick="return false">하드웨어 <i class="caret"></i></a>
-      <div class="navdrop">
-        <a href="#">Steam Deck</a>
-        <a href="#">Steam 컨트롤러</a>
-        <a href="#">Steam Link</a>
-      </div>
+      <button class="item" type="button">특별 섹션 <i class="caret"></i></button>
+      <div class="navdrop"><div class="navdrop-in nd-special">
+        <div class="nd-main">
+          <div class="nd-label">특별 섹션</div>
+          <div class="nd-sp-tiles">
+            <a class="nd-blue" href="#">
+              <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="#3c6a9e"/></svg>
+              체험판
+            </a>
+            <a class="nd-blue" href="#">
+              <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 0l-3-3m3 3l3-3M8 16h8" stroke="#3c6a9e" stroke-width="1.8" fill="none"/></svg>
+              DLC
+            </a>
+            <a class="nd-blue wide" href="#" data-tab="deal">
+              <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M3 11V4h7l11 11-7 7z"/><path d="M9.5 6.5l1 2 2 .3-1.5 1.4.4 2.2-1.9-1-1.9 1 .4-2.2L6.5 8.8l2-.3z" fill="#3c6a9e"/></svg>
+              할인 이벤트
+            </a>
+          </div>
+        </div>
+        <aside class="nd-aside nd-cols">
+          <div class="nd-col">
+            <div class="nd-links">
+              <a href="#">소프트웨어</a>
+              <a href="#">사운드트랙</a>
+              <a href="#">앞서 해보기</a>
+            </div>
+            <div class="nd-links nd-links-sep">
+              <a href="#">PC방용</a>
+              <a href="#">macOS</a>
+              <a href="#">SteamOS + Linux</a>
+            </div>
+          </div>
+          <div class="nd-col">
+            <div class="nd-links">
+              <a href="#">Steam Next Fest</a>
+              <a href="#">Steam 어워드</a>
+              <a href="#">Steam 돌아보기</a>
+              <a href="#">Steam 실험실</a>
+            </div>
+          </div>
+        </aside>
+      </div></div>
     </div>
-    <div class="navitem">
-      <a class="item" href="#" onclick="return false">플레이 모드 <i class="caret"></i></a>
-      <div class="navdrop">
-        <a href="#">싱글 플레이어</a>
-        <a href="#">멀티플레이어</a>
-        <a href="#">협동</a>
-        <a href="#">VR 지원</a>
-      </div>
-    </div>
-    <div class="navitem">
-      <a class="item" href="#" onclick="return false">특별 섹션 <i class="caret"></i></a>
-      <div class="navdrop">
-        <a href="#">Steam 특가전</a>
-        <a href="#">기프트 카드</a>
-        <a href="#">Steam 포인트 상점</a>
-      </div>
-    </div>
+
     <form class="searchbox" onsubmit="return false">
       <input id="q" type="text" placeholder="상점 검색" aria-label="상점 검색" autocomplete="off">
       <button type="submit" aria-label="검색">

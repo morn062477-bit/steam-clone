@@ -41,11 +41,11 @@ button{cursor:pointer;border:0}
 /* ---------- 상단 헤더 ---------- */
 .topbar{background:var(--bg-dark);height:104px}
 .topbar .wrap{display:flex;align-items:center;height:104px}
-.logo{display:flex;align-items:center;gap:8px;margin-right:34px}
-.logo svg{width:38px;height:38px}
-.logo img{height:74px;width:auto;object-fit:contain}
-.logo span{font-size:29px;letter-spacing:1px;color:#e8e8e8;font-weight:400}
-.logo sup{font-size:9px;vertical-align:super}
+/* 로고는 원형 마크 + STEAM® 워드마크가 한 파일에 든 SVG 하나로 끝낸다.
+   높이만 잡고 폭은 비율대로 둔다 (293.44 x 89.333). */
+.logo{display:flex;align-items:center;margin-right:34px}
+.logo img{height:44px;width:auto;display:block}
+.logo:hover img{filter:brightness(1.15)}
 .mainnav{display:flex;gap:20px;padding-top:6px}
 .mainnav a{font-size:15px;color:#b8b6b4;text-transform:none}
 .mainnav a:hover{color:#fff}
@@ -73,91 +73,188 @@ button{cursor:pointer;border:0}
 }
 .storenav .item:hover{color:#fff;background:rgba(103,193,245,.12)}
 .caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid #7d8b98}
-.navitem{position:relative;height:100%}
+/* ---------- 상단 드롭다운 (클릭으로 열림) ---------- */
+.navitem{height:100%}
+.navitem .item{background:none}
+.navitem.open .item{color:var(--blue);box-shadow:inset 0 -2px 0 var(--blue)}
+
+/* 패널은 눌린 버튼이 아니라 내비 바 전체를 기준으로 펼친다.
+   그래서 .storenav .wrap 의 position:relative 를 여기서만 끈다.
+   (검색창 드롭다운은 .searchbox 를 기준으로 잡으므로 영향이 없다) */
+.storenav .wrap{position:static}
 .navdrop{
-  position:absolute;top:100%;left:0;min-width:200px;background:#1b2838;border:1px solid #2f4257;
-  box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:70;display:none;padding:6px 0;
+  position:absolute;top:100%;left:0;right:0;
+  background:#1b2838;border-top:1px solid #2f4257;
+  box-shadow:0 14px 28px rgba(0,0,0,.55);display:none;z-index:70;
 }
-.navitem:hover .navdrop{display:block}
-.navdrop a{display:block;padding:8px 16px;color:#b8c4d0;font-size:13px;white-space:nowrap}
-.navdrop a:hover{background:#2a475e;color:#fff}
-.navdrop .navcount{color:#7b90a3;font-size:11px;margin-left:6px}
+.navitem.open .navdrop{display:block}
+.navdrop-in{width:940px;margin:0 auto;display:flex;gap:34px;padding:20px 0 30px}
+.navdrop-in.nd-cats{display:block}
 
-/* 메가 메뉴 (검색 / 추천 제품 / 카테고리) */
-.navdrop.mega{min-width:640px;padding:18px;gap:0}
-.navitem:hover .navdrop.mega{display:flex}
-.mega-col{padding:0 20px;border-right:1px solid #2f4257;white-space:normal}
-.mega-col:last-child{border-right:0}
-.mega-col > b{display:block;color:#7b90a3;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding:0 16px}
-.mega-links{width:200px;padding-left:0}
-.mega-links a{padding:8px 16px}
-.mega-links a:first-child{margin-bottom:6px}
-.mega-link-sub b{display:block;color:#dfe6ec;font-weight:400;font-size:13px}
-.mega-link-sub small{display:block;color:#7b90a3;font-size:11px;margin-top:2px}
-.mega-link-sub:hover b{color:#fff}
+.nd-main{flex:1;min-width:0}
+.nd-aside{flex:0 0 250px}
+.nd-cols{display:flex;gap:40px}
+.nd-col{min-width:0}
+.nd-colhead{display:block;color:#7b90a3;font-size:12px;font-weight:400;margin-bottom:12px}
+.nd-label{color:#7b90a3;font-size:12px;margin-bottom:12px}
+.nd-label-row{display:flex;align-items:center;justify-content:space-between;margin-top:20px}
+.nd-expand{background:none;color:#7b90a3;font-size:12px}
+.nd-expand:hover{color:#fff}
 
-.mega-banners{width:260px;padding:0 20px;display:flex;flex-direction:column;gap:10px}
-.mega-banner{
-  position:relative;height:80px;border-radius:2px;background-size:cover;background-position:center;
-  cursor:pointer;overflow:hidden;
+.nd-links{display:flex;flex-direction:column;gap:11px}
+.nd-links a{color:#c7d5e0;font-size:13px}
+.nd-links a:hover{color:#fff}
+.nd-links-sep{margin-top:14px;padding-top:14px;border-top:1px solid #2f4257}
+
+/* 흰 라벨 칩. 하드웨어/카테고리 타일에서 쓴다 */
+.nd-chip{
+  background:#fff;color:#1b2838;font-size:13px;font-weight:700;letter-spacing:.3px;
+  padding:9px 18px;border-radius:2px;position:relative;z-index:2;
 }
-.mega-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),rgba(0,0,0,.15))}
-.mega-banner span{position:absolute;left:10px;bottom:8px;color:#fff;font-size:13px;font-weight:600;z-index:1;background:rgba(20,30,40,.7);padding:4px 10px;border-radius:2px}
 
-.mega-plain{width:170px}
-.mega-plain a{padding:6px 16px}
-
-.mega-toplist{width:280px;padding-left:0}
-.mega-top-row{display:flex;align-items:center;gap:10px;padding:6px 16px;cursor:pointer}
-.mega-top-row:hover{background:#2a475e}
-.mega-top-cap{width:64px;height:30px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center}
-.mega-top-row .nm{color:#dfe6ec;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mega-top-row .pr{color:#7b90a3;font-size:11px;margin-top:2px}
-
-.mega-promo{width:180px;display:flex;align-items:center}
-.mega-promo-tile{
-  display:block;padding:14px;background:#16202d;border:1px solid #2f4257;border-radius:3px;
+/* 파란 타일. 플레이 모드 / 특별 섹션 */
+.nd-blue{
+  display:flex;align-items:center;justify-content:center;gap:12px;min-height:74px;
+  background:linear-gradient(160deg,#4b83bf,#33629b);border-radius:3px;
+  color:#fff;font-size:15px;font-weight:600;letter-spacing:.3px;padding:12px;
 }
-.mega-promo-badge{display:inline-block;background:#1e88e5;color:#fff;font-size:10px;padding:2px 6px;border-radius:2px;margin-bottom:8px}
-.mega-promo-tile b{display:block;color:#fff;font-size:13px;font-weight:400;margin-bottom:4px}
-.mega-promo-tile small{display:block;color:#7b90a3;font-size:11px;white-space:normal}
-.mega-promo-tile:hover{background:#1c2a3a}
+.nd-blue:hover{filter:brightness(1.12);color:#fff}
+.nd-blue svg{width:26px;height:26px;flex:0 0 auto}
 
-.mega-wide{flex-direction:column;min-width:680px;padding:18px 20px}
-.mega-cat-label{color:#7b90a3;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.mega-cat-tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
-.mega-cat-tiles .cat{height:90px;border-radius:3px}
-.mega-cat-tiles .cat b{font-size:12px;padding:4px 10px}
-.mega-cat-tiles .cat small{font-size:10px}
-.mega-cat-pills{display:flex;flex-wrap:wrap;gap:8px}
-.mega-cat-pills a{
-  display:inline-block;padding:6px 14px;border:1px solid #3c5164;border-radius:2px;
+/* ---------- 검색 ---------- */
+.nd-search .nd-main{display:flex;gap:18px;background:rgba(103,193,245,.05);border-radius:3px;padding:14px}
+.nd-guide{width:250px;flex:0 0 auto;display:flex;flex-direction:column;gap:4px}
+.nd-guide a{display:block;padding:10px 12px;border-radius:2px}
+.nd-guide a:hover{background:#2a475e}
+.nd-guide b{display:block;color:#dfe6ec;font-size:14px;font-weight:400}
+.nd-guide small{display:block;color:#7b90a3;font-size:12px;margin-top:3px;line-height:1.4}
+.nd-banners{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.nd-banner{
+  position:relative;flex:1;min-height:74px;border-radius:3px;overflow:hidden;cursor:pointer;
+  background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;
+}
+.nd-banner::after{content:'';position:absolute;inset:0;background:rgba(20,30,45,.35)}
+.nd-banner .nd-chip{font-size:14px}
+
+/* ---------- 추천 제품 ---------- */
+.nd-toprow{display:flex;gap:16px}
+.nd-toplist{width:340px;flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
+.nd-top-row{display:flex;align-items:center;gap:12px;padding:6px;background:#20303f;border-radius:2px;cursor:pointer}
+.nd-top-row:hover{background:#2a475e}
+.nd-top-cap{width:88px;height:41px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center}
+.nd-top-row .nm{color:#dfe6ec;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nd-top-row .pr{color:#7b90a3;font-size:12px;margin-top:3px}
+
+.nd-promo{flex:1;min-width:0;display:flex;gap:14px;padding:16px;background:#20303f;border-radius:3px}
+.nd-promo:hover{background:#25384a}
+.nd-promo-icon{flex:0 0 auto}
+.nd-promo-icon svg{width:42px;height:42px}
+.nd-promo-body b{display:block;color:#fff;font-size:16px;font-weight:600;margin-bottom:8px}
+.nd-badge{
+  display:inline-block;background:#5c7e10;color:#d2e885;font-size:10px;font-style:normal;
+  padding:2px 7px;border-radius:2px;vertical-align:middle;margin-left:6px;
+}
+.nd-promo-body small{display:block;color:#a8b6c2;font-size:13px;line-height:1.5;margin-bottom:14px}
+.nd-cta{
+  display:inline-block;background:linear-gradient(to bottom,#47bfff,#2d73ff);
+  color:#fff;font-size:14px;padding:9px 18px;border-radius:2px;
+}
+
+/* ---------- 카테고리 ---------- */
+.nd-cat-tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.nd-cat-tiles .cat{height:96px;border-radius:3px}
+.nd-cat-tiles .cat b{font-size:13px;padding:5px 12px}
+.nd-cat-tiles .cat small{display:none}
+.nd-cat-pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.nd-cat-pills a{
+  display:inline-block;padding:6px 14px;background:#2a3f55;border-radius:2px;
   color:#b8c4d0;font-size:12px;white-space:nowrap;
 }
-.mega-cat-pills a:hover{background:#2a475e;color:#fff;border-color:#2a475e}
+.nd-cat-pills a:hover{background:#3d5875;color:#fff}
+.nd-cat-pills .nd-allpills{margin-left:auto;background:none;color:var(--blue);padding:6px 0}
+.nd-cat-pills .nd-allpills:hover{background:none;color:#fff}
+.nd-genres{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:10px 18px;
+  max-height:96px;overflow:hidden;
+}
+.nd-genres.open{max-height:none}
+.nd-genres a{color:#c7d5e0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nd-genres a:hover{color:#fff}
 
-.searchbox{margin-left:auto;display:flex;height:26px;background:#316282;position:relative}
+/* ---------- 하드웨어 ---------- */
+.nd-hw-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.nd-hw-tile{
+  position:relative;height:150px;border-radius:3px;display:flex;
+  align-items:flex-end;justify-content:center;padding-bottom:18px;
+}
+.nd-hw-tile:hover{filter:brightness(1.05)}
+.nd-hw-tile.deck{background:linear-gradient(150deg,#f7cccb,#eeaaa8)}
+.nd-hw-tile.machine{background:linear-gradient(150deg,#d8eaf9,#bcd8f2)}
+.nd-hw-tile.frame{background:linear-gradient(150deg,#e2efb8,#cbe294)}
+.nd-hw-art{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:150px;height:76px}
+
+/* ---------- 플레이 모드 / 특별 섹션 ---------- */
+.nd-play-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.nd-play-tiles .wide{grid-column:span 1}
+.nd-play-tiles .wide:nth-of-type(4){grid-column:1 / span 2}
+.nd-play-tiles .wide:nth-of-type(5){grid-column:3 / span 1}
+.nd-sp-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.nd-sp-tiles .wide{grid-column:1 / -1}
+
+/* 검색창. 내비 오른쪽 끝에 붙고 입력칸이 남는 폭을 최대 330px 까지 먹는다 */
+.searchbox{margin-left:auto;display:flex;height:30px;position:relative}
 .searchbox input{
-  background:linear-gradient(to bottom,#316282 0,#1b3654 100%);
-  border:0;outline:0;color:#cfe0ec;width:200px;padding:0 10px;font-size:12px;
+  background:#2a2e35;box-shadow:inset 0 0 0 1px #3a4049;
+  border:0;outline:0;color:#dfe9f2;width:330px;padding:0 12px;font-size:13px;
   border-radius:3px 0 0 3px;
 }
-.searchbox input::placeholder{color:#7b93a6}
-.searchbox button{background:#1e88e5;width:30px;display:flex;align-items:center;justify-content:center;border-radius:0 3px 3px 0}
-.searchbox button svg{width:13px;height:13px;fill:#0f2b45}
+.searchbox input::placeholder{color:#8b9199;font-style:italic}
+/* 마우스를 올리면 바탕이 한 톤 더 진해진다 */
+.searchbox:hover input{background:#22262c}
+/* 포커스/드롭다운이 열리면 입력칸+버튼을 파랗게 두른다 */
+.searchbox:focus-within,.searchbox.open{box-shadow:0 0 0 2px #1a9fff;border-radius:3px}
+.searchbox:focus-within input,.searchbox.open input{background:#22262c;color:#fff}
+.searchbox button{
+  background:#1a9fff;width:40px;display:flex;align-items:center;justify-content:center;
+  border-radius:0 3px 3px 0;
+}
+.searchbox button:hover{background:#47bfff}
+.searchbox button svg{width:16px;height:16px;fill:#fff}
 
-/* 검색 결과 드롭다운 */
+/* 검색 드롭다운 (인기 검색어 / 검색 결과)
+   입력칸보다 왼쪽으로 더 넓게 펼쳐지고 버튼 오른쪽 끝에 맞춰 정렬한다 */
 .sresults{
-  position:absolute;top:28px;right:0;width:420px;background:#1b2838;border:1px solid #2f4257;
-  box-shadow:0 8px 24px rgba(0,0,0,.55);max-height:420px;overflow-y:auto;display:none;z-index:70;
+  position:absolute;top:34px;right:0;width:510px;background:#3d4450;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);max-height:460px;overflow-y:auto;
+  display:none;z-index:70;padding:10px;
 }
 .sresults.on{display:block}
-.sres-row{display:flex;gap:10px;align-items:center;padding:7px 9px;cursor:pointer}
-.sres-row:hover{background:#2a475e}
-.sres-row .cap{width:120px;height:45px;flex:0 0 auto;border-radius:2px}
-.sres-row .nm{flex:1;min-width:0;color:#dfe6ec;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sres-row .pr{font-size:12px;color:var(--text-dim);white-space:nowrap}
-.sres-empty{padding:14px;color:var(--text-dim);font-size:12px;text-align:center}
+.sres-head{color:#b0b8c0;font-size:12px;padding:2px 4px 8px}
+
+/* 줄은 왼쪽이 어둡고 오른쪽으로 갈수록 밝아지는 회색 그라데이션.
+   아래 고급 검색 막대와 폭을 정확히 맞추려고 둘 다 width:100% 로 고정한다. */
+.sres-row{
+  display:flex;gap:12px;align-items:center;width:100%;margin:0 0 4px;cursor:pointer;
+  background:linear-gradient(to right,#343b47 5%,#4a5262 95%);
+}
+.sres-row:hover{background:linear-gradient(to right,#4a5a6b 5%,#5d6d80 95%)}
+.sres-row .cap{width:150px;height:62px;flex:0 0 auto;background-color:#0e1621}
+.sres-row .info{flex:1;min-width:0;padding-right:12px}
+.sres-row .nm{color:#fff;font-size:15px;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sres-row .pr{display:flex;align-items:center;gap:7px;font-size:13px;white-space:nowrap}
+.sres-row .pr .disc{background:var(--green-bg);color:var(--green);padding:2px 6px;font-size:12px}
+.sres-row .pr .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
+.sres-row .pr .now{color:#c7d5e0}
+
+/* 고급 검색. 위 게임 줄과 같은 div 라서 폭 계산이 정확히 같다.
+   .sres-row 처럼 width:100% + margin 좌우 0 을 그대로 쓴다. */
+.sres-adv{
+  display:block;width:100%;margin:6px 0 0;padding:12px;cursor:pointer;user-select:none;
+  color:#fff;font-size:13px;letter-spacing:.3px;text-align:center;
+  background:linear-gradient(to bottom,#4f5766,#454c5a);
+}
+.sres-adv:hover{background:linear-gradient(to bottom,#5c657a,#515a6c)}
+.sres-empty{padding:20px;color:#b0b8c0;font-size:13px;text-align:center}
 
 /* ---------- 히어로 배너 ---------- */
 .hero{height:340px;position:relative;overflow:hidden;background:#0e1621}
