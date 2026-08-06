@@ -308,8 +308,69 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .socials{display:flex;gap:14px;margin-top:16px}
 .socials i{width:22px;height:22px;background:#4a5560;border-radius:3px;display:block}
 
+/* ---------- 로그인 화면 ---------- */
+#loginView{display:none;position:relative;min-height:700px;overflow:hidden}
+#loginView.on{display:block}
+.login-bg{
+  position:absolute;inset:-40px;display:grid;grid-template-columns:repeat(8,1fr);
+  grid-auto-rows:170px;gap:8px;filter:blur(3px);opacity:.5;
+}
+.login-bg span{border-radius:3px;background:#2a3f55;background-size:cover;background-position:center}
+.login-bg span:nth-child(3n){background-color:#3d4a63}
+.login-bg span:nth-child(4n){background-color:#4a3b52}
+.login-bg span:nth-child(5n){background-color:#23415a}
+.login-bg span:nth-child(7n){background-color:#52412e}
+.login-veil{position:absolute;inset:0;background:rgba(23,26,33,.78)}
+.login-inner{position:relative;z-index:5;padding:60px 0 40px}
+.login-title{font-size:28px;font-weight:400;color:#fff;text-align:center;margin-bottom:40px}
+
+.login-box{
+  background:rgba(0,0,0,.4);border-radius:4px;padding:35px 45px;
+  display:flex;gap:50px;max-width:700px;margin:0 auto;
+}
+.login-left{flex:1}
+.login-right{width:210px;text-align:center}
+.field-label{font-size:12px;color:var(--blue);display:block;margin-bottom:6px}
+.login-input{
+  width:100%;background:#32353c;border:0;border-radius:3px;padding:11px 10px;
+  color:#fff;font-size:14px;font-family:inherit;margin-bottom:20px;outline:0;
+}
+.login-input:focus{box-shadow:0 0 0 2px var(--blue)}
+.checkbox-row{
+  display:flex;align-items:center;gap:8px;margin-bottom:22px;
+  font-size:12px;cursor:pointer;user-select:none;
+}
+.checkbox-row input{width:16px;height:16px;cursor:pointer}
+.btn-login{
+  display:block;width:68%;margin:0 auto 10px;border-radius:3px;color:#fff;
+  background:linear-gradient(to right,#06bfff,#2d73ff);font-size:15px;padding:12px;
+}
+.btn-login:hover{filter:brightness(1.15)}
+.login-msg{min-height:18px;margin-bottom:8px;text-align:center;font-size:12px;color:#e08b6a}
+.login-msg.ok{color:var(--green)}
+.help-link{text-align:center;font-size:12px}
+.help-link a,.qr-caption a,.join-right a{color:var(--blue)}
+.qr-title{font-size:12px;color:var(--blue);margin-bottom:10px;text-align:left}
+.qr-code{width:200px;height:200px;background:#fff;padding:12px;margin-bottom:12px}
+.qr-code svg{width:100%;height:100%}
+.qr-caption{font-size:12px;line-height:1.5}
+
+.join{display:flex;justify-content:center;gap:60px;margin-top:70px;padding-bottom:20px}
+.join-left{text-align:center}
+.join-left h2{font-size:18px;color:#fff;font-weight:400;margin-bottom:16px}
+.btn-join{
+  display:inline-block;background:linear-gradient(to bottom,#47bfff 5%,#1a44c2 95%);
+  color:#fff;padding:6px 16px;border-radius:2px;font-size:13px;
+}
+.btn-join:hover{filter:brightness(1.2)}
+.join-right{max-width:300px;font-size:12px;line-height:1.6;text-align:right}
+
 @media (max-width:980px){
   .wrap{width:100%;padding:0 12px}
+  .login-box{flex-direction:column;align-items:center;gap:30px}
+  .login-left{width:100%}
+  .join{flex-direction:column;gap:24px;align-items:center}
+  .join-right{text-align:center}
   .arrow.prev{left:0}.arrow.next{right:0}
   .feat{flex-direction:column}.feat-art{flex:none;width:100%;height:220px}
   .deals,.spotlights,.releases{flex-direction:column}
