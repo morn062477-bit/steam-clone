@@ -569,6 +569,48 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 }
 .v-fake button:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
 
+/* ---------- 계정 만들기 (이메일 인증 다음 단계) ---------- */
+#createView{display:none;position:relative;min-height:760px;overflow:hidden}
+#createView.on{display:block}
+.create-bg{
+  position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);
+  grid-auto-rows:240px;gap:10px;transform:rotate(-8deg) scale(1.3);
+}
+.create-bg span{border-radius:4px;background:#2a3f55;background-size:cover;background-position:center}
+.create-bg span:nth-child(3n){background-color:#3d4a63}
+.create-bg span:nth-child(4n){background-color:#4a3b52}
+.create-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(23,26,33,.12) 0%,rgba(23,26,33,.72) 8%,rgba(23,26,33,.97) 20%,#171a21 30%);
+}
+.create-inner{position:relative;z-index:5;padding:70px 0 90px}
+.create-title{font-size:32px;font-weight:400;color:#fff;margin-bottom:34px}
+.create-form{max-width:300px}
+.cr-label{display:block;font-size:13px;color:var(--text);margin-bottom:6px}
+.cr-input{
+  width:100%;background:#32353c;border:0;border-radius:3px;padding:9px 10px;
+  color:#fff;font-size:14px;font-family:inherit;outline:0;
+}
+.cr-input:focus{box-shadow:0 0 0 2px var(--blue)}
+.cr-hint{font-size:12px;color:var(--text-dim);margin:6px 0 22px;min-height:16px}
+.cr-hint.bad{color:#e08b6a}
+.cr-hint.ok{color:var(--green)}
+/* 마지막 칸(비밀번호 확인)은 힌트가 없어서 여백을 직접 준다 */
+#crPw2{margin-bottom:26px}
+.cr-submit{
+  width:128px;border-radius:3px;color:#fff;font-size:15px;padding:11px;
+  background:linear-gradient(to right,#06bfff,#2d73ff);
+}
+.cr-submit:hover{filter:brightness(1.15)}
+.cr-submit:disabled{filter:grayscale(.6) brightness(.7);cursor:default}
+.create-msg{margin-top:14px;font-size:13px;color:#e08b6a;min-height:18px;max-width:300px;line-height:1.5}
+.create-msg.ok{color:var(--green)}
+
+/* 로그인한 사용자 표시 */
+.topuser{display:flex;align-items:center;gap:8px}
+.topuser b{color:var(--blue);font-weight:400}
+.topuser[hidden]{display:none}
+
 /* ---------- 인증 완료 화면 ---------- */
 #doneView{display:none;position:relative;min-height:640px;overflow:hidden}
 #doneView.on{display:block}

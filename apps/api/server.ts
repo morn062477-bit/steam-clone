@@ -11,6 +11,8 @@
  *   GET /api/home          첫 화면에 필요한 모든 섹션을 한 번에
  *   GET /api/game/:slug    게임 상세 (모달용)
  *   GET /api/search?q=     이름 검색
+ *   POST /api/signup       계정 생성 (비밀번호는 bcrypt 해시로만 저장)
+ *   POST /api/login        계정 이름 또는 이메일 + 비밀번호 확인
  *
  * 가격 규칙(schema.prisma 주석과 동일)
  *   - 할인가는 저장하지 않는다. 활성 Discount.percent로 서버에서만 계산한다.
@@ -22,6 +24,7 @@ import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 
 // ---------------------------------------------------------------
@@ -367,9 +370,88 @@ function json(res: ServerResponse, data: unknown, status = 200) {
   res.end(body);
 }
 
+/** POST 본문을 JSON 으로 읽는다. 계정 폼이라 본문이 커질 이유가 없어 32KB 에서 끊는다. */
+async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const c of req) {
+    size += c.length;
+    if (size > 32_768) throw new Error('본문이 너무 큽니다');
+    chunks.push(c as Buffer);
+  }
+  if (!chunks.length) return {};
+  return JSON.parse(Buffer.concat(chunks).toString('utf-8'));
+}
+
 // 홈 응답은 짧게 캐시한다. 새로고침마다 10여 개 쿼리를 다시 칠 이유가 없다.
 let homeCache: { at: number; data: unknown } | null = null;
 const HOME_TTL_MS = 30_000;
+
+// ---------------------------------------------------------------
+// 계정
+// ---------------------------------------------------------------
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const BCRYPT_ROUNDS = 10;
+
+/** 로그인 응답에 담는 값. passwordHash 는 절대 밖으로 내보내지 않는다. */
+const publicUser = (u: { id: string; nickname: string; email: string; avatarUrl: string | null }) => ({
+  id: u.id,
+  nickname: u.nickname,
+  email: u.email,
+  avatarUrl: u.avatarUrl,
+});
+
+async function signup(body: Record<string, unknown>) {
+  const email = String(body.email ?? '').trim().toLowerCase();
+  const account = String(body.account ?? '').trim();
+  const password = String(body.password ?? '');
+
+  if (!EMAIL_RE.test(email)) return { status: 400, data: { error: '이메일 형식이 올바르지 않습니다.' } };
+  if (account.length < 3) return { status: 400, data: { error: '계정 이름은 3자 이상이어야 합니다.' } };
+  if (!/^[A-Za-z0-9_-]+$/.test(account)) {
+    return { status: 400, data: { error: '계정 이름은 영문/숫자/-/_ 만 쓸 수 있습니다.' } };
+  }
+  if (password.length < 8) return { status: 400, data: { error: '비밀번호는 8자 이상이어야 합니다.' } };
+
+  // 중복은 DB 제약으로도 걸리지만, 어느 칸이 문제인지 알려주려고 미리 본다.
+  const dup = await prisma.user.findFirst({
+    where: { OR: [{ email }, { nickname: account }] },
+    select: { email: true, nickname: true },
+  });
+  if (dup?.email === email) return { status: 409, data: { error: '이미 가입된 이메일입니다.' } };
+  if (dup) return { status: 409, data: { error: '이미 사용 중인 계정 이름입니다.' } };
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      nickname: account,
+      passwordHash: await bcrypt.hash(password, BCRYPT_ROUNDS),
+      country: String(body.country ?? 'KR'),
+    },
+    select: { id: true, nickname: true, email: true, avatarUrl: true },
+  });
+  return { status: 201, data: publicUser(user) };
+}
+
+async function login(body: Record<string, unknown>) {
+  const account = String(body.account ?? '').trim();
+  const password = String(body.password ?? '');
+  if (!account || !password) {
+    return { status: 400, data: { error: '계정 이름과 비밀번호를 모두 입력하세요.' } };
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { OR: [{ nickname: account }, { email: account.toLowerCase() }] },
+    select: { id: true, nickname: true, email: true, avatarUrl: true, passwordHash: true },
+  });
+
+  // 계정이 없을 때도 같은 문구를 준다. 어느 계정이 존재하는지 흘리지 않는다.
+  const ok = user ? await bcrypt.compare(password, user.passwordHash) : false;
+  if (!user || !ok) return { status: 401, data: { error: '계정 이름 또는 비밀번호가 올바르지 않습니다.' } };
+
+  return { status: 200, data: publicUser(user) };
+}
 
 async function handle(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
@@ -390,6 +472,18 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
 
   if (p === '/api/search') {
     return json(res, await search(url.searchParams.get('q') ?? ''));
+  }
+
+  if (p === '/api/signup' || p === '/api/login') {
+    if (req.method !== 'POST') return json(res, { error: 'POST 만 받습니다.' }, 405);
+    let body: Record<string, unknown>;
+    try {
+      body = await readJson(req);
+    } catch {
+      return json(res, { error: '요청 본문을 읽지 못했습니다.' }, 400);
+    }
+    const r = p === '/api/signup' ? await signup(body) : await login(body);
+    return json(res, r.data, r.status);
   }
 
   // public/ 정적 파일. 디렉터리 밖으로 나가는 경로는 거른다.

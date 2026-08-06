@@ -547,13 +547,12 @@ function initCarousel(id, autoMs) {
 // ===============================================================
 // 화면 전환 (상점 <-> 로그인)
 // ===============================================================
-const VIEWS = { store: 1, login: 1, signup: 1, done: 1 };
-const HASH = { login: '#login', signup: '#signup', done: '#verified' };
+const VIEWS = { store: 1, login: 1, signup: 1, create: 1, done: 1 };
+const HASH = { login: '#login', signup: '#signup', create: '#create', done: '#verified' };
+const VIEW_OF_HASH = Object.fromEntries(Object.entries(HASH).map(([v, h]) => [h, v]));
 
 function viewFromHash() {
-  if (location.hash === '#login') return 'login';
-  if (location.hash === '#signup') return 'signup';
-  return 'store';
+  return VIEW_OF_HASH[location.hash] || 'store';
 }
 
 function showView(name) {
@@ -562,6 +561,7 @@ function showView(name) {
   $('#app').style.display = view === 'store' ? '' : 'none';
   $('#loginView').classList.toggle('on', view === 'login');
   $('#signupView').classList.toggle('on', view === 'signup');
+  $('#createView').classList.toggle('on', view === 'create');
   $('#doneView').classList.toggle('on', view === 'done');
   if (view !== 'signup') closeVerify();
 
@@ -578,6 +578,7 @@ function showView(name) {
   window.scrollTo({ top: 0 });
   if (view === 'login') $('#account').focus();
   if (view === 'signup') $('#suEmail').focus();
+  if (view === 'create') $('#crName').focus();
 }
 
 /** 배경 타일에 쓸 이미지 풀. DB가 아직이면 빈 배열. */
@@ -595,6 +596,7 @@ function fillTiles(sel, count) {
 
 function fillLoginBg() { fillTiles('#loginBg', 40); }
 function fillSignupBg() { fillTiles('#signupBg', 24); }
+function fillCreateBg() { fillTiles('#createBg', 24); }
 function fillDoneBg() { fillTiles('#doneBg', 24); }
 
 // data-view 를 단 요소는 어디에 있든(렌더로 새로 생긴 것 포함) 화면을 바꾼다.
@@ -609,26 +611,153 @@ document.addEventListener('click', (e) => {
 window.addEventListener('hashchange', () => showView(viewFromHash()));
 
 // ===============================================================
-// 로그인 / 가입 폼 (화면만 있는 데모. 인증 API 는 아직 없다)
+// 세션
+//
+// 진짜 세션 쿠키/토큰은 아직 없다. 로그인 결과를 localStorage 에 들고 있다가
+// 헤더 표시에만 쓴다. 서버는 매 요청마다 이 값을 신뢰하지 않는다.
 // ===============================================================
-$('#loginForm').addEventListener('submit', (e) => {
+const SESSION_KEY = 'steam-clone:user';
+
+function currentUser() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch { return null; }
+}
+
+function setUser(user) {
+  if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  else localStorage.removeItem(SESSION_KEY);
+  paintUser();
+}
+
+function paintUser() {
+  const u = currentUser();
+  $('#topLogin').hidden = !!u;
+  $('#topUser').hidden = !u;
+  if (u) $('#topUserName').textContent = u.nickname;
+}
+
+$('#topLogout').addEventListener('click', (e) => {
+  e.preventDefault();
+  setUser(null);
+  showView('store');
+});
+
+/** JSON 을 POST 하고 { ok, status, data } 로 돌려준다. */
+async function postJson(path, body) {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ===============================================================
+// 로그인 폼 (POST /api/login)
+// ===============================================================
+$('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const msg = $('#loginMsg');
-  const id = $('#account').value.trim();
-  const pw = $('#password').value;
-  if (!id || !pw) {
+  const btn = $('#loginForm .btn-login');
+  const account = $('#account').value.trim();
+  const password = $('#password').value;
+
+  if (!account || !password) {
     msg.className = 'login-msg';
     msg.textContent = '계정 이름과 비밀번호를 모두 입력하세요.';
     return;
   }
-  msg.className = 'login-msg ok';
-  msg.textContent = `${id} 님, 화면만 있는 데모입니다. 로그인 API는 아직 없습니다.`;
+
+  btn.disabled = true;
+  msg.className = 'login-msg';
+  msg.textContent = '확인 중…';
+  try {
+    const { ok, data } = await postJson('/api/login', { account, password });
+    if (!ok) { msg.textContent = data.error || '로그인에 실패했습니다.'; return; }
+
+    setUser(data);
+    msg.className = 'login-msg ok';
+    msg.textContent = `${data.nickname} 님, 로그인되었습니다.`;
+    $('#password').value = '';
+    setTimeout(() => showView('store'), 700);
+  } catch {
+    msg.textContent = '서버에 연결하지 못했습니다.';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ===============================================================
+// 계정 만들기 폼 (POST /api/signup)
+//
+// 이메일은 가입 화면에서 인증한 값을 그대로 쓴다. 인증을 건너뛰고
+// #create 로 바로 들어온 경우엔 가입 화면으로 되돌린다.
+// ===============================================================
+let pendingEmail = '';
+
+function openCreate(email) {
+  pendingEmail = email;
+  $('#createForm').reset();
+  $('#createMsg').textContent = '';
+  $('#createMsg').className = 'create-msg';
+  $('#crNameHint').textContent = `영문/숫자/-/_ 3자 이상 · ${email} 로 만듭니다`;
+  $('#crNameHint').className = 'cr-hint';
+  $('#crPwHint').textContent = '8자 이상';
+  $('#crPwHint').className = 'cr-hint';
+  $('#crSubmit').disabled = false;
+  showView('create');
+}
+
+$('#createForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = $('#createMsg');
+  const name = $('#crName').value.trim();
+  const pw = $('#crPw').value;
+  const pw2 = $('#crPw2').value;
+  msg.className = 'create-msg';
+
+  if (!pendingEmail) {
+    msg.textContent = '이메일 인증부터 다시 진행해 주세요.';
+    setTimeout(() => showView('signup'), 900);
+    return;
+  }
+  if (name.length < 3 || !/^[A-Za-z0-9_-]+$/.test(name)) {
+    msg.textContent = '계정 이름은 영문/숫자/-/_ 로 3자 이상이어야 합니다.';
+    return;
+  }
+  if (pw.length < 8) { msg.textContent = '비밀번호는 8자 이상이어야 합니다.'; return; }
+  if (pw !== pw2) { msg.textContent = '두 비밀번호가 서로 다릅니다.'; return; }
+
+  $('#crSubmit').disabled = true;
+  msg.textContent = '저장 중…';
+  try {
+    const { ok, data } = await postJson('/api/signup', { email: pendingEmail, account: name, password: pw });
+    if (!ok) {
+      msg.textContent = data.error || '계정을 만들지 못했습니다.';
+      $('#crSubmit').disabled = false;
+      return;
+    }
+
+    // 저장 성공. 완료 화면으로 넘기고 로그인 칸에 계정 이름을 미리 채워 둔다.
+    pendingEmail = '';
+    $('#doneTitle').textContent = '계정 생성 완료';
+    $('#doneMsg').textContent = `${data.nickname} 계정이 만들어졌습니다. 이제 로그인할 수 있습니다.`;
+    $('#account').value = data.nickname;
+    $('#password').value = '';
+    $('#loginMsg').textContent = '';
+    showView('done');
+  } catch {
+    msg.textContent = '서버에 연결하지 못했습니다.';
+    $('#crSubmit').disabled = false;
+  }
 });
 
 // ---------- 이메일 인증 모달 ----------
 let verifyTimer = null;
+let verifyEmail = '';
 
 function openVerify(email) {
+  verifyEmail = email;
   $('#vEmail').textContent = email;
   $('#vEmail2').textContent = email;
   $('#vStatus').textContent = '인증 대기 중...';
@@ -664,9 +793,10 @@ $('#vChange').addEventListener('click', () => closeVerify());
 $('#vConfirm').addEventListener('click', () => {
   $('#vStatus').textContent = '인증 완료';
   $('#vStatus').className = 'v-status done';
+  const email = verifyEmail;
   verifyTimer = setTimeout(() => {
     closeVerify();
-    showView('done');
+    openCreate(email); // 인증 다음 단계: 계정 이름/비밀번호 입력
   }, 900);
 });
 
@@ -704,14 +834,15 @@ $('#signupForm').addEventListener('submit', (e) => {
 // ===============================================================
 // 부팅
 // ===============================================================
-fillLoginBg();
-fillSignupBg();
-fillDoneBg();
+const fillAllBg = () => { fillLoginBg(); fillSignupBg(); fillCreateBg(); fillDoneBg(); };
+
+paintUser();
+fillAllBg();
 showView(viewFromHash());
 
 fetch('/api/home')
   .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then((data) => { render(data); fillLoginBg(); fillSignupBg(); fillDoneBg(); })
+  .then((data) => { render(data); fillAllBg(); })
   .catch((err) => {
     $('#app').innerHTML = `<div class="err">DB에서 데이터를 불러오지 못했습니다.<br>${esc(err.message)}<br><br>서버 콘솔을 확인하세요.</div>`;
   });

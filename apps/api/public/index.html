@@ -27,6 +27,10 @@
         Steam 설치
       </a>
       <a href="#login" id="topLogin" data-view="login">로그인</a>
+      <span class="topuser" id="topUser" hidden>
+        <b id="topUserName"></b>
+        <a href="#" id="topLogout">로그아웃</a>
+      </span>
       <span class="sep">|</span>
       <a href="#">언어 ▾</a>
     </div>
@@ -280,14 +284,42 @@
   </div>
 </footer>
 
-<!-- ===== 인증 완료 화면 ===== -->
+<!-- ===== 계정 만들기 (이메일 인증 다음 단계) ===== -->
+<section id="createView">
+  <div class="create-bg" id="createBg"></div>
+  <div class="create-veil"></div>
+
+  <div class="create-inner">
+    <div class="wrap">
+      <h1 class="create-title">계정 만들기</h1>
+
+      <form class="create-form" id="createForm" autocomplete="off">
+        <label class="cr-label" for="crName">Steam 계정 이름</label>
+        <input class="cr-input" type="text" id="crName" autocomplete="username">
+        <div class="cr-hint" id="crNameHint">영문/숫자/-/_ 3자 이상</div>
+
+        <label class="cr-label" for="crPw">비밀번호 선택</label>
+        <input class="cr-input" type="password" id="crPw" autocomplete="new-password">
+        <div class="cr-hint" id="crPwHint">8자 이상</div>
+
+        <label class="cr-label" for="crPw2">비밀번호 확인</label>
+        <input class="cr-input" type="password" id="crPw2" autocomplete="new-password">
+
+        <button class="cr-submit" id="crSubmit" type="submit">완료</button>
+        <div class="create-msg" id="createMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 가입 완료 화면 ===== -->
 <section id="doneView">
   <div class="done-bg" id="doneBg"></div>
   <div class="done-veil"></div>
   <div class="done-inner">
     <div class="wrap">
-      <h1>이메일 인증 완료</h1>
-      <p>이전 창으로 돌아가서 이메일 주소 인증을 완료해 주시기 바랍니다.</p>
+      <h1 id="doneTitle">계정 생성 완료</h1>
+      <p id="doneMsg">계정이 만들어졌습니다. 이제 로그인할 수 있습니다.</p>
       <p class="note">*이 창을 닫으셔도 됩니다</p>
       <a class="btn-blue" href="#login" data-view="login">로그인하러 가기</a>
     </div>
