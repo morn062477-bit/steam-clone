@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import StoreNav from "@/components/storenav";
 import Auth, { readUser, writeUser, type AuthView, type User } from "@/components/auth";
+import GamePage from "@/components/gamepage";
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
 
@@ -284,121 +285,6 @@ function RelSide({ g }: { g: any }) {
 }
 
 // ---------------------------------------------------------------
-// 상세 모달
-// ---------------------------------------------------------------
-function Modal({ slug, onClose }: { slug: string; onClose: () => void }) {
-  const [g, setG] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [shotIndex, setShotIndex] = useState(0);
-
-  useEffect(() => {
-    setG(null);
-    setError(null);
-    setShotIndex(0);
-    fetch("/api/game/" + encodeURIComponent(slug))
-      .then((r) => { if (!r.ok) throw new Error("not found"); return r.json(); })
-      .then(setG)
-      .catch(() => setError("게임을 찾을 수 없습니다."));
-  }, [slug]);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
-  const plat = g
-    ? [g.platforms?.windows && "Windows", g.platforms?.mac && "macOS", g.platforms?.linux && "Linux"].filter(Boolean).join(", ")
-    : "";
-  const req = g?.reqWindows?.minimum ? String(g.reqWindows.minimum) : null;
-  const shots = g?.screenshots ?? [];
-
-  return (
-    <div className="modal-back on" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal">
-        {!g && !error && <div className="loading">불러오는 중…</div>}
-        {error && <div className="err">{error}</div>}
-        {g && (
-          <>
-            <button className="modal-x" aria-label="닫기" onClick={onClose}>×</button>
-            <div className="m-head">
-              <h2>{g.name}</h2>
-              <div className="sub">
-                {g.developer} · {ymd(g.releaseDate)}
-                {g.steamAppId ? ` · appid ${g.steamAppId}` : ""}
-                {g.metacritic ? ` · 메타크리틱 ${g.metacritic}` : ""}
-              </div>
-            </div>
-            <div className="m-body">
-              <div className="m-left">
-                <div className="m-shot" style={bgStyle(shots[shotIndex]?.url || g.headerImage)} />
-                <div className="m-strip">
-                  {shots.map((s: any, i: number) => (
-                    <div
-                      key={i}
-                      className={i === shotIndex ? "on" : ""}
-                      style={bgStyle(s.thumb || s.url)}
-                      onClick={() => setShotIndex(i)}
-                    />
-                  ))}
-                </div>
-                <h3 className="m-sec">게임 정보</h3>
-                <div className="m-about">{g.description || g.shortDesc}</div>
-                {g.reviews?.length > 0 && (
-                  <>
-                    <h3 className="m-sec">사용자 평가 ({g.reviewCountLocal})</h3>
-                    {g.reviews.map((r: any, i: number) => (
-                      <div className="m-review" key={i}>
-                        <div className="who">
-                          <b>{r.nickname}</b> · <span className={r.isRecommended ? "rec" : "norec"}>{r.isRecommended ? "추천" : "비추천"}</span> · {r.playtimeHours}시간 플레이 · 도움됨 {r.helpfulCount}
-                        </div>
-                        <p>{r.content}</p>
-                      </div>
-                    ))}
-                  </>
-                )}
-                {req && <><h3 className="m-sec">최소 시스템 요구 사항</h3><div className="m-req">{req}</div></>}
-              </div>
-              <div className="m-right">
-                <div className="m-cap" style={bgStyle(g.headerImage)} />
-                <div className="m-desc">{g.shortDesc}</div>
-                <div className="m-rows">
-                  <div><b>평가</b> {g.reviewDesc || "평가 없음"}{g.reviewPercent != null ? ` (${g.reviewPercent}%)` : ""}</div>
-                  <div><b>출시일</b> {ymd(g.releaseDate)}</div>
-                  <div><b>개발자</b> {g.developer}</div>
-                  <div><b>배급사</b> {g.publisher}</div>
-                  <div><b>플랫폼</b> {plat || "-"}</div>
-                  <div><b>이용 등급</b> {g.requiredAge ? g.requiredAge + "세 이상" : "전체 이용가"}</div>
-                  {g.dlcCount ? <div><b>DLC</b> {g.dlcCount}종</div> : null}
-                </div>
-                <div className="m-buy">
-                  {g.discountPercent > 0 ? (
-                    <>
-                      <span className="disc">-{g.discountPercent}%</span>
-                      <span><span className="was">{won(g.priceKrw)}</span> <span className="now">{won(g.finalKrw)}</span></span>
-                    </>
-                  ) : (
-                    <span className="now">{priceText(g)}</span>
-                  )}
-                  <button className="btn-green">카트에 추가</button>
-                </div>
-                <div className="tag-pills">
-                  {g.tags?.map((t: string) => <span key={t} className="pill">{t}</span>)}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------
 // 메인
 // ---------------------------------------------------------------
 export default function Home() {
@@ -406,7 +292,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | AuthView>("store");
+  const [view, setView] = useState<"store" | AuthView | "game">("store");
   const [user, setUser] = useState<User | null>(null);
   // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
   // user id를 그대로 key로 쓰면 안 됨 - 로그인 순간에도 리마운트되어 메시지가 사라진다).
@@ -427,11 +313,19 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const OF_HASH: Record<string, "store" | AuthView> = {
+    const OF_HASH: Record<string, "store" | AuthView | "game"> = {
       "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
     };
     function applyHash() {
-      setView(OF_HASH[window.location.hash] ?? "store");
+      const h = window.location.hash;
+      // #app/<slug> 는 게임 상세 페이지
+      if (h.startsWith("#app/")) {
+        setModalSlug(decodeURIComponent(h.slice("#app/".length)));
+        setView("game");
+        return;
+      }
+      setModalSlug(null);
+      setView(OF_HASH[h] ?? "store");
     }
     applyHash();
     window.addEventListener("hashchange", applyHash);
@@ -444,7 +338,7 @@ export default function Home() {
 
   const VIEW_HASH: Record<string, string> = { login: "login", signup: "signup", create: "create", done: "verified" };
 
-  function goView(v: "store" | AuthView, e?: React.MouseEvent) {
+  function goView(v: "store" | AuthView | "game", e?: React.MouseEvent) {
     e?.preventDefault();
     window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
@@ -453,8 +347,12 @@ export default function Home() {
     window.scrollTo({ top: 0 });
   }
 
+  /** 게임 카드 클릭. 모달 대신 상세 페이지(#app/<slug>)로 넘어간다. */
   function openModal(slug: string) {
+    window.location.hash = "app/" + encodeURIComponent(slug);
     setModalSlug(slug);
+    setView("game");
+    window.scrollTo({ top: 0 });
   }
 
   function handleSearchInput(v: string) {
@@ -711,6 +609,15 @@ export default function Home() {
         </>
       )}
 
+      {view === "game" && modalSlug && (
+        <GamePage
+          slug={modalSlug}
+          onBack={() => goView("store")}
+          onOpenGame={openModal}
+          onTag={(t) => { goView("store"); searchByTag(t); }}
+        />
+      )}
+
       <Auth
         key={authResetKey}
         view={view}
@@ -749,7 +656,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {modalSlug && <Modal slug={modalSlug} onClose={() => setModalSlug(null)} />}
     </>
   );
 }

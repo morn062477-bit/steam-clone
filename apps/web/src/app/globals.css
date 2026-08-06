@@ -792,3 +792,134 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .m-body{flex-direction:column}.m-right{flex:none;width:100%}
   .sresults{width:100%;right:auto;left:0}
 }
+/* ---------- 게임 상세 페이지 ---------- */
+#gameView{display:none}
+#gameView.on{display:block}
+.gamepage{padding:16px 0 60px;background:linear-gradient(180deg,#1b2838 0,#1b2838 480px,#1b2838 100%)}
+.gamepage .wrap{width:66.24%;max-width:1200px}
+
+.gp-crumb{font-size:12px;color:#8f98a0;display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.gp-crumb a{color:#8f98a0}
+.gp-crumb a:hover{color:#fff}
+.gp-crumb .cur{color:#c7d5e0}
+
+.gp-title-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
+.gp-title{color:#fff;font-size:26px;font-weight:400}
+.gp-hub{background:#2a475e;color:#c7d5e0;font-size:13px;padding:7px 14px;border-radius:2px}
+.gp-hub:hover{background:#3d6c8e;color:#fff}
+
+/* 갤러리 + 요약 */
+.gp-top{display:flex;gap:14px;margin-bottom:16px}
+.gp-media{flex:1;min-width:0}
+.gp-shot{width:100%;aspect-ratio:16/9;background-size:cover;background-position:center;background-color:#0e1621;border-radius:2px}
+.gp-strip-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+.gp-strip{flex:1;min-width:0;display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.gp-thumb{height:66px;background-size:cover;background-position:center;background-color:#0e1621;cursor:pointer;opacity:.55;border-radius:2px}
+.gp-thumb:hover{opacity:.85}
+.gp-thumb.on{opacity:1;outline:2px solid #66c0f4}
+.gp-arrow{background:#2a3f55;color:#c7d5e0;width:24px;height:66px;font-size:18px;line-height:1;border-radius:2px}
+.gp-arrow:disabled{opacity:.35;cursor:default}
+.gp-arrow:not(:disabled):hover{background:#3d6c8e;color:#fff}
+
+.gp-side{flex:0 0 324px;background:rgba(0,0,0,.2);padding:0 0 12px}
+.gp-cap{width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;background-color:#0e1621;margin-bottom:12px}
+.gp-short{color:#c7d5e0;font-size:13px;line-height:1.6;padding:0 12px;margin-bottom:14px}
+.gp-facts{padding:0 12px;font-size:13px;display:flex;flex-direction:column;gap:5px}
+.gp-facts > div{display:flex;gap:10px}
+.gp-facts b{color:#8f98a0;font-weight:400;flex:0 0 74px}
+.gp-facts a{color:#66c0f4}
+.gp-facts a:hover{color:#fff}
+.gp-review-sum{color:#8f98a0}
+.gp-review-sum.positive{color:#66c0f4}
+.gp-review-sum.negative{color:#a34c25}
+
+.gp-tags{padding:14px 12px 0}
+.gp-tags-label{color:#8f98a0;font-size:12px;margin-bottom:8px}
+.gp-tag-list{display:flex;flex-wrap:wrap;gap:4px}
+.gp-tag-list a{background:rgba(103,193,245,.2);color:#67c1f5;font-size:11px;padding:3px 8px;border-radius:3px}
+.gp-tag-list a:hover{background:rgba(103,193,245,.4);color:#fff}
+
+/* 본문 + 우측 정보 */
+.gp-body{display:flex;gap:14px;align-items:flex-start}
+.gp-main{flex:1;min-width:0}
+.gp-info{flex:0 0 324px;display:flex;flex-direction:column;gap:10px}
+.gp-info-box{background:rgba(0,0,0,.2);padding:12px;font-size:13px}
+.gp-info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.gp-info-row:last-child{border-bottom:0}
+.gp-info-row span{color:#8f98a0}
+.gp-info-row b{color:#c7d5e0;font-weight:400}
+.gp-info-title{color:#fff;font-size:14px;margin-bottom:8px}
+.gp-info-line{color:#8f98a0;line-height:1.8}
+
+/* 구매 박스 */
+.gp-buy{background:linear-gradient(135deg,#243a53,#1c2f45);border-radius:3px;margin-bottom:24px}
+.gp-buy-head{padding:14px 16px 10px}
+.gp-buy-head h2{color:#fff;font-size:20px;font-weight:400}
+.gp-buy-sub{color:#66c0f4;font-size:13px;margin-top:4px}
+.gp-buy-foot{display:flex;align-items:center;justify-content:flex-end;gap:0;padding:12px 16px}
+.gp-disc{background:#4c6b22;color:#a4d007;font-size:20px;font-weight:600;padding:9px 12px}
+.gp-prices{background:rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:14px}
+.gp-prices .was{color:#7a8b99;text-decoration:line-through}
+.gp-prices .now{color:#c7d5e0}
+.gp-cart{
+  margin-left:12px;background:linear-gradient(to bottom,#799905 5%,#536904 95%);
+  color:#fff;font-size:15px;padding:11px 18px;border-radius:2px;
+}
+.gp-cart:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
+
+/* 본문 섹션 */
+.gp-h2{color:#fff;font-size:18px;font-weight:400;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.1)}
+.gp-h3{color:#c7d5e0;font-size:15px;font-weight:400;margin:20px 0 10px}
+.gp-desc{
+  color:#acb9c4;font-size:14px;line-height:1.8;white-space:pre-wrap;
+  max-height:260px;overflow:hidden;position:relative;
+}
+.gp-desc.open{max-height:none}
+.gp-more{display:block;width:100%;background:rgba(103,193,245,.12);color:#66c0f4;font-size:14px;padding:9px;margin:8px 0 20px}
+.gp-more:hover{background:rgba(103,193,245,.25);color:#fff}
+.gp-adult{color:#acb9c4;font-size:14px;line-height:1.7;margin-bottom:20px}
+
+.gp-req{display:flex;gap:26px;margin-bottom:24px}
+.gp-req-col{flex:1;min-width:0}
+.gp-req-col h4{color:#c7d5e0;font-size:13px;font-weight:400;margin-bottom:6px}
+.gp-req-col pre{
+  color:#8fa3b5;font-size:12px;line-height:1.7;white-space:pre-wrap;
+  font-family:inherit;background:rgba(0,0,0,.2);padding:10px;
+}
+
+/* 사용자 평가 */
+.gp-reviews-h{margin-top:28px}
+.gp-review-box{display:flex;gap:20px;align-items:center;background:rgba(0,0,0,.15);padding:16px;margin-bottom:6px}
+.gp-review-total{text-align:center;background:rgba(0,0,0,.25);padding:12px 22px;border-radius:2px}
+.gp-review-total .lbl{color:#8f98a0;font-size:12px}
+.gp-review-total .gp-review-sum{font-size:19px;margin:3px 0}
+.gp-review-total .cnt{color:#8f98a0;font-size:12px}
+.gp-review-bars{flex:1;display:flex;flex-direction:column;gap:6px;font-size:13px;color:#c7d5e0}
+.gp-review-bars > div{display:flex;justify-content:space-between;background:rgba(0,0,0,.25);padding:7px 12px}
+.gp-review-bars span{color:#8f98a0}
+
+.gp-review{display:flex;gap:14px;background:#16202d;padding:14px;margin-bottom:10px}
+.gp-review-user{flex:0 0 120px;display:flex;gap:8px}
+.gp-review-user .ava{width:36px;height:36px;flex:0 0 auto;background:#2a3f55;background-size:cover;background-position:center}
+.gp-review-user b{color:#c7d5e0;font-size:13px;font-weight:400}
+.gp-review-body{flex:1;min-width:0}
+.gp-review-verdict{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.gp-review-verdict .thumb{background:#1e6a9e;padding:5px 7px;border-radius:2px;font-size:15px}
+.gp-review-verdict .thumb.no{background:#8f3a1f}
+.gp-review-verdict b{color:#c7d5e0;font-size:14px;font-weight:400;display:block}
+.gp-review-verdict small{color:#8f98a0;font-size:12px}
+.gp-review-date{color:#8f98a0;font-size:12px;margin-bottom:8px}
+.gp-review-text{color:#acb9c4;font-size:14px;line-height:1.7;white-space:pre-wrap;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.gp-review-help{color:#8f98a0;font-size:12px;margin-top:8px;display:flex;align-items:center;gap:10px}
+.gp-review-help .btns{display:flex;gap:6px}
+.gp-review-help i{background:#2a3f55;color:#c7d5e0;font-style:normal;padding:3px 9px;border-radius:2px;cursor:pointer}
+.gp-review-help i:hover{background:#3d6c8e;color:#fff}
+.gp-review-count{color:#8f98a0;font-size:12px;margin-top:8px}
+.gp-empty{color:#8f98a0;font-size:13px;padding:20px;text-align:center;background:#16202d}
+
+@media (max-width:980px){
+  .gamepage .wrap{width:100%;padding:0 12px}
+  .gp-top,.gp-body,.gp-req{flex-direction:column}
+  .gp-side,.gp-info{flex:none;width:100%}
+  .gp-strip{grid-template-columns:repeat(4,1fr)}
+}

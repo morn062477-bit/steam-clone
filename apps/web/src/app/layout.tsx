@@ -12,7 +12,8 @@ const dmSans = DM_Sans({
 // 기기와 무관하게 같은 글꼴로 보이도록 한글용 웹폰트를 따로 싣는다.
 const notoKR = Noto_Sans_KR({
   variable: "--font-noto-kr",
-  subsets: ["latin", "korean"],
+  // next/font 타입 목록에 korean 이 빠져 있지만 실제로는 한글 subset 을 받아온다.
+  subsets: ["latin", "korean"] as any,
   weight: ["400", "500", "700"],
   display: "swap",
 });

@@ -56,9 +56,9 @@ function Tiles({ className, count, pool }: { className: string; count: number; p
 }
 
 type Props = {
-  view: AuthView | "store";
+  view: AuthView | "store" | "game";
   pool: string[];
-  onView: (v: AuthView | "store") => void;
+  onView: (v: AuthView | "store" | "game") => void;
   onLogin: (u: User) => void;
 };
 
@@ -251,7 +251,7 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
     }
   }
 
-  const go = (v: AuthView | "store") => (e: React.MouseEvent) => {
+  const go = (v: AuthView | "store" | "game") => (e: React.MouseEvent) => {
     e.preventDefault();
     onView(v);
   };
