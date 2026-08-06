@@ -11,8 +11,6 @@
  *   GET /api/home          첫 화면에 필요한 모든 섹션을 한 번에
  *   GET /api/game/:slug    게임 상세 (모달용)
  *   GET /api/search?q=     이름 검색
- *   POST /api/signup       계정 생성 (비밀번호는 bcrypt 해시로만 저장)
- *   POST /api/login        계정 이름 또는 이메일 + 비밀번호 확인
  *
  * 가격 규칙(schema.prisma 주석과 동일)
  *   - 할인가는 저장하지 않는다. 활성 Discount.percent로 서버에서만 계산한다.
@@ -23,15 +21,14 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
+import { startSignup, verifyEmail, getSignupStatus, completeSignup, AuthError } from './lib/auth.js';
 
 // ---------------------------------------------------------------
 // .env 로드 (dotenv 미설치라 직접 파싱)
 // ---------------------------------------------------------------
 
-const ROOT = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')));
 
 for (const line of readFileSync(path.join(ROOT, '.env'), 'utf-8').split('\n')) {
   const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*"?(.*?)"?\s*$/);
@@ -40,6 +37,9 @@ for (const line of readFileSync(path.join(ROOT, '.env'), 'utf-8').split('\n')) {
 
 const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT ?? 3000);
+// 인증 메일의 링크가 가리킬 주소. apps/web 이 /api/* 를 이 서버로 프록시하므로
+// 기본값은 web 쪽 origin(3000)으로 둔다.
+const WEB_ORIGIN = process.env.WEB_ORIGIN ?? 'http://localhost:3000';
 
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const MIME: Record<string, string> = {
@@ -370,88 +370,76 @@ function json(res: ServerResponse, data: unknown, status = 200) {
   res.end(body);
 }
 
-/** POST 본문을 JSON 으로 읽는다. 계정 폼이라 본문이 커질 이유가 없어 32KB 에서 끊는다. */
-async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
+function html(res: ServerResponse, body: string, status = 200) {
+  res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+  res.end(body);
+}
+
+async function readJsonBody(req: IncomingMessage): Promise<any> {
   const chunks: Buffer[] = [];
-  let size = 0;
-  for await (const c of req) {
-    size += c.length;
-    if (size > 32_768) throw new Error('본문이 너무 큽니다');
-    chunks.push(c as Buffer);
+  for await (const chunk of req) chunks.push(chunk as Buffer);
+  const raw = Buffer.concat(chunks).toString('utf-8');
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new AuthError(400, '요청 본문이 올바른 JSON이 아닙니다.');
   }
-  if (!chunks.length) return {};
-  return JSON.parse(Buffer.concat(chunks).toString('utf-8'));
+}
+
+function verifyResultPage(tone: 'success' | 'error', headline: string, subMessage: string) {
+  const subColor = tone === 'success' ? '#a4d007' : '#e3a13c';
+  const title = tone === 'success' ? '인증 완료' : '인증 실패';
+  return `<!doctype html><html lang="ko"><meta charset="utf-8">
+<title>${title}</title>
+<body style="margin:0;background:#1b2838;color:#c7d5e0;font-family:'Motiva Sans','Segoe UI','Malgun Gothic',Arial,sans-serif;">
+  <header style="background:#171a21;height:104px;">
+    <div style="max-width:940px;margin:0 auto;height:104px;display:flex;align-items:center;">
+      <a href="${WEB_ORIGIN}" style="display:flex;align-items:center;gap:8px;margin-right:34px;text-decoration:none;">
+        <svg width="38" height="38" viewBox="0 0 89.333 89.333" aria-hidden="true">
+          <path fill="#c7d5e0" d="M44.238,0.601C21,0.601,1.963,18.519,0.154,41.29l23.71,9.803c2.009-1.374,4.436-2.179,7.047-2.179
+            c0.234,0,0.467,0.008,0.698,0.021l10.544-15.283c0-0.073-0.001-0.144-0.001-0.216c0-9.199,7.483-16.683,16.683-16.683
+            c9.199,0,16.682,7.484,16.682,16.683c0,9.199-7.483,16.684-16.682,16.684c-0.127,0-0.253-0.003-0.379-0.006l-15.038,10.73
+            c0.008,0.195,0.015,0.394,0.015,0.592c0,6.906-5.617,12.522-12.522,12.522c-6.061,0-11.129-4.326-12.277-10.055L1.678,56.893
+            c5.25,18.568,22.309,32.181,42.56,32.181c24.432,0,44.237-19.806,44.237-44.235C88.475,20.406,68.669,0.601,44.238,0.601"/>
+          <path fill="#c7d5e0" d="M27.875,67.723l-5.434-2.245c0.963,2.005,2.629,3.684,4.841,4.606c4.782,1.992,10.295-0.277,12.288-5.063
+            c0.965-2.314,0.971-4.869,0.014-7.189c-0.955-2.321-2.757-4.131-5.074-5.097c-2.299-0.957-4.762-0.922-6.926-0.105l5.613,2.321
+            c3.527,1.47,5.195,5.52,3.725,9.047C35.455,67.526,31.402,69.194,27.875,67.723"/>
+          <path fill="#c7d5e0" d="M69.95,33.436c0-6.129-4.986-11.116-11.116-11.116c-6.129,0-11.116,4.987-11.116,11.116
+            c0,6.13,4.987,11.115,11.116,11.115C64.964,44.55,69.95,39.565,69.95,33.436 M50.502,33.417c0-4.612,3.739-8.35,8.351-8.35
+            c4.612,0,8.351,3.738,8.351,8.35s-3.739,8.35-8.351,8.35C54.241,41.767,50.502,38.028,50.502,33.417"/>
+        </svg>
+        <span style="font-size:29px;letter-spacing:1px;color:#e8e8e8;">STEAM<sup style="font-size:9px;">®</sup></span>
+      </a>
+      <nav style="display:flex;gap:20px;padding-top:6px;">
+        <a href="${WEB_ORIGIN}" style="font-size:15px;color:#66c0f4;text-decoration:none;">상점</a>
+        <a href="#" style="font-size:15px;color:#b8b6b4;text-decoration:none;">커뮤니티</a>
+        <a href="#" style="font-size:15px;color:#b8b6b4;text-decoration:none;">정보</a>
+        <a href="#" style="font-size:15px;color:#b8b6b4;text-decoration:none;">지원</a>
+      </nav>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;">
+        <a href="#" style="background:linear-gradient(to bottom,#799905 5%,#536904 95%);color:#fff;
+           padding:5px 12px;border-radius:2px;display:flex;align-items:center;gap:6px;text-decoration:none;">
+          Steam 설치
+        </a>
+        <a href="${WEB_ORIGIN}#login" style="color:#b8b6b4;text-decoration:none;">로그인</a>
+        <span style="color:#4c5966;">|</span>
+        <a href="#" style="color:#b8b6b4;text-decoration:none;">언어 ▾</a>
+      </div>
+    </div>
+  </header>
+  <div style="background:linear-gradient(#1b2838,#0e1621);min-height:calc(100vh - 104px);padding:80px 24px;">
+    <div style="max-width:940px;margin:0 auto;">
+      <h1 style="font-size:34px;font-weight:400;color:#fff;margin:0 0 24px;">${headline}</h1>
+      <p style="font-size:16px;color:${subColor};">${subMessage}</p>
+    </div>
+  </div>
+</body></html>`;
 }
 
 // 홈 응답은 짧게 캐시한다. 새로고침마다 10여 개 쿼리를 다시 칠 이유가 없다.
 let homeCache: { at: number; data: unknown } | null = null;
 const HOME_TTL_MS = 30_000;
-
-// ---------------------------------------------------------------
-// 계정
-// ---------------------------------------------------------------
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const BCRYPT_ROUNDS = 10;
-
-/** 로그인 응답에 담는 값. passwordHash 는 절대 밖으로 내보내지 않는다. */
-const publicUser = (u: { id: string; nickname: string; email: string; avatarUrl: string | null }) => ({
-  id: u.id,
-  nickname: u.nickname,
-  email: u.email,
-  avatarUrl: u.avatarUrl,
-});
-
-async function signup(body: Record<string, unknown>) {
-  const email = String(body.email ?? '').trim().toLowerCase();
-  const account = String(body.account ?? '').trim();
-  const password = String(body.password ?? '');
-
-  if (!EMAIL_RE.test(email)) return { status: 400, data: { error: '이메일 형식이 올바르지 않습니다.' } };
-  if (account.length < 3) return { status: 400, data: { error: '계정 이름은 3자 이상이어야 합니다.' } };
-  if (!/^[A-Za-z0-9_-]+$/.test(account)) {
-    return { status: 400, data: { error: '계정 이름은 영문/숫자/-/_ 만 쓸 수 있습니다.' } };
-  }
-  if (password.length < 8) return { status: 400, data: { error: '비밀번호는 8자 이상이어야 합니다.' } };
-
-  // 중복은 DB 제약으로도 걸리지만, 어느 칸이 문제인지 알려주려고 미리 본다.
-  const dup = await prisma.user.findFirst({
-    where: { OR: [{ email }, { nickname: account }] },
-    select: { email: true, nickname: true },
-  });
-  if (dup?.email === email) return { status: 409, data: { error: '이미 가입된 이메일입니다.' } };
-  if (dup) return { status: 409, data: { error: '이미 사용 중인 계정 이름입니다.' } };
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      nickname: account,
-      passwordHash: await bcrypt.hash(password, BCRYPT_ROUNDS),
-      country: String(body.country ?? 'KR'),
-    },
-    select: { id: true, nickname: true, email: true, avatarUrl: true },
-  });
-  return { status: 201, data: publicUser(user) };
-}
-
-async function login(body: Record<string, unknown>) {
-  const account = String(body.account ?? '').trim();
-  const password = String(body.password ?? '');
-  if (!account || !password) {
-    return { status: 400, data: { error: '계정 이름과 비밀번호를 모두 입력하세요.' } };
-  }
-
-  const user = await prisma.user.findFirst({
-    where: { OR: [{ nickname: account }, { email: account.toLowerCase() }] },
-    select: { id: true, nickname: true, email: true, avatarUrl: true, passwordHash: true },
-  });
-
-  // 계정이 없을 때도 같은 문구를 준다. 어느 계정이 존재하는지 흘리지 않는다.
-  const ok = user ? await bcrypt.compare(password, user.passwordHash) : false;
-  if (!user || !ok) return { status: 401, data: { error: '계정 이름 또는 비밀번호가 올바르지 않습니다.' } };
-
-  return { status: 200, data: publicUser(user) };
-}
 
 async function handle(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
@@ -474,16 +462,46 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     return json(res, await search(url.searchParams.get('q') ?? ''));
   }
 
-  if (p === '/api/signup' || p === '/api/login') {
-    if (req.method !== 'POST') return json(res, { error: 'POST 만 받습니다.' }, 405);
-    let body: Record<string, unknown>;
+  if (p === '/api/auth/signup' && req.method === 'POST') {
     try {
-      body = await readJson(req);
-    } catch {
-      return json(res, { error: '요청 본문을 읽지 못했습니다.' }, 400);
+      const body = await readJsonBody(req);
+      const result = await startSignup(prisma, WEB_ORIGIN, body);
+      return json(res, { ok: true, message: '인증 메일을 발송했습니다. 메일함을 확인해 주세요.', ...result }, 201);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
     }
-    const r = p === '/api/signup' ? await signup(body) : await login(body);
-    return json(res, r.data, r.status);
+  }
+
+  if (p === '/api/auth/verify' && req.method === 'GET') {
+    try {
+      await verifyEmail(prisma, url.searchParams.get('token') ?? '');
+      return html(res, verifyResultPage('success', '이메일 인증이 완료되었습니다', '원래 탭으로 돌아가 계정 만들기를 마저 진행해 주세요.'));
+    } catch (err) {
+      if (err instanceof AuthError) return html(res, verifyResultPage('error', '이메일 주소를 인증할 수 없습니다', err.message), err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/auth/signup-status' && req.method === 'GET') {
+    try {
+      const result = await getSignupStatus(prisma, url.searchParams.get('id') ?? '');
+      return json(res, result);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/auth/complete-signup' && req.method === 'POST') {
+    try {
+      const body = await readJsonBody(req);
+      const result = await completeSignup(prisma, body);
+      return json(res, { ok: true, ...result }, 201);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
   }
 
   // public/ 정적 파일. 디렉터리 밖으로 나가는 경로는 거른다.

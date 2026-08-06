@@ -20,12 +20,14 @@
     "@prisma/client": "^5.22.0",
     "bcrypt": "^6.0.0",
     "embedded-postgres": "^18.4.0-beta.17",
+    "nodemailer": "^7.0.9",
     "prisma": "^5.22.0",
     "tsx": "^4.23.7"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.4",
     "typescript": "^5"
   }
 }
