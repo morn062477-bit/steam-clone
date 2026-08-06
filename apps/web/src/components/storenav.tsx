@@ -56,6 +56,9 @@ type Props = {
   onTag: (tag: string) => void;
   onTab: (key: string) => void;
   onCloseResults: () => void;
+  wishlistCount: number | null;
+  onOpenCart: (e: React.MouseEvent) => void;
+  onOpenWishlist: (e: React.MouseEvent) => void;
 };
 
 export default function StoreNav({
@@ -67,6 +70,9 @@ export default function StoreNav({
   onTag,
   onTab,
   onCloseResults,
+  wishlistCount,
+  onOpenCart,
+  onOpenWishlist,
 }: Props) {
   const [openNav, setOpenNav] = useState<string | null>(null);
   const [showPopular, setShowPopular] = useState(false);
@@ -458,6 +464,22 @@ export default function StoreNav({
             )}
           </div>
         </form>
+
+        {/* ---------- 장바구니 / 찜 목록 ---------- */}
+        <button type="button" className="nav-cart-btn" onClick={onOpenCart}>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#fff" strokeWidth="1.2">
+            <path d="M1 1h2l.6 3M3.6 4h10.4l-1.2 6H4.8M3.6 4L4.8 10M4.8 10l-.3 1.5h9M6 14a1 1 0 100-2 1 1 0 000 2zM12 14a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+          장바구니
+        </button>
+        {wishlistCount !== null && (
+          <button type="button" className="nav-cart-btn" onClick={onOpenWishlist}>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#fff" strokeWidth="1.2">
+              <path d="M8 13.5S1.5 9.8 1.5 5.6C1.5 3.6 3 2 5 2c1.2 0 2.3.6 3 1.6C8.7 2.6 9.8 2 11 2c2 0 3.5 1.6 3.5 3.6 0 4.2-6.5 7.9-6.5 7.9z" />
+            </svg>
+            찜 목록
+          </button>
+        )}
       </div>
     </div>
   );

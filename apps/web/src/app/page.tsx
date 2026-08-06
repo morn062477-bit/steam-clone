@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import StoreNav from "@/components/storenav";
 import Auth, { readUser, writeUser, type AuthView, type User } from "@/components/auth";
 import GamePage from "@/components/gamepage";
+import CartPage from "@/components/cartpage";
+import WishlistPage from "@/components/wishlistpage";
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
 
@@ -310,7 +312,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | AuthView | "game">("store");
+  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist">("store");
   const [user, setUser] = useState<User | null>(null);
   // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
   // user id를 그대로 key로 쓰면 안 됨 - 로그인 순간에도 리마운트되어 메시지가 사라진다).
@@ -320,8 +322,12 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cart, setCart] = useState<any[]>([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const cartRef = useRef<HTMLDivElement>(null);
+  const [wishlist, setWishlist] = useState<any[]>([]);
+  const [lang, setLang] = useState("한국어");
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/home")
@@ -334,8 +340,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const OF_HASH: Record<string, "store" | AuthView | "game"> = {
+    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist"> = {
       "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
+      "#cart": "cart", "#wishlist": "wishlist",
     };
     function applyHash() {
       const h = window.location.hash;
@@ -358,6 +365,7 @@ export default function Home() {
     setUser(u);
     if (u) {
       fetch("/api/cart").then((r) => (r.ok ? r.json() : [])).then(setCart).catch(() => setCart([]));
+      fetch("/api/wishlist").then((r) => (r.ok ? r.json() : [])).then(setWishlist).catch(() => setWishlist([]));
     } else {
       loadGuestCart();
     }
@@ -366,13 +374,18 @@ export default function Home() {
   useEffect(() => { setRelHoverIndex(0); }, [tabIndex]);
 
   useEffect(() => {
-    if (!cartOpen) return;
+    if (!langOpen && !userMenuOpen) return;
+    // 로그인 상태에선 언어 드롭다운이 사용자 메뉴 안에서 열리므로 같은 컨테이너로 판단한다.
     function onDocClick(e: MouseEvent) {
-      if (cartRef.current && !cartRef.current.contains(e.target as Node)) setCartOpen(false);
+      const container = user ? userMenuRef.current : langRef.current;
+      if (container && !container.contains(e.target as Node)) {
+        setLangOpen(false);
+        setUserMenuOpen(false);
+      }
     }
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
-  }, [cartOpen]);
+  }, [langOpen, userMenuOpen, user]);
 
   /** 게스트 장바구니(슬러그만 로컬 저장)를 화면에 보여줄 카드 데이터로 채운다. */
   async function loadGuestCart() {
@@ -409,7 +422,24 @@ export default function Home() {
     await loadGuestCart();
   }
 
-  /** 로그인 성공 시: 게스트 카트가 있으면 서버 카트로 병합, 없으면 그냥 서버 카트를 불러온다. */
+  // 찜 목록은 로그인했을 때만 쓸 수 있다. 게스트용 로컬 저장은 없음.
+  async function addToWishlist(slug: string) {
+    if (!user) return;
+    const res = await fetch("/api/wishlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug }),
+    });
+    if (res.ok) setWishlist(await res.json());
+  }
+
+  async function removeFromWishlist(slug: string) {
+    if (!user) return;
+    const res = await fetch("/api/wishlist/" + encodeURIComponent(slug), { method: "DELETE" });
+    if (res.ok) setWishlist(await res.json());
+  }
+
+  /** 로그인 성공 시: 게스트 카트가 있으면 서버 카트로 병합, 없으면 그냥 서버 카트를 불러온다. 찜 목록도 같이 불러온다. */
   async function handleLogin(u: User) {
     writeUser(u);
     setUser(u);
@@ -426,6 +456,8 @@ export default function Home() {
       const res = await fetch("/api/cart");
       if (res.ok) setCart(await res.json());
     }
+    const wres = await fetch("/api/wishlist");
+    if (wres.ok) setWishlist(await wres.json());
   }
 
   function handleLogout() {
@@ -433,16 +465,18 @@ export default function Home() {
       writeUser(null);
       setUser(null);
       setCart([]);
+      setWishlist([]);
       writeGuestCart([]);
-      setCartOpen(false);
       setAuthResetKey((k) => k + 1);
       goView("store");
     });
   }
 
-  const VIEW_HASH: Record<string, string> = { login: "login", signup: "signup", create: "create", done: "verified" };
+  const VIEW_HASH: Record<string, string> = {
+    login: "login", signup: "signup", create: "create", done: "verified", cart: "cart", wishlist: "wishlist",
+  };
 
-  function goView(v: "store" | AuthView | "game", e?: React.MouseEvent) {
+  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist", e?: React.MouseEvent) {
     e?.preventDefault();
     window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
@@ -518,68 +552,69 @@ export default function Home() {
             <a href="#">지원</a>
           </nav>
           <div className="topright">
-            <div className="cart-wrap" ref={cartRef}>
-              <button
-                type="button"
-                className="cart-btn"
-                aria-label="장바구니"
-                onClick={() => setCartOpen((v) => !v)}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="#fff">
-                  <path d="M1 1h2l.6 3M3.6 4h10.4l-1.2 6H4.8M3.6 4L4.8 10M4.8 10l-.3 1.5h9M6 14a1 1 0 100-2 1 1 0 000 2zM12 14a1 1 0 100-2 1 1 0 000 2z" fill="none" stroke="#fff" strokeWidth="1.2" />
-                </svg>
-                {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
-              </button>
-              {cartOpen && (
-                <div className="cart-drop">
-                  <h4>장바구니</h4>
-                  {cart.length === 0 && <p className="cart-empty">담긴 게임이 없습니다.</p>}
-                  {cart.length > 0 && (
-                    <>
-                      <div className="cart-list">
-                        {cart.map((g: any) => (
-                          <div className="cart-row" key={g.slug}>
-                            <div className="cart-thumb" style={bgStyle(g.headerImage)} />
-                            <div className="cart-info">
-                              <div className="cart-name">{g.name}</div>
-                              <div className="cart-price">{priceText(g)}</div>
-                            </div>
-                            <button
-                              type="button"
-                              className="cart-remove"
-                              aria-label="장바구니에서 제거"
-                              onClick={() => removeFromCart(g.slug)}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="cart-total">
-                        <span>합계</span>
-                        <b>{won(cart.reduce((sum: number, g: any) => sum + (g.finalKrw ?? 0), 0))}</b>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
             <a className="btn-install" href="#">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="#fff"><path d="M8 11L3 6h3V1h4v5h3z" /><rect x="2" y="12" width="12" height="2" /></svg>
               Steam 설치
             </a>
             {!user && (
-              <a className="top-login" href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
+              <>
+                <a className="top-login" href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
+                <span className="sep">|</span>
+                <div className="lang-wrap" ref={langRef}>
+                  {/* ▾ 는 실제 Steam 처럼 오른쪽 여백(18px) 안에 ::after 로 그린다 */}
+                  <button type="button" className="top-lang" onClick={() => setLangOpen((v) => !v)}>{lang}</button>
+                  {langOpen && (
+                    <div className="lang-drop">
+                      {["한국어", "English", "日本語", "中文(简体)", "Русский", "Español"].map((l) => (
+                        <button
+                          key={l}
+                          type="button"
+                          className={"lang-opt" + (l === lang ? " on" : "")}
+                          onClick={() => { setLang(l); setLangOpen(false); }}
+                        >
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
             {user && (
-              <span className="topuser">
-                <b>{user.nickname}</b>
-                <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>로그아웃</a>
-              </span>
+              <div className="user-wrap" ref={userMenuRef}>
+                <button type="button" className="notif-btn" aria-label="알림" onClick={(e) => e.preventDefault()}>
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="#B8B6B4">
+                    <path d="M8 1a4 4 0 00-4 4v2.4L2.6 10.8A.6.6 0 003.1 12h9.8a.6.6 0 00.5-1.2L12 7.4V5a4 4 0 00-4-4zM6.3 13a1.7 1.7 0 003.4 0z" />
+                  </svg>
+                </button>
+                <button type="button" className="top-user-btn" onClick={() => setUserMenuOpen((v) => !v)}>
+                  {user.nickname}
+                </button>
+                {userMenuOpen && (
+                  <div className="user-drop">
+                    <a href="#" onClick={(e) => e.preventDefault()}>프로필 보기</a>
+                    <div className="user-drop-info">계정 정보: <a href="#" onClick={(e) => e.preventDefault()}>{user.nickname}</a></div>
+                    <a href="#" onClick={(e) => e.preventDefault()}>상점 환경 설정</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); setUserMenuOpen(false); setLangOpen(true); }}>언어 변경</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>계정에서 로그아웃...</a>
+                  </div>
+                )}
+                {langOpen && (
+                  <div className="lang-drop">
+                    {["한국어", "English", "日本語", "中文(简体)", "Русский", "Español"].map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        className={"lang-opt" + (l === lang ? " on" : "")}
+                        onClick={() => { setLang(l); setLangOpen(false); }}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-            <span className="sep">|</span>
-            {/* ▾ 는 실제 Steam 처럼 오른쪽 여백(18px) 안에 ::after 로 그린다 */}
-            <a className="top-lang" href="#">언어</a>
           </div>
         </div>
       </header>
@@ -593,6 +628,9 @@ export default function Home() {
         onTag={searchByTag}
         onTab={goTab}
         onCloseResults={() => setSearchResults(null)}
+        wishlistCount={user ? wishlist.length : null}
+        onOpenCart={(e) => goView("cart", e)}
+        onOpenWishlist={(e) => goView("wishlist", e)}
       />
 
       {view === "store" && (
@@ -743,7 +781,34 @@ export default function Home() {
           onToggleCart={(slug) =>
             cart.some((c: any) => c.slug === slug) ? removeFromCart(slug) : addToCart(slug)
           }
+          user={user}
+          inWishlist={wishlist.some((w: any) => w.slug === modalSlug)}
+          onToggleWishlist={(slug) =>
+            wishlist.some((w: any) => w.slug === slug) ? removeFromWishlist(slug) : addToWishlist(slug)
+          }
         />
+      )}
+
+      {view === "cart" && (
+        <CartPage cart={cart} onBack={() => goView("store")} onRemove={removeFromCart} onOpenGame={openModal} />
+      )}
+
+      {view === "wishlist" && (
+        user ? (
+          <WishlistPage
+            wishlist={wishlist}
+            cart={cart}
+            onBack={() => goView("store")}
+            onOpenGame={openModal}
+            onRemove={removeFromWishlist}
+            onAddToCart={addToCart}
+          />
+        ) : (
+          <div className="cartpage"><div className="wrap cp-empty">
+            <p>찜 목록은 로그인 후 이용할 수 있습니다.</p>
+            <a className="btn-blue" href="#login" onClick={(e) => goView("login", e)}>로그인</a>
+          </div></div>
+        )
       )}
 
       <Auth

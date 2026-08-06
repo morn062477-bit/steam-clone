@@ -84,32 +84,65 @@ button{font-family:inherit;cursor:pointer;border:0}
    실제 Steam 은 아이콘을 배경 이미지로 왼쪽 35px 여백에 넣는다. 여기서는
    인라인 SVG 를 같은 자리에 절대 배치한다. */
 .btn-install{
-  position:relative;display:flex;align-items:center;
-  width:98.5px;height:24px;box-sizing:border-box;
+  position:relative;display:flex;align-items:center;white-space:nowrap;
+  height:24px;box-sizing:border-box;
   background:#5C7E10;color:#E5E4DC;
   font-size:11px;padding:0 9px 0 35px;border-radius:2px;
-  margin-right:0.5mm;
+  margin-right:12px;
 }
 .btn-install:hover{background:#6f9614;color:#fff}
 .btn-install svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:14px;height:14px}
 
 /* 로그인: 36.55 x 14, padding 0 4px */
-.top-login,.topuser{height:14px;padding:0 4px;display:flex;align-items:center;margin-right:1mm}
-.topuser{gap:8px}
-.topuser b{color:var(--blue);font-weight:400}
-.topuser[hidden]{display:none}
+.top-login{height:14px;padding:0 4px;display:flex;align-items:center;margin-right:1mm}
+
+/* 로그인 상태: 알림 종 + 계정 이름 드롭다운 (Steam 실제 로그인 후 상단바 구성) */
+.user-wrap{position:relative;display:flex;align-items:center;gap:10px;height:24px}
+.notif-btn{background:none;padding:2px;display:flex;align-items:center}
+.notif-btn:hover svg path{fill:#fff}
+.top-user-btn{
+  position:relative;color:#B8B6B4;font-size:11px;padding:0 18px 0 0;background:none;white-space:nowrap;
+}
+.top-user-btn:hover{color:#fff}
+.top-user-btn::after{
+  content:"";position:absolute;right:2px;top:50%;margin-top:-1px;
+  width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:4px solid currentColor;
+}
+.user-drop{
+  position:absolute;top:28px;right:0;min-width:190px;background:#3d4450;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);z-index:80;padding:6px;
+}
+.user-drop a{
+  display:block;padding:8px 10px;border-radius:2px;color:#c7d5e0;font-size:13px;
+}
+.user-drop a:hover{background:rgba(103,193,245,.15);color:#fff}
+.user-drop-info{padding:8px 10px;color:#8f98a0;font-size:12px}
+.user-drop-info a{display:inline;padding:0;color:var(--blue)}
+.user-drop-info a:hover{background:none;color:#fff}
 
 /* 언어: 42.03 x 14, padding 0 18px 0 5px, margin-right 5px.
    ▾ 는 오른쪽 18px 여백 안에 그린다. */
+.lang-wrap{position:relative}
 .top-lang{
   position:relative;height:14px;padding:0 18px 0 5px;margin-right:5px;
-  display:flex;align-items:center;
+  display:flex;align-items:center;background:none;color:inherit;font-size:inherit;white-space:nowrap;
 }
 .top-lang::after{
   content:"";position:absolute;right:7px;top:50%;margin-top:-1px;
   width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
   border-top:4px solid currentColor;
 }
+.lang-drop{
+  position:absolute;top:22px;right:0;min-width:140px;background:#3d4450;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);z-index:80;padding:6px;
+}
+.lang-opt{
+  display:block;width:100%;text-align:left;background:none;color:#c7d5e0;
+  font-size:13px;padding:8px 10px;border-radius:2px;
+}
+.lang-opt:hover{background:rgba(103,193,245,.15);color:#fff}
+.lang-opt.on{color:var(--blue)}
 
 /* ---------- 상점 내비 ---------- */
 .storenav{
@@ -120,13 +153,13 @@ button{font-family:inherit;cursor:pointer;border:0}
 .storenav .wrap{display:flex;align-items:center;height:var(--nav-h)}
 .storenav .item{
   color:#b8c4d0;font-size:12px;padding:0 12px;height:var(--nav-h);display:flex;align-items:center;
-  gap:5px;text-transform:none;letter-spacing:.3px;
+  gap:5px;text-transform:none;letter-spacing:.3px;white-space:nowrap;flex-shrink:0;
 }
 .storenav .item:hover{color:#fff;background:rgba(103,193,245,.12)}
 .caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid #7d8b98}
 
 /* ---------- 상단 드롭다운 (클릭으로 열림) ---------- */
-.navitem{height:100%}
+.navitem{height:100%;flex-shrink:0}
 /* 첫 메뉴는 왼쪽 여백을 빼서 글자가 로고 왼쪽 끝과 같은 선에 오게 한다 */
 /* 실측: 내비 항목 묶음이 왼쪽에서 16px 들어가 있다 */
 .navitem:first-child{margin-left:16px}
@@ -266,10 +299,13 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* 검색창. 내비 오른쪽 끝에 붙고 입력칸이 남는 폭을 최대 330px 까지 먹는다 */
 /* 오른쪽 끝은 "언어" 에 맞춰 두고, 길이는 왼쪽으로만 늘린다.
    오른쪽에 붙어 있어서(margin-left:auto) 입력칸 폭을 키우면 왼쪽으로 뻗는다 */
-.searchbox{margin-left:auto;margin-right:1.5mm;display:flex;height:34px;position:relative}
+.searchbox{
+  margin-left:auto;margin-right:1.5mm;display:flex;height:34px;position:relative;
+  flex:1 1 auto;min-width:140px;max-width:446px;
+}
 .searchbox input{
   background:#2a2e35;box-shadow:inset 0 0 0 1px #3a4049;
-  border:0;outline:0;color:#dfe9f2;width:446px;padding:0 10px;font-size:13px;
+  border:0;outline:0;color:#dfe9f2;width:100%;min-width:0;padding:0 10px;font-size:13px;
   border-radius:3px 0 0 3px;
 }
 .searchbox input::placeholder{color:#8b9199;font-style:italic}
@@ -734,31 +770,64 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cr-submit:disabled{filter:grayscale(.6) brightness(.7);cursor:default}
 .create-msg{margin-top:14px;font-size:13px;color:#e08b6a;min-height:18px;max-width:300px;line-height:1.5}
 .create-msg.ok{color:var(--green)}
-/* ---------- 장바구니 ---------- */
-.cart-wrap{position:relative}
-.cart-btn{position:relative;background:none;padding:4px;display:flex;align-items:center}
-.cart-btn:hover svg path{stroke:var(--blue)}
-.cart-badge{
-  position:absolute;top:-4px;right:-6px;background:var(--blue);color:#0d1b26;
-  font-size:10px;font-weight:700;line-height:1;border-radius:8px;padding:2px 5px;min-width:14px;text-align:center;
+/* ---------- 상점 내비: 장바구니 / 찜 목록 버튼 (검색창 옆) ---------- */
+.nav-cart-btn{
+  display:flex;align-items:center;gap:6px;height:34px;margin-left:10px;padding:0 12px;
+  background:#2a3f5a;color:#fff;font-size:12px;border-radius:2px;white-space:nowrap;flex-shrink:0;
 }
-.cart-drop{
-  position:absolute;top:28px;right:0;width:320px;background:#3d4450;
-  box-shadow:0 10px 30px rgba(0,0,0,.6);max-height:420px;overflow-y:auto;z-index:70;padding:14px;
+.nav-cart-btn:hover{background:#35496a}
+
+/* ---------- 장바구니 / 찜 목록 페이지 (store.steampowered.com/cart 구성을 따름) ---------- */
+.cartpage,.wishpage{padding:32px 0 60px}
+.cp-crumb{color:#7d8b99;font-size:13px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.cp-crumb a{color:#67c1f5}
+.cp-crumb a:hover{color:#fff}
+.cp-crumb .cur{color:#c7d5e0}
+.cp-title{color:#fff;font-size:26px;font-weight:400;margin-bottom:24px}
+.cp-empty{text-align:center;padding:60px 0;color:#8f98a0}
+.cp-empty p{margin-bottom:18px;font-size:15px}
+
+.cp-body{display:flex;gap:24px;align-items:flex-start}
+.cp-main{flex:1;min-width:0}
+.cp-row{display:flex;align-items:center;gap:14px;background:#1f2b3c;padding:12px;margin-bottom:8px}
+.cp-thumb{width:120px;height:56px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center;background-color:#0e1621;cursor:pointer}
+.cp-info{flex:1;min-width:0}
+.cp-name{color:#fff;font-size:15px;margin-bottom:6px;cursor:pointer}
+.cp-name:hover{color:#67c1f5}
+.cp-remove{color:#67c1f5;font-size:12px}
+.cp-remove:hover{color:#fff}
+.cp-price{display:flex;align-items:center;gap:8px;flex:0 0 auto;font-size:14px}
+.cp-disc{background:#4c6b22;color:#a4d007;font-size:14px;font-weight:600;padding:4px 6px}
+.cp-was{color:#7a8b99;text-decoration:line-through;font-size:12px}
+.cp-now{color:#c7d5e0}
+
+.cp-actions{display:flex;justify-content:space-between;gap:12px;margin-top:16px}
+.btn-blue-outline{
+  border:1px solid #4c6b8a;color:#c7d5e0;padding:10px 20px;border-radius:2px;font-size:14px;
 }
-.cart-drop h4{color:#fff;font-size:14px;font-weight:400;margin-bottom:10px}
-.cart-empty{color:#b0b8c0;font-size:13px;text-align:center;padding:14px 0}
-.cart-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.cart-row{display:flex;align-items:center;gap:10px}
-.cart-thumb{width:66px;height:31px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center;background-color:#0e1621}
-.cart-info{flex:1;min-width:0}
-.cart-name{color:#fff;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cart-price{color:#b0b8c0;font-size:12px;margin-top:2px}
-.cart-remove{background:none;color:#7d868f;font-size:16px;line-height:1;padding:2px 6px}
-.cart-remove:hover{color:#fff}
-.cart-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #4c5560;padding-top:10px;font-size:13px;color:#c7d5e0}
-.cart-total b{color:#fff;font-weight:400;font-size:15px}
-.m-buy .btn-green.on{background:linear-gradient(to bottom,#4c6b22,#3a5119);color:var(--green)}
+.btn-blue-outline:hover{background:rgba(103,193,245,.1);color:#fff}
+
+.cp-side{flex:0 0 300px}
+.cp-summary{background:#1f2b3c;padding:18px}
+.cp-summary-row{display:flex;justify-content:space-between;align-items:center;color:#c7d5e0;font-size:14px;margin-bottom:8px}
+.cp-summary-row b{color:#fff;font-size:18px;font-weight:400}
+.cp-summary-note{color:#7d8b99;font-size:11px;line-height:1.5;margin-bottom:16px}
+.cp-checkout{display:block;text-align:center;width:100%;padding:12px}
+
+/* 찜 목록: 카트와 같은 줄 스타일 + 담기 버튼만 추가 */
+.wish-list{display:flex;flex-direction:column;gap:8px}
+.wish-row{display:flex;align-items:center;gap:14px;background:#1f2b3c;padding:12px}
+.wish-cart-btn{
+  flex:0 0 auto;background:linear-gradient(to bottom,#799905 5%,#536904 95%);
+  color:#fff;font-size:13px;padding:9px 16px;border-radius:2px;
+}
+.wish-cart-btn:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
+.wish-cart-btn:disabled{background:#3a4048;color:#8f98a0;cursor:default}
+
+@media (max-width:900px){
+  .cp-body{flex-direction:column}
+  .cp-side{width:100%}
+}
 /* ---------- 인증 완료 화면 ---------- */
 #doneView{display:none;position:relative;min-height:640px;overflow:hidden}
 #doneView.on{display:block}
@@ -869,6 +938,11 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   color:#fff;font-size:15px;padding:11px 18px;border-radius:2px;
 }
 .gp-cart:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
+.gp-wish{
+  margin-left:8px;background:#3a4048;color:#c7d5e0;font-size:15px;padding:11px 18px;border-radius:2px;
+}
+.gp-wish:hover{background:#454c56;color:#fff}
+.gp-wish.on{background:#243b52;color:var(--blue)}
 
 /* 본문 섹션 */
 .gp-h2{color:#fff;font-size:18px;font-weight:400;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.1)}

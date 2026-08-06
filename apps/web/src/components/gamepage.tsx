@@ -41,6 +41,9 @@ export default function GamePage({
   onTag,
   inCart,
   onToggleCart,
+  user,
+  inWishlist,
+  onToggleWishlist,
 }: {
   slug: string;
   onBack: () => void;
@@ -48,6 +51,9 @@ export default function GamePage({
   onTag: (tag: string) => void;
   inCart: boolean;
   onToggleCart: (slug: string) => void;
+  user?: unknown;
+  inWishlist?: boolean;
+  onToggleWishlist?: (slug: string) => void;
 }) {
   const [g, setG] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -184,6 +190,15 @@ export default function GamePage({
                 >
                   {inCart ? "장바구니에서 제거" : "장바구니에 추가"}
                 </button>
+                {user && onToggleWishlist && (
+                  <button
+                    className={"gp-wish" + (inWishlist ? " on" : "")}
+                    type="button"
+                    onClick={() => onToggleWishlist(slug)}
+                  >
+                    {inWishlist ? "찜 목록에서 제거" : "찜 목록에 추가"}
+                  </button>
+                )}
               </div>
             </div>
 

@@ -17,6 +17,9 @@
  *   POST /api/cart          장바구니에 추가 { slug } (로그인 필요)
  *   DELETE /api/cart/:slug  장바구니에서 제거 (로그인 필요)
  *   POST /api/cart/merge    로그인 전 로컬 장바구니 병합 { slugs: string[] } (로그인 필요)
+ *   GET  /api/wishlist          내 찜 목록 (로그인 필요)
+ *   POST /api/wishlist          찜 목록에 추가 { slug } (로그인 필요)
+ *   DELETE /api/wishlist/:slug  찜 목록에서 제거 (로그인 필요)
  *
  * 가격 규칙(schema.prisma 주석과 동일)
  *   - 할인가는 저장하지 않는다. 활성 Discount.percent로 서버에서만 계산한다.
@@ -418,6 +421,36 @@ async function mergeCart(userId: string, slugs: string[]) {
 }
 
 // ---------------------------------------------------------------
+// /api/wishlist (BE 2 담당) — 로그인한 사용자만. 게스트/병합 없음.
+// ---------------------------------------------------------------
+
+async function getWishlist(userId: string) {
+  const now = new Date();
+  const items = await prisma.wishlistItem.findMany({
+    where: { userId },
+    orderBy: { addedAt: 'desc' },
+    select: { addedAt: true, game: { select: cardArgs(now) } },
+  });
+  return items.map((i) => ({ ...toCard(i.game, now), addedAt: i.addedAt }));
+}
+
+async function addToWishlist(userId: string, slug: string) {
+  const gameId = await findGameIdBySlug(slug);
+  await prisma.wishlistItem.upsert({
+    where: { userId_gameId: { userId, gameId } },
+    create: { userId, gameId },
+    update: {},
+  });
+  return getWishlist(userId);
+}
+
+async function removeFromWishlist(userId: string, slug: string) {
+  const gameId = await findGameIdBySlug(slug);
+  await prisma.wishlistItem.deleteMany({ where: { userId, gameId } });
+  return getWishlist(userId);
+}
+
+// ---------------------------------------------------------------
 // HTTP
 // ---------------------------------------------------------------
 
@@ -631,6 +664,39 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
       const body = await readJsonBody(req);
       const slugs = Array.isArray(body.slugs) ? body.slugs : [];
       return json(res, await mergeCart(user.id, slugs));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/wishlist' && req.method === 'GET') {
+    try {
+      const user = await requireUser(req);
+      return json(res, await getWishlist(user.id));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/wishlist' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const body = await readJsonBody(req);
+      if (!body.slug) throw new AuthError(400, 'slug가 필요합니다.');
+      return json(res, await addToWishlist(user.id, body.slug), 201);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p.startsWith('/api/wishlist/') && req.method === 'DELETE') {
+    try {
+      const user = await requireUser(req);
+      const slug = decodeURIComponent(p.slice('/api/wishlist/'.length));
+      return json(res, await removeFromWishlist(user.id, slug));
     } catch (err) {
       if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
       throw err;
