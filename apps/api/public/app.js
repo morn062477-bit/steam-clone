@@ -303,58 +303,120 @@ function render(data) {
     });
   });
 
-  // 상단 메가 메뉴: 실제 데이터로 채운다
-  const tiles = data.categories.slice(0, 6);
-  const pills = data.categories.slice(6);
-  $('#navCatTiles').innerHTML = tiles.map((c) => `
-    <div class="cat" data-tag="${esc(c.name)}">
-      <div class="veil" style="${bg(c.image)}"></div>
-      <b>${esc(c.name)}</b>
-      <small>${c.count}종</small>
-    </div>`).join('');
-  $('#navCatPills').innerHTML = pills.map((c) => `
-    <a href="#" data-tag="${esc(c.name)}">${esc(c.name)}<span class="navcount">${c.count}종</span></a>`).join('');
-
-  const topGames = data.tabs.find((t) => t.key === 'top')?.games ?? [];
-  const top3 = topGames.slice(0, 3);
-  $('#navTopGames').innerHTML = top3.map((g) => `
-    <div class="mega-top-row" data-slug="${esc(g.slug)}">
-      <div class="mega-top-cap" style="${bg(g.headerImage)}"></div>
-      <div><div class="nm">${esc(g.name)}</div><div class="pr">${priceText(g)}</div></div>
-    </div>`).join('');
-
-  const banner1 = topGames[0];
-  const banner2 = data.deals[0] || topGames[1];
-  $('#navSearchBanners').innerHTML = [
-    banner1 ? `<div class="mega-banner" data-slug="${esc(banner1.slug)}" style="${bg(banner1.headerImage)}"><span>최고 인기 게임</span></div>` : '',
-    banner2 ? `<div class="mega-banner" data-slug="${esc(banner2.slug)}" style="${bg(banner2.headerImage)}"><span>할인 및 이벤트</span></div>` : '',
-  ].join('');
+  fillNavMenus(data);
 
   // 카드 클릭 -> 상세
   document.addEventListener('click', onCardClick);
 }
 
-// 상단 메가 메뉴의 탭 이동 링크 (신규 출시 / 출시 예정 / 최고 인기 / 특별 할인)
-document.querySelectorAll('.navdrop a[data-tab]').forEach((a) => {
-  a.addEventListener('click', (e) => {
+// ===============================================================
+// 상단 드롭다운
+//
+// 실제 Steam 은 hover 로 열지만, 여기서는 클릭으로 연다.
+// 열려 있는 메뉴는 하나뿐이고 바깥 클릭/Esc/화면 전환에서 닫힌다.
+// ===============================================================
+function closeNav() {
+  document.querySelectorAll('.navitem.open').forEach((n) => n.classList.remove('open'));
+}
+
+/** 드롭다운 카운트에 쓸 게임 목록 */
+const allGames = (d) => [...d.featured, ...d.deals, ...d.cheap, ...d.tabs.flatMap((t) => t.games)];
+
+document.querySelectorAll('.navitem > .item').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
     e.preventDefault();
-    const i = HOME.tabs.findIndex((t) => t.key === a.dataset.tab);
-    if (i < 0) return;
-    document.querySelectorAll('#relTabs .tab').forEach((t) => t.classList.remove('on'));
-    document.querySelector(`#relTabs .tab[data-i="${i}"]`)?.classList.add('on');
-    showTab(i);
-    $('#relTabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    e.stopPropagation();
+    const item = btn.parentElement;
+    const wasOpen = item.classList.contains('open');
+    closeNav();
+    if (!wasOpen) item.classList.add('open');
   });
 });
 
-// 상단 "카테고리" 메가 메뉴 항목 클릭 -> 장르 검색 (동적으로 생성되므로 위임 처리)
-$('#navCatMega').addEventListener('click', (e) => {
-  const a = e.target.closest('[data-tag]');
-  if (!a) return;
-  e.preventDefault();
-  $('#q').value = '';
-  runSearchByTag(a.dataset.tag);
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.navitem')) closeNav();
 });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeNav(); });
+
+/** 드롭다운 안의 링크를 누르면 해당 섹션으로 보내고 메뉴를 닫는다. */
+document.querySelectorAll('.navdrop').forEach((drop) => {
+  drop.addEventListener('click', (e) => {
+    const tabLink = e.target.closest('[data-tab]');
+    if (tabLink) {
+      e.preventDefault();
+      closeNav();
+      goTab(tabLink.dataset.tab);
+      return;
+    }
+    const tagLink = e.target.closest('[data-tag]');
+    if (tagLink) {
+      e.preventDefault();
+      closeNav();
+      $('#q').value = '';
+      runSearchByTag(tagLink.dataset.tag);
+      return;
+    }
+    // 게임 카드는 onCardClick 이 모달을 열어 준다. 메뉴만 닫는다.
+    if (e.target.closest('a, [data-slug]')) closeNav();
+  });
+});
+
+/** 신규 출시 섹션의 탭으로 이동 (신규 출시 / 출시 예정 / 최고 인기 / 특별 할인) */
+function goTab(key) {
+  if (!HOME) return;
+  const i = HOME.tabs.findIndex((t) => t.key === key);
+  if (i < 0) return;
+  showView('store');
+  document.querySelectorAll('#relTabs .tab').forEach((t) => t.classList.remove('on'));
+  document.querySelector(`#relTabs .tab[data-i="${i}"]`)?.classList.add('on');
+  showTab(i);
+  $('#relTabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+$('#navCatExpand').addEventListener('click', () => {
+  const box = $('#navCatGenres');
+  const open = box.classList.toggle('open');
+  $('#navCatExpand').textContent = open ? '접기 ⌃' : '펼치기 ⌄';
+});
+
+/** 드롭다운 중 DB 값이 들어가는 부분을 채운다. */
+function fillNavMenus(data) {
+  // 카테고리: 앞 6개는 이미지 타일, 나머지는 알약 + 전체 장르 목록
+  $('#navCatTiles').innerHTML = data.categories.slice(0, 6).map((c) => `
+    <div class="cat" data-tag="${esc(c.name)}">
+      <div class="veil" style="${bg(c.image)}"></div>
+      <b>${esc(c.name)}</b>
+    </div>`).join('');
+
+  $('#navCatPills').innerHTML =
+    data.categories.slice(6).map((c) => `<a href="#" data-tag="${esc(c.name)}">${esc(c.name)}</a>`).join('') +
+    '<a href="#" class="nd-allpills">모든 태그 보기 ›</a>';
+
+  // 전체 장르 및 테마: 화면에 나온 게임들의 태그를 모아 많이 쓰인 순으로
+  const count = new Map();
+  for (const g of allGames(data)) {
+    for (const t of g.tags || []) count.set(t, (count.get(t) || 0) + 1);
+  }
+  const genres = [...count.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+  $('#navCatGenres').innerHTML = genres.map((n) =>
+    `<a href="#" data-tag="${esc(n)}">${esc(n)}</a>`).join('');
+
+  // 추천 제품: 최고 인기 3종
+  const topGames = data.tabs.find((t) => t.key === 'top')?.games ?? [];
+  $('#navTopGames').innerHTML = topGames.slice(0, 3).map((g) => `
+    <div class="nd-top-row" data-slug="${esc(g.slug)}">
+      <div class="nd-top-cap" style="${bg(g.headerImage)}"></div>
+      <div><div class="nm">${esc(g.name)}</div><div class="pr">${priceText(g)}</div></div>
+    </div>`).join('');
+
+  // 검색: 배너 2장
+  const b1 = topGames[0];
+  const b2 = data.deals[0] || topGames[1];
+  $('#navSearchBanners').innerHTML = [
+    b1 ? `<div class="nd-banner" data-slug="${esc(b1.slug)}" style="${bg(b1.headerImage)}"><span class="nd-chip">최고 인기 게임</span></div>` : '',
+    b2 ? `<div class="nd-banner" data-slug="${esc(b2.slug)}" style="${bg(b2.headerImage)}"><span class="nd-chip">할인 및 이벤트</span></div>` : '',
+  ].join('');
+}
 
 function showTab(i) {
   const games = HOME.tabs[i].games;
@@ -461,23 +523,62 @@ document.addEventListener('keydown', (e) => {
 // ===============================================================
 let searchTimer = null;
 
-function renderResults(rows) {
-  const box = $('#sresults');
-  if (!rows.length) { box.innerHTML = '<div class="sres-empty">검색 결과가 없습니다.</div>'; box.classList.add('on'); return; }
-  box.innerHTML = rows.map((g) => `
-    <div class="sres-row" data-slug="${esc(g.slug)}">
-      <div class="cap" style="${bg(g.headerImage)}"></div>
+/** 드롭다운 한 줄. 할인 중이면 할인율/정가/판매가를 나눠 보여준다. */
+function sresRow(g) {
+  const price = g.discountPercent > 0
+    ? `<span class="disc">-${g.discountPercent}%</span>
+       <span class="was">${won(g.priceKrw)}</span>
+       <span class="now">${won(g.finalKrw)}</span>`
+    : `<span class="now">${priceText(g)}</span>`;
+  return `<div class="sres-row" data-slug="${esc(g.slug)}">
+    <div class="cap" style="${bg(g.headerImage)}"></div>
+    <div class="info">
       <div class="nm">${esc(g.name)}</div>
-      <div class="pr">${priceText(g)}</div>
-    </div>`).join('');
+      <div class="pr">${price}</div>
+    </div>
+  </div>`;
+}
+
+function openResults(html) {
+  const box = $('#sresults');
+  box.innerHTML = html;
   box.classList.add('on');
+  $('.searchbox').classList.add('open');
   box.querySelectorAll('.sres-row').forEach((r) => {
-    r.addEventListener('click', () => { box.classList.remove('on'); openGame(r.dataset.slug); });
+    r.addEventListener('click', () => { closeResults(); openGame(r.dataset.slug); });
   });
 }
 
+function closeResults() {
+  $('#sresults').classList.remove('on');
+  $('.searchbox').classList.remove('open');
+}
+
+function renderResults(rows) {
+  if (!rows.length) { openResults('<div class="sres-empty">검색 결과가 없습니다.</div>'); return; }
+  openResults(rows.map(sresRow).join('') + '<div class="sres-adv" role="button" tabindex="0">고급 검색</div>');
+}
+
+/** 검색어가 없을 때 뜨는 인기 검색어. 할인 중인 게임을 앞세운다. */
+function renderPopular() {
+  if (!HOME) return;
+  const seen = new Set(), rows = [];
+  for (const g of [...HOME.deals, ...(HOME.tabs.find((t) => t.key === 'top')?.games ?? [])]) {
+    if (!g || seen.has(g.slug)) continue;
+    seen.add(g.slug);
+    rows.push(g);
+    if (rows.length === 4) break;
+  }
+  if (!rows.length) return;
+  openResults(
+    '<div class="sres-head">인기 검색어</div>' +
+    rows.map(sresRow).join('') +
+    '<div class="sres-adv" role="button" tabindex="0">고급 검색</div>',
+  );
+}
+
 async function runSearch(q) {
-  if (!q.trim()) { $('#sresults').classList.remove('on'); return; }
+  if (!q.trim()) { renderPopular(); return; }
   const rows = await (await fetch('/api/search?q=' + encodeURIComponent(q))).json();
   renderResults(rows);
 }
@@ -501,9 +602,24 @@ $('#q').addEventListener('input', (e) => {
   const v = e.target.value;
   searchTimer = setTimeout(() => runSearch(v), 220);
 });
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.searchbox')) $('#sresults').classList.remove('on');
+
+// 검색창에 마우스를 올리거나 포커스가 가면 인기 검색어를 띄운다.
+// 마우스가 빠져도 포커스가 남아 있거나 검색어를 친 상태면 그대로 둔다.
+const searchBox = $('.searchbox');
+searchBox.addEventListener('mouseenter', () => {
+  if (!$('#q').value.trim()) renderPopular();
 });
+searchBox.addEventListener('mouseleave', () => {
+  if (document.activeElement !== $('#q') && !$('#q').value.trim()) closeResults();
+});
+$('#q').addEventListener('focus', () => {
+  if (!$('#q').value.trim()) renderPopular();
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.searchbox')) closeResults();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeResults(); });
 
 // ===============================================================
 // 캐러셀
@@ -570,7 +686,8 @@ function showView(name) {
   $('#topLogin').style.visibility = view === 'login' ? 'hidden' : '';
 
   closeModal();
-  $('#sresults').classList.remove('on');
+  closeNav();
+  closeResults();
 
   const want = HASH[view] || location.pathname;
   if (location.hash !== (HASH[view] || '')) history.replaceState(null, '', want);

@@ -18,12 +18,21 @@ body{
   background:#1b2838;
   background-image:linear-gradient(to bottom,#1b2838 0,#1b2838 200px,#1b2838 100%);
   color:var(--text);
-  font-family:var(--font-dm-sans),"Motiva Sans","Segoe UI","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
+  /* DM Sans 가 영문/숫자를, Noto Sans KR 이 한글을 맡는다.
+     브라우저는 글자 단위로 앞에서부터 글리프가 있는 폰트를 고른다. */
+  font-family:var(--font-dm-sans),var(--font-noto-kr),"Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
   font-size:14px;
   -webkit-font-smoothing:antialiased;
 }
 a{color:var(--text);text-decoration:none}
-.wrap{width: 100%; max-width:1700px;margin:0 auto;position:relative}
+.wrap{width:100%;max-width:1700px;margin:0 auto;position:relative}
+/* 헤더/내비는 본문보다 안쪽으로 모은다. 화면이 넓어도 양 끝까지 벌어지지 않게 한다.
+   드롭다운 폭은 .navdrop-in 에서 같은 값으로 맞춘다. */
+.topbar .wrap,.storenav .wrap{width:66.24%;max-width:1224px}
+
+/* 로그인/가입 계열 화면도 헤더와 같은 폭으로 모은다.
+   폼 자체는 원래대로 왼쪽 정렬이다 (로그인 화면의 .login-box 만 가운데). */
+#loginView .wrap,#signupView .wrap,#createView .wrap,#doneView .wrap{width:66.24%;max-width:1224px}
 img{display:block}
 button{font-family:inherit;cursor:pointer;border:0}
 
@@ -35,19 +44,21 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* ---------- 상단 헤더 ---------- */
 .topbar{background:var(--bg-dark);height:104px}
 .topbar .wrap{display:flex;align-items:center;height:104px}
-.logo{display:flex;align-items:center;gap:8px;margin-right:34px}
-.logo svg{width:38px;height:38px}
-.logo span{font-size:29px;letter-spacing:1px;color:#e8e8e8;font-weight:400}
-.logo sup{font-size:9px;vertical-align:super}
+/* 로고는 원형 마크 + STEAM® 워드마크가 한 파일에 든 SVG 하나로 끝낸다.
+   높이만 잡고 폭은 비율대로 둔다 (293.44 x 89.333). */
+.logo{display:flex;align-items:center;margin-right:56px}
+.logo img{height:44px;width:auto;display:block}
+.logo:hover img{filter:brightness(1.15)}
 .mainnav{display:flex;gap:20px;padding-top:6px}
 .mainnav a{font-size:15px;color:#b8b6b4;text-transform:none}
 .mainnav a:hover{color:#fff}
 .mainnav a.on{color:var(--blue)}
-.topright{margin-left:auto;display:flex;align-items:center;gap:10px;align-self:flex-start;margin-top:14px;font-size:12px}
+.topright{margin-left:auto;display:flex;align-items:center;gap:9px;align-self:flex-start;margin-top:6px;font-size:11px}
 .btn-install{
   background:linear-gradient(to bottom,#799905 5%,#536904 95%);
-  color:#fff;padding:5px 12px;border-radius:2px;display:flex;align-items:center;gap:6px;font-size:12px;
+  color:#fff;padding:3px 10px;border-radius:2px;display:flex;align-items:center;gap:5px;font-size:11px;
 }
+.btn-install svg{width:12px;height:12px}
 .btn-install:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%);color:#fff}
 .topright .sep{color:#4c5966}
 .topright a{color:#b8b6b4}
@@ -66,27 +77,192 @@ button{font-family:inherit;cursor:pointer;border:0}
 }
 .storenav .item:hover{color:#fff;background:rgba(103,193,245,.12)}
 .caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid #7d8b98}
-.searchbox{margin-left:auto;display:flex;height:26px;border-radius:3px;overflow:hidden;background:#316282;position:relative}
-.searchbox input{
-  background:linear-gradient(to bottom,#316282 0,#1b3654 100%);
-  border:0;outline:0;color:#cfe0ec;width:200px;padding:0 10px;font-size:12px;
-}
-.searchbox input::placeholder{color:#7b93a6}
-.searchbox button{background:#1e88e5;width:30px;display:flex;align-items:center;justify-content:center}
-.searchbox button svg{width:13px;height:13px;fill:#0f2b45}
 
-/* 검색 결과 드롭다운 */
+/* ---------- 상단 드롭다운 (클릭으로 열림) ---------- */
+.navitem{height:100%}
+/* 첫 메뉴는 왼쪽 여백을 빼서 글자가 로고 왼쪽 끝과 같은 선에 오게 한다 */
+.navitem:first-child .item{padding-left:0}
+.navitem .item{background:none}
+.navitem.open .item{color:var(--blue);box-shadow:inset 0 -2px 0 var(--blue)}
+
+/* 패널은 눌린 버튼이 아니라 내비 바 전체를 기준으로 펼친다.
+   그래서 .storenav .wrap 의 position:relative 를 여기서만 끈다.
+   (검색창 드롭다운은 .searchbox 를 기준으로 잡으므로 영향이 없다) */
+.storenav .wrap{position:static}
+.navdrop{
+  position:absolute;top:100%;left:0;right:0;
+  background:#1b2838;border-top:1px solid #2f4257;
+  box-shadow:0 14px 28px rgba(0,0,0,.55);display:none;z-index:70;
+}
+.navitem.open .navdrop{display:block}
+/* 헤더/내비와 같은 세로선에 맞춘다. .wrap 과 같은 폭 규칙을 쓴다 */
+.navdrop-in{width:66.24%;max-width:1224px;margin:0 auto;display:flex;gap:34px;padding:20px 0 30px}
+.navdrop-in.nd-cats{display:block}
+
+.nd-main{flex:1;min-width:0}
+.nd-aside{flex:0 0 250px}
+.nd-cols{display:flex;gap:40px}
+.nd-col{min-width:0}
+.nd-colhead{display:block;color:#7b90a3;font-size:12px;font-weight:400;margin-bottom:12px}
+.nd-label{color:#7b90a3;font-size:12px;margin-bottom:12px}
+.nd-label-row{display:flex;align-items:center;justify-content:space-between;margin-top:20px}
+.nd-expand{background:none;color:#7b90a3;font-size:12px}
+.nd-expand:hover{color:#fff}
+
+.nd-links{display:flex;flex-direction:column;gap:11px}
+.nd-links a{color:#c7d5e0;font-size:13px}
+.nd-links a:hover{color:#fff}
+.nd-links-sep{margin-top:14px;padding-top:14px;border-top:1px solid #2f4257}
+
+/* 흰 라벨 칩. 하드웨어/카테고리 타일에서 쓴다 */
+.nd-chip{
+  background:#fff;color:#1b2838;font-size:13px;font-weight:700;letter-spacing:.3px;
+  padding:9px 18px;border-radius:2px;position:relative;z-index:2;
+}
+
+/* 파란 타일. 플레이 모드 / 특별 섹션 */
+.nd-blue{
+  display:flex;align-items:center;justify-content:center;gap:12px;min-height:74px;
+  background:linear-gradient(160deg,#4b83bf,#33629b);border-radius:3px;
+  color:#fff;font-size:15px;font-weight:600;letter-spacing:.3px;padding:12px;
+}
+.nd-blue:hover{filter:brightness(1.12);color:#fff}
+.nd-blue svg{width:26px;height:26px;flex:0 0 auto}
+
+/* ---------- 검색 ---------- */
+.nd-search .nd-main{display:flex;gap:18px;background:rgba(103,193,245,.05);border-radius:3px;padding:14px}
+.nd-guide{width:250px;flex:0 0 auto;display:flex;flex-direction:column;gap:4px}
+.nd-guide a{display:block;padding:10px 12px;border-radius:2px}
+.nd-guide a:hover{background:#2a475e}
+.nd-guide b{display:block;color:#dfe6ec;font-size:14px;font-weight:400}
+.nd-guide small{display:block;color:#7b90a3;font-size:12px;margin-top:3px;line-height:1.4}
+.nd-banners{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.nd-banner{
+  position:relative;flex:1;min-height:74px;border-radius:3px;overflow:hidden;cursor:pointer;
+  background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;
+}
+.nd-banner::after{content:'';position:absolute;inset:0;background:rgba(20,30,45,.35)}
+.nd-banner .nd-chip{font-size:14px}
+
+/* ---------- 추천 제품 ---------- */
+.nd-toprow{display:flex;gap:16px}
+.nd-toplist{width:340px;flex:0 0 auto;display:flex;flex-direction:column;gap:6px}
+.nd-top-row{display:flex;align-items:center;gap:12px;padding:6px;background:#20303f;border-radius:2px;cursor:pointer}
+.nd-top-row:hover{background:#2a475e}
+.nd-top-cap{width:88px;height:41px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center}
+.nd-top-row .nm{color:#dfe6ec;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nd-top-row .pr{color:#7b90a3;font-size:12px;margin-top:3px}
+
+.nd-promo{flex:1;min-width:0;display:flex;gap:14px;padding:16px;background:#20303f;border-radius:3px}
+.nd-promo:hover{background:#25384a}
+.nd-promo-icon{flex:0 0 auto}
+.nd-promo-icon svg{width:42px;height:42px}
+.nd-promo-body b{display:block;color:#fff;font-size:16px;font-weight:600;margin-bottom:8px}
+.nd-badge{
+  display:inline-block;background:#5c7e10;color:#d2e885;font-size:10px;font-style:normal;
+  padding:2px 7px;border-radius:2px;vertical-align:middle;margin-left:6px;
+}
+.nd-promo-body small{display:block;color:#a8b6c2;font-size:13px;line-height:1.5;margin-bottom:14px}
+.nd-cta{
+  display:inline-block;background:linear-gradient(to bottom,#47bfff,#2d73ff);
+  color:#fff;font-size:14px;padding:9px 18px;border-radius:2px;
+}
+
+/* ---------- 카테고리 ---------- */
+.nd-cat-tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.nd-cat-tiles .cat{height:96px;border-radius:3px}
+.nd-cat-tiles .cat b{font-size:13px;padding:5px 12px}
+.nd-cat-tiles .cat small{display:none}
+.nd-cat-pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.nd-cat-pills a{
+  display:inline-block;padding:6px 14px;background:#2a3f55;border-radius:2px;
+  color:#b8c4d0;font-size:12px;white-space:nowrap;
+}
+.nd-cat-pills a:hover{background:#3d5875;color:#fff}
+.nd-cat-pills .nd-allpills{margin-left:auto;background:none;color:var(--blue);padding:6px 0}
+.nd-cat-pills .nd-allpills:hover{background:none;color:#fff}
+.nd-genres{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:10px 18px;
+  max-height:96px;overflow:hidden;
+}
+.nd-genres.open{max-height:none}
+.nd-genres a{color:#c7d5e0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nd-genres a:hover{color:#fff}
+
+/* ---------- 하드웨어 ---------- */
+.nd-hw-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.nd-hw-tile{
+  position:relative;height:150px;border-radius:3px;display:flex;
+  align-items:flex-end;justify-content:center;padding-bottom:18px;
+}
+.nd-hw-tile:hover{filter:brightness(1.05)}
+.nd-hw-tile.deck{background:linear-gradient(150deg,#f7cccb,#eeaaa8)}
+.nd-hw-tile.machine{background:linear-gradient(150deg,#d8eaf9,#bcd8f2)}
+.nd-hw-tile.frame{background:linear-gradient(150deg,#e2efb8,#cbe294)}
+.nd-hw-art{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:150px;height:76px}
+
+/* ---------- 플레이 모드 / 특별 섹션 ---------- */
+.nd-play-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.nd-play-tiles .wide{grid-column:span 1}
+.nd-play-tiles .wide:nth-of-type(4){grid-column:1 / span 2}
+.nd-play-tiles .wide:nth-of-type(5){grid-column:3 / span 1}
+.nd-sp-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.nd-sp-tiles .wide{grid-column:1 / -1}
+
+/* 검색창. 내비 오른쪽 끝에 붙고 입력칸이 남는 폭을 최대 330px 까지 먹는다 */
+.searchbox{margin-left:auto;display:flex;height:30px;position:relative}
+.searchbox input{
+  background:#2a2e35;box-shadow:inset 0 0 0 1px #3a4049;
+  border:0;outline:0;color:#dfe9f2;width:400px;padding:0 12px;font-size:13px;
+  border-radius:3px 0 0 3px;
+}
+.searchbox input::placeholder{color:#8b9199;font-style:italic}
+/* 마우스를 올리면 바탕이 한 톤 더 진해진다 */
+.searchbox:hover input{background:#22262c}
+/* 포커스/드롭다운이 열리면 입력칸+버튼을 파랗게 두른다 */
+.searchbox:focus-within,.searchbox.open{box-shadow:0 0 0 2px #1a9fff;border-radius:3px}
+.searchbox:focus-within input,.searchbox.open input{background:#22262c;color:#fff}
+.searchbox button{
+  background:#1a9fff;width:40px;display:flex;align-items:center;justify-content:center;
+  border-radius:0 3px 3px 0;
+}
+.searchbox button:hover{background:#47bfff}
+.searchbox button svg{width:16px;height:16px;fill:#fff}
+
+/* 검색 드롭다운 (인기 검색어 / 검색 결과)
+   입력칸보다 왼쪽으로 더 넓게 펼쳐지고 버튼 오른쪽 끝에 맞춰 정렬한다 */
 .sresults{
-  position:absolute;top:28px;right:0;width:420px;background:#1b2838;border:1px solid #2f4257;
-  box-shadow:0 8px 24px rgba(0,0,0,.55);max-height:420px;overflow-y:auto;display:none;z-index:70;
+  position:absolute;top:34px;right:0;width:510px;background:#3d4450;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);max-height:460px;overflow-y:auto;
+  display:none;z-index:70;padding:10px;
 }
 .sresults.on{display:block}
-.sres-row{display:flex;gap:10px;align-items:center;padding:7px 9px;cursor:pointer}
-.sres-row:hover{background:#2a475e}
-.sres-row .cap{width:120px;height:45px;flex:0 0 auto;border-radius:2px}
-.sres-row .nm{flex:1;min-width:0;color:#dfe6ec;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sres-row .pr{font-size:12px;color:var(--text-dim);white-space:nowrap}
-.sres-empty{padding:14px;color:var(--text-dim);font-size:12px;text-align:center}
+.sres-head{color:#b0b8c0;font-size:12px;padding:2px 4px 8px}
+
+/* 줄은 왼쪽이 어둡고 오른쪽으로 갈수록 밝아지는 회색 그라데이션.
+   아래 고급 검색 막대와 폭을 정확히 맞추려고 둘 다 width:100% 로 고정한다. */
+.sres-row{
+  display:flex;gap:12px;align-items:center;width:100%;margin:0 0 4px;cursor:pointer;
+  background:linear-gradient(to right,#343b47 5%,#4a5262 95%);
+}
+.sres-row:hover{background:linear-gradient(to right,#4a5a6b 5%,#5d6d80 95%)}
+.sres-row .cap{width:150px;height:62px;flex:0 0 auto;background-color:#0e1621}
+.sres-row .info{flex:1;min-width:0;padding-right:12px}
+.sres-row .nm{color:#fff;font-size:15px;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sres-row .pr{display:flex;align-items:center;gap:7px;font-size:13px;white-space:nowrap}
+.sres-row .pr .disc{background:var(--green-bg);color:var(--green);padding:2px 6px;font-size:12px}
+.sres-row .pr .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
+.sres-row .pr .now{color:#c7d5e0}
+
+/* 고급 검색. 위 게임 줄과 같은 div 라서 폭 계산이 정확히 같다.
+   .sres-row 처럼 width:100% + margin 좌우 0 을 그대로 쓴다. */
+.sres-adv{
+  display:block;width:100%;margin:6px 0 0;padding:12px;cursor:pointer;user-select:none;
+  color:#fff;font-size:13px;letter-spacing:.3px;text-align:center;
+  background:linear-gradient(to bottom,#4f5766,#454c5a);
+}
+.sres-adv:hover{background:linear-gradient(to bottom,#5c657a,#515a6c)}
+.sres-empty{padding:20px;color:#b0b8c0;font-size:13px;text-align:center}
 
 /* ---------- 히어로 배너 ---------- */
 .hero{height:340px;position:relative;overflow:hidden;background:#0e1621}
@@ -383,6 +559,170 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 }
 .btn-join:hover{filter:brightness(1.2)}
 .join-right{max-width:300px;font-size:12px;line-height:1.6;text-align:right}
+
+/* ---------- 계정 만들기 ---------- */
+#signupView{display:none;position:relative;min-height:760px;overflow:hidden}
+#signupView.on{display:block}
+.signup-bg{
+  position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);
+  grid-auto-rows:230px;gap:10px;transform:rotate(-8deg) scale(1.3);
+}
+.signup-bg span{border-radius:4px;background:#2a3f55;background-size:cover;background-position:center}
+.signup-bg span:nth-child(3n){background-color:#3d4a63}
+.signup-bg span:nth-child(4n){background-color:#4a3b52}
+.signup-bg span:nth-child(5n){background-color:#23415a}
+.signup-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,
+    rgba(23,26,33,.10) 0%,
+    rgba(23,26,33,.55) 10%,
+    rgba(23,26,33,.96) 24%,
+    #171a21 34%);
+}
+.signup-inner{position:relative;z-index:5;padding:70px 0 90px}
+.signup-title{font-size:32px;font-weight:400;color:#fff;margin-bottom:34px}
+.signup-form{max-width:300px}
+.su-label{display:block;font-size:13px;color:var(--text);margin-bottom:6px}
+.su-input{
+  width:100%;background:#32353c;border:0;border-radius:3px;padding:9px 10px;
+  color:#fff;font-size:14px;font-family:inherit;outline:0;margin-bottom:22px;
+}
+.su-input:focus{box-shadow:0 0 0 2px var(--blue)}
+.su-select{appearance:auto;height:34px;padding:0 8px;cursor:pointer}
+.su-captcha{
+  display:flex;align-items:center;gap:12px;background:#2b2e35;
+  border:1px solid #3d4147;border-radius:3px;padding:14px 12px;margin-bottom:20px;
+}
+.su-box{
+  width:26px;height:26px;background:#fff;border-radius:2px;flex:0 0 auto;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.su-box::after{content:"";width:0;height:0;color:#1e8a3c;font-size:20px;line-height:1}
+.su-box.on::after{content:"✔";width:auto;height:auto}
+.su-captcha .txt{font-size:14px;color:var(--text);flex:1}
+.su-brand{text-align:center;font-size:10px;color:#7d858f;line-height:1.4}
+.su-brand b{display:block;font-size:11px;color:#9aa3ad;font-weight:400}
+.su-mark{
+  width:22px;height:22px;margin:0 auto 3px;border-radius:3px;
+  background:linear-gradient(135deg,#2596d1,#0a5f8f);
+}
+.su-agree{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;margin-bottom:24px;cursor:pointer}
+.su-agree input{width:15px;height:15px;margin-top:2px;flex:0 0 auto;cursor:pointer}
+.su-agree a{color:#fff}
+.su-agree a:hover{color:var(--blue)}
+.su-submit{
+  width:128px;border-radius:3px;color:#fff;font-size:15px;padding:11px;
+  background:linear-gradient(to right,#06bfff,#2d73ff);
+}
+.su-submit:hover{filter:brightness(1.15)}
+.signup-msg{margin-top:12px;font-size:13px;color:#e08b6a;min-height:18px}
+.signup-msg.ok{color:var(--green)}
+@media (max-width:980px){
+  .signup-veil{background:rgba(23,26,33,.9)}
+  .signup-form{max-width:100%}
+}
+/* ---------- 이메일 인증 모달 ---------- */
+.verify-back{
+  position:fixed;inset:0;background:rgba(6,10,15,.86);z-index:120;
+  display:none;align-items:flex-start;justify-content:center;padding:90px 12px 40px;overflow-y:auto;
+}
+.verify-back.on{display:flex}
+.verify{
+  width:720px;max-width:100%;background:#23262b;border-top:2px solid #4b9fd5;
+  box-shadow:0 14px 50px rgba(0,0,0,.7);padding:26px 30px 30px;
+}
+.verify h3{color:#fff;font-size:22px;font-weight:400;margin-bottom:20px}
+.v-panel{background:#2b2f36;padding:34px 30px 30px;text-align:center}
+.v-msg{color:#dfe5ea;font-size:15px;line-height:1.6;margin-bottom:26px}
+.v-msg b{color:#fff;font-weight:400}
+.v-bars{display:flex;align-items:flex-end;justify-content:center;gap:7px;height:66px;margin-bottom:22px}
+.v-bars i{width:15px;background:#66b4e4;display:block;border-radius:1px;animation:vbar 1.1s ease-in-out infinite}
+.v-bars i:nth-child(1){height:44px;animation-delay:0s}
+.v-bars i:nth-child(2){height:66px;animation-delay:.18s}
+.v-bars i:nth-child(3){height:52px;animation-delay:.36s}
+@keyframes vbar{0%,100%{transform:scaleY(.55)}50%{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){.v-bars i{animation:none}}
+.v-status{color:#66c0f4;font-size:22px;font-weight:400}
+.v-status.done{color:var(--green)}
+.v-ask{text-align:center;color:#c7d5e0;font-size:14px;margin:20px 0 12px}
+.v-toggle{
+  display:block;margin:0 auto;background:#3a3f47;color:#c7d5e0;
+  padding:7px 18px;border-radius:2px;font-size:14px;
+}
+.v-toggle:hover{background:#454b54}
+.v-help{display:none;color:#a8b3bd;font-size:13px;line-height:1.8;margin-top:20px}
+.v-help.on{display:block}
+.v-help ol{margin:10px 0 14px 20px}
+.v-help li{margin-bottom:8px}
+.v-help a{color:var(--blue)}
+.v-fake{
+  margin-top:22px;padding-top:18px;border-top:1px solid #363b42;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.v-fake p{color:#7d868f;font-size:12px;line-height:1.5;flex:1;min-width:200px}
+.v-fake button{
+  background:linear-gradient(to bottom,#799905 5%,#536904 95%);
+  color:#fff;padding:9px 20px;border-radius:2px;font-size:14px;
+}
+.v-fake button:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
+/* ---------- 계정 만들기 (이메일 인증 다음 단계) ---------- */
+#createView{display:none;position:relative;min-height:760px;overflow:hidden}
+#createView.on{display:block}
+.create-bg{
+  position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);
+  grid-auto-rows:240px;gap:10px;transform:rotate(-8deg) scale(1.3);
+}
+.create-bg span{border-radius:4px;background:#2a3f55;background-size:cover;background-position:center}
+.create-bg span:nth-child(3n){background-color:#3d4a63}
+.create-bg span:nth-child(4n){background-color:#4a3b52}
+.create-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(23,26,33,.12) 0%,rgba(23,26,33,.72) 8%,rgba(23,26,33,.97) 20%,#171a21 30%);
+}
+.create-inner{position:relative;z-index:5;padding:70px 0 90px}
+.create-title{font-size:32px;font-weight:400;color:#fff;margin-bottom:34px}
+.create-form{max-width:300px}
+.cr-label{display:block;font-size:13px;color:var(--text);margin-bottom:6px}
+.cr-input{
+  width:100%;background:#32353c;border:0;border-radius:3px;padding:9px 10px;
+  color:#fff;font-size:14px;font-family:inherit;outline:0;
+}
+.cr-input:focus{box-shadow:0 0 0 2px var(--blue)}
+.cr-hint{font-size:12px;color:var(--text-dim);margin:6px 0 22px;min-height:16px}
+.cr-hint.bad{color:#e08b6a}
+.cr-hint.ok{color:var(--green)}
+/* 마지막 칸(비밀번호 확인)은 힌트가 없어서 여백을 직접 준다 */
+#crPw2{margin-bottom:26px}
+.cr-submit{
+  width:128px;border-radius:3px;color:#fff;font-size:15px;padding:11px;
+  background:linear-gradient(to right,#06bfff,#2d73ff);
+}
+.cr-submit:hover{filter:brightness(1.15)}
+.cr-submit:disabled{filter:grayscale(.6) brightness(.7);cursor:default}
+.create-msg{margin-top:14px;font-size:13px;color:#e08b6a;min-height:18px;max-width:300px;line-height:1.5}
+.create-msg.ok{color:var(--green)}
+/* 로그인한 사용자 표시 */
+.topuser{display:flex;align-items:center;gap:8px}
+.topuser b{color:var(--blue);font-weight:400}
+.topuser[hidden]{display:none}
+/* ---------- 인증 완료 화면 ---------- */
+#doneView{display:none;position:relative;min-height:640px;overflow:hidden}
+#doneView.on{display:block}
+.done-bg{
+  position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);
+  grid-auto-rows:240px;gap:10px;transform:rotate(-8deg) scale(1.3);
+}
+.done-bg span{border-radius:4px;background:#2a3f55;background-size:cover;background-position:center}
+.done-bg span:nth-child(3n){background-color:#3d4a63}
+.done-bg span:nth-child(4n){background-color:#4a3b52}
+.done-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(23,26,33,.12) 0%,rgba(23,26,33,.72) 8%,rgba(23,26,33,.97) 20%,#171a21 30%);
+}
+.done-inner{position:relative;z-index:5;padding:80px 0 120px}
+.done-inner h1{color:#e8eaed;font-size:38px;font-weight:400;margin-bottom:34px}
+.done-inner p{color:#c7d5e0;font-size:15px;margin-bottom:22px}
+.done-inner .note{color:#8f98a0;font-size:14px;margin-bottom:30px}
 
 @media (max-width:980px){
   .wrap{width:100%;padding:0 12px}

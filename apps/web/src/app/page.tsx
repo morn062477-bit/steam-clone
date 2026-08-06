@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import StoreNav from "@/components/storenav";
+import Auth, { readUser, writeUser, type AuthView, type User } from "@/components/auth";
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
 
@@ -394,93 +396,6 @@ function Modal({ slug, onClose }: { slug: string; onClose: () => void }) {
 }
 
 // ---------------------------------------------------------------
-// 로그인 화면
-// ---------------------------------------------------------------
-function LoginView({ active, pool, onStore }: { active: boolean; pool: string[]; onStore: (e: React.MouseEvent) => void }) {
-  const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const id = (form.elements.namedItem("account") as HTMLInputElement).value.trim();
-    const pw = (form.elements.namedItem("password") as HTMLInputElement).value;
-    if (!id || !pw) {
-      setMsg({ text: "계정 이름과 비밀번호를 모두 입력하세요.", ok: false });
-      return;
-    }
-    setMsg({ text: `${id} 님, 화면만 있는 데모입니다. 로그인 API는 아직 없습니다.`, ok: true });
-  }
-
-  return (
-    <section id="loginView" className={active ? "on" : ""}>
-      <div className="login-bg">
-        {Array.from({ length: 40 }, (_, i) => (
-          <span key={i} style={pool.length ? bgStyle(pool[i % pool.length]) : undefined} />
-        ))}
-      </div>
-      <div className="login-veil" />
-
-      <div className="login-inner">
-        <div className="wrap">
-          <h1 className="login-title">로그인</h1>
-
-          <form className="login-box" autoComplete="off" onSubmit={handleSubmit}>
-            <div className="login-left">
-              <label className="field-label" htmlFor="account">계정 이름으로 로그인</label>
-              <input className="login-input" type="text" id="account" name="account" />
-
-              <label className="field-label" htmlFor="password" style={{ color: "var(--text)" }}>비밀번호</label>
-              <input className="login-input" type="password" id="password" name="password" />
-
-              <label className="checkbox-row">
-                <input type="checkbox" defaultChecked />
-                로그인 정보 저장
-              </label>
-
-              <button className="btn-login" type="submit">로그인</button>
-              <div className={"login-msg" + (msg?.ok ? " ok" : "")}>{msg?.text}</div>
-              <p className="help-link"><a href="#">로그인 관련 문제</a></p>
-            </div>
-
-            <div className="login-right">
-              <p className="qr-title">또는 <strong>QR 코드로 로그인</strong></p>
-              <div className="qr-code">
-                <svg viewBox="0 0 21 21" shapeRendering="crispEdges" role="img" aria-label="QR 코드 자리 표시자">
-                  <rect width="21" height="21" fill="#fff" />
-                  <g fill="#000">
-                    <path d="M0 0h7v7H0z" /><path d="M1 1h5v5H1z" fill="#fff" /><path d="M2 2h3v3H2z" />
-                    <path d="M14 0h7v7h-7z" /><path d="M15 1h5v5h-5z" fill="#fff" /><path d="M16 2h3v3h-3z" />
-                    <path d="M0 14h7v7H0z" /><path d="M1 15h5v5H1z" fill="#fff" /><path d="M2 16h3v3H2z" />
-                    <path d="M9 0h1v1H9zM11 1h1v1h-1zM9 2h1v1H9zM12 3h1v1h-1zM9 4h1v1H9zM11 5h1v1h-1z" />
-                    <path d="M0 9h1v1H0zM2 9h1v1H2zM4 10h1v1H4zM1 11h1v1H1zM5 11h1v1H5zM3 12h1v1H3z" />
-                    <path d="M9 9h1v1H9zM11 9h1v1h-1zM13 10h1v1h-1zM10 11h1v1h-1zM12 12h1v1h-1zM9 13h1v1H9z" />
-                    <path d="M16 9h1v1h-1zM18 10h1v1h-1zM20 11h1v1h-1zM17 12h1v1h-1zM19 13h1v1h-1z" />
-                    <path d="M9 16h1v1H9zM11 17h1v1h-1zM13 16h1v1h-1zM10 18h1v1h-1zM12 19h1v1h-1zM9 20h1v1H9z" />
-                    <path d="M16 16h1v1h-1zM18 17h1v1h-1zM20 16h1v1h-1zM17 19h1v1h-1zM19 20h1v1h-1z" />
-                  </g>
-                </svg>
-              </div>
-              <p className="qr-caption"><a href="#">Steam 모바일 앱을 사용하여 QR 코드로 로그인</a></p>
-            </div>
-          </form>
-
-          <section className="join">
-            <div className="join-left">
-              <h2>Steam에 처음 오셨나요?</h2>
-              <a href="#" className="btn-join">가입하기</a>
-            </div>
-            <p className="join-right">
-              무료로 쉽게 가입할 수 있습니다. 수천 종류의 게임을 전 세계 새로운 친구들과 함께 즐겨보세요.
-              <a href="#" onClick={onStore}>상점 둘러보기</a>
-            </p>
-          </section>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ---------------------------------------------------------------
 // 메인
 // ---------------------------------------------------------------
 export default function Home() {
@@ -488,12 +403,12 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | "login">("store");
+  const [view, setView] = useState<"store" | AuthView>("store");
+  const [user, setUser] = useState<User | null>(null);
   const [modalSlug, setModalSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const searchBoxRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     fetch("/api/home")
@@ -506,29 +421,26 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const OF_HASH: Record<string, "store" | AuthView> = {
+      "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
+    };
     function applyHash() {
-      setView(window.location.hash === "#login" ? "login" : "store");
+      setView(OF_HASH[window.location.hash] ?? "store");
     }
     applyHash();
     window.addEventListener("hashchange", applyHash);
     return () => window.removeEventListener("hashchange", applyHash);
   }, []);
 
+  useEffect(() => { setUser(readUser()); }, []);
+
   useEffect(() => { setRelHoverIndex(0); }, [tabIndex]);
 
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target as Node)) {
-        setSearchResults(null);
-      }
-    }
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, []);
+  const VIEW_HASH: Record<string, string> = { login: "login", signup: "signup", create: "create", done: "verified" };
 
-  function goView(v: "store" | "login", e?: React.MouseEvent) {
+  function goView(v: "store" | AuthView, e?: React.MouseEvent) {
     e?.preventDefault();
-    window.location.hash = v === "login" ? "login" : "";
+    window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
     setModalSlug(null);
     setSearchResults(null);
@@ -547,6 +459,16 @@ export default function Home() {
       const rows = await (await fetch("/api/search?q=" + encodeURIComponent(v))).json();
       setSearchResults(rows);
     }, 220);
+  }
+
+  /** 내비 드롭다운에서 신규 출시 섹션의 탭으로 보낸다 */
+  function goTab(key: string) {
+    if (!data) return;
+    const i = data.tabs.findIndex((t: any) => t.key === key);
+    if (i < 0) return;
+    setView("store");
+    setTabIndex(i);
+    document.getElementById("relTabs")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function searchByTag(tag: string) {
@@ -578,14 +500,8 @@ export default function Home() {
       <header className="topbar">
         <div className="wrap">
           <a className="logo" href="#" onClick={(e) => goView("store", e)}>
-            <svg viewBox="0 0 64 64" aria-hidden="true">
-              <circle cx="32" cy="32" r="30" fill="#2a3f5a" />
-              <circle cx="40" cy="24" r="10" fill="none" stroke="#c7d5e0" strokeWidth="3" />
-              <circle cx="40" cy="24" r="4" fill="#c7d5e0" />
-              <circle cx="22" cy="42" r="8" fill="none" stroke="#c7d5e0" strokeWidth="3" />
-              <line x1="26" y1="38" x2="38" y2="27" stroke="#c7d5e0" strokeWidth="3" />
-            </svg>
-            <span>STEAM<sup>®</sup></span>
+            {/* eslint-disable-next-line @next/next/no-img-element -- 정적 SVG 한 장이라 최적화 대상이 아니다 */}
+            <img src="/logo_steam.svg" alt="STEAM" width={145} height={44} />
           </a>
           <nav className="mainnav">
             <a className={view === "store" ? "on" : ""} href="#" onClick={(e) => goView("store", e)}>상점</a>
@@ -598,49 +514,31 @@ export default function Home() {
               <svg width="14" height="14" viewBox="0 0 16 16" fill="#fff"><path d="M8 11L3 6h3V1h4v5h3z" /><rect x="2" y="12" width="12" height="2" /></svg>
               Steam 설치
             </a>
-            <a href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
+            {!user && (
+              <a href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
+            )}
+            {user && (
+              <span className="topuser">
+                <b>{user.nickname}</b>
+                <a href="#" onClick={(e) => { e.preventDefault(); writeUser(null); setUser(null); goView("store"); }}>로그아웃</a>
+              </span>
+            )}
             <span className="sep">|</span>
             <a href="#">언어 ▾</a>
           </div>
         </div>
       </header>
 
-      <div className="storenav">
-        <div className="wrap">
-          <a className="item" href="#">검색<i className="caret" /></a>
-          <a className="item" href="#">추천 제품<i className="caret" /></a>
-          <a className="item" href="#">카테고리<i className="caret" /></a>
-          <a className="item" href="#">하드웨어<i className="caret" /></a>
-          <a className="item" href="#">플레이 모드<i className="caret" /></a>
-          <a className="item" href="#">특별 섹션<i className="caret" /></a>
-          <form className="searchbox" ref={searchBoxRef} onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="text"
-              placeholder="상점 검색"
-              aria-label="상점 검색"
-              autoComplete="off"
-              value={searchQuery}
-              onChange={(e) => handleSearchInput(e.target.value)}
-            />
-            <button type="submit" aria-label="검색">
-              <svg viewBox="0 0 16 16"><path d="M6.5 1a5.5 5.5 0 104.2 9.05l3.6 3.6 1.4-1.4-3.6-3.6A5.5 5.5 0 006.5 1zm0 2a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" /></svg>
-            </button>
-            <div className={"sresults" + (searchResults ? " on" : "")}>
-              {searchResults && (
-                searchResults.length
-                  ? searchResults.map((g: any) => (
-                    <div key={g.slug} className="sres-row" onClick={() => { setSearchResults(null); openModal(g.slug); }}>
-                      <div className="cap" style={bgStyle(g.headerImage)} />
-                      <div className="nm">{g.name}</div>
-                      <div className="pr">{priceText(g)}</div>
-                    </div>
-                  ))
-                  : <div className="sres-empty">검색 결과가 없습니다.</div>
-              )}
-            </div>
-          </form>
-        </div>
-      </div>
+      <StoreNav
+        data={data}
+        searchQuery={searchQuery}
+        searchResults={searchResults}
+        onSearchInput={handleSearchInput}
+        onOpenGame={openModal}
+        onTag={searchByTag}
+        onTab={goTab}
+        onCloseResults={() => setSearchResults(null)}
+      />
 
       {view === "store" && (
         <>
@@ -713,7 +611,7 @@ export default function Home() {
               </div></section>
 
               <section className="section"><div className="wrap align-feat">
-                <div className="tabs">
+                <div className="tabs" id="relTabs">
                   {data.tabs.map((t: any, i: number) => (
                     <button
                       key={t.key}
@@ -786,7 +684,12 @@ export default function Home() {
         </>
       )}
 
-      <LoginView active={view === "login"} pool={loginPool} onStore={(e) => goView("store", e)} />
+      <Auth
+        view={view}
+        pool={loginPool}
+        onView={(v) => goView(v)}
+        onLogin={(u) => { writeUser(u); setUser(u); }}
+      />
 
       <footer>
         <div className="wrap foot-grid">
