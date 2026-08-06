@@ -57,6 +57,8 @@ type Props = {
   onTab: (key: string) => void;
   onCloseResults: () => void;
   wishlistCount: number | null;
+  cartCount: number;
+  recentSlugs: string[];
   onOpenCart: (e: React.MouseEvent) => void;
   onOpenWishlist: (e: React.MouseEvent) => void;
 };
@@ -71,6 +73,8 @@ export default function StoreNav({
   onTab,
   onCloseResults,
   wishlistCount,
+  cartCount,
+  recentSlugs,
   onOpenCart,
   onOpenWishlist,
 }: Props) {
@@ -113,7 +117,7 @@ export default function StoreNav({
     fn();
   };
 
-  const cls = (key: string) => "navitem" + (openNav === key ? " open" : "");
+  const cls = (key: string) => `navitem nav-${key}` + (openNav === key ? " open" : "");
 
   const topGames: any[] = data?.tabs?.find((t: any) => t.key === "top")?.games ?? [];
   const catTiles: any[] = data?.categories?.slice(0, 6) ?? [];
@@ -145,6 +149,18 @@ export default function StoreNav({
   })();
 
   const dropOpen = Boolean(searchResults) || (showPopular && !searchQuery.trim() && popular.length > 0);
+
+  /** 최근에 본 게임: slug 를 화면에 있는 게임 목록에서 이름으로 바꾼다 */
+  const recentGames: any[] = (() => {
+    if (!data) return [];
+    const all = [...data.featured, ...data.deals, ...data.cheap, ...data.tabs.flatMap((t: any) => t.games)];
+    const byslug = new Map(all.map((g: any) => [g.slug, g]));
+    return recentSlugs.map((s) => byslug.get(s)).filter(Boolean).slice(0, 4);
+  })();
+
+  const favGenres: any[] = data?.categories?.slice(0, 2) ?? [];
+
+  const closeDrop = () => { setShowPopular(false); onCloseResults(); };
 
   function pickGame(slug: string) {
     setShowPopular(false);
@@ -420,17 +436,42 @@ export default function StoreNav({
           </div></div>
         </div>
 
+        {/* ---------- 좁은 화면에서 접히는 메뉴 ---------- */}
+        <div className={cls("more")}>
+          <button className="item" type="button" onClick={(e) => toggle("more", e)}>
+            더 보기 <i className="caret" />
+          </button>
+          <div className="navdrop"><div className="navdrop-in nd-fold">
+            <div className="nd-links">
+              <a href="#" onClick={pick(() => onTab("top"))}>카테고리</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>하드웨어</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>플레이 모드</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>특별 섹션</a>
+            </div>
+          </div></div>
+        </div>
+
+        <div className={cls("all")}>
+          <button className="item" type="button" onClick={(e) => toggle("all", e)}>
+            메뉴 <i className="caret" />
+          </button>
+          <div className="navdrop"><div className="navdrop-in nd-fold">
+            <div className="nd-links">
+              <a href="#" onClick={pick(() => onTab("top"))}>검색</a>
+              <a href="#" onClick={pick(() => onTab("new"))}>추천 제품</a>
+              <a href="#" onClick={pick(() => onTab("top"))}>카테고리</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>하드웨어</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>플레이 모드</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>특별 섹션</a>
+            </div>
+          </div></div>
+        </div>
+
         {/* ---------- 검색창 ---------- */}
         <form
           className={"searchbox" + (dropOpen ? " open" : "")}
           ref={boxRef}
           onSubmit={(e) => e.preventDefault()}
-          onMouseEnter={() => { if (!searchQuery.trim()) setShowPopular(true); }}
-          onMouseLeave={() => {
-            if (document.activeElement !== boxRef.current?.querySelector("input") && !searchQuery.trim()) {
-              setShowPopular(false);
-            }
-          }}
         >
           <input
             type="text"
@@ -459,27 +500,55 @@ export default function StoreNav({
               <>
                 <div className="sres-head">인기 검색어</div>
                 {popular.map((g: any) => <SresRow key={g.slug} g={g} onPick={pickGame} />)}
+
+                {recentGames.length > 0 && (
+                  <>
+                    <div className="sres-head sres-head-gap">최근에 본 게임</div>
+                    <div className="sres-recent">
+                      {recentGames.map((g: any, i: number) => (
+                        <span key={g.slug}>
+                          {i > 0 && ", "}
+                          <a href="#" onClick={(e) => { e.preventDefault(); pickGame(g.slug); }}>{g.name}</a>
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {favGenres.length > 0 && (
+                  <>
+                    <div className="sres-head sres-head-gap">선호 장르</div>
+                    <div className="sres-genres">
+                      {favGenres.map((c: any) => (
+                        <div key={c.slug} className="sres-genre" onClick={() => { closeDrop(); onTag(c.name); }}>
+                          <div className="veil" style={bgStyle(c.image)} />
+                          <b>{c.name}</b>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
                 <div className="sres-adv" role="button" tabIndex={0}>고급 검색</div>
               </>
             )}
           </div>
         </form>
 
-        {/* ---------- 장바구니 / 찜 목록 ---------- */}
-        <button type="button" className="nav-cart-btn" onClick={onOpenCart}>
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#fff" strokeWidth="1.2">
-            <path d="M1 1h2l.6 3M3.6 4h10.4l-1.2 6H4.8M3.6 4L4.8 10M4.8 10l-.3 1.5h9M6 14a1 1 0 100-2 1 1 0 000 2zM12 14a1 1 0 100-2 1 1 0 000 2z" />
-          </svg>
-          장바구니
-        </button>
+        {/* ---------- 찜 목록 / 장바구니 ---------- */}
         {wishlistCount !== null && (
-          <button type="button" className="nav-cart-btn" onClick={onOpenWishlist}>
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#fff" strokeWidth="1.2">
-              <path d="M8 13.5S1.5 9.8 1.5 5.6C1.5 3.6 3 2 5 2c1.2 0 2.3.6 3 1.6C8.7 2.6 9.8 2 11 2c2 0 3.5 1.6 3.5 3.6 0 4.2-6.5 7.9-6.5 7.9z" />
-            </svg>
+          <button type="button" className="nav-wish-btn" onClick={onOpenWishlist}>
+            <span className="star">★</span>
             찜 목록
           </button>
         )}
+        <button type="button" className="nav-cart-btn" onClick={onOpenCart}>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+            <path d="M1 1h2l.6 3M3.6 4h10.4l-1.2 6H4.8M3.6 4L4.8 10M4.8 10l-.3 1.5h9M6 14a1 1 0 100-2 1 1 0 000 2zM12 14a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+          장바구니
+          {cartCount > 0 && <span className="nav-cart-count">{cartCount}</span>}
+        </button>
       </div>
     </div>
   );

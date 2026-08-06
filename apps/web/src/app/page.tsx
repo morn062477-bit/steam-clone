@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import StoreNav from "@/components/storenav";
 import Auth, { readUser, writeUser, type AuthView, type User } from "@/components/auth";
 import GamePage from "@/components/gamepage";
+import GameHoverCard, { type HoverInfo } from "@/components/gamehovercard";
 import CartPage from "@/components/cartpage";
 import WishlistPage from "@/components/wishlistpage";
 
@@ -28,6 +29,16 @@ function bgStyle(url?: string | null) {
 
 // 로그인 전 장바구니. 슬러그 목록만 로컬에 들고 있다가 로그인 시 서버 카트로 병합한다.
 const GUEST_CART_KEY = "steam-clone:guestCart";
+const RECENT_KEY = "steam-clone:recent";
+
+function readRecent(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
 
 function readGuestCart(): string[] {
   if (typeof window === "undefined") return [];
@@ -53,6 +64,28 @@ const TAGLINE_CLASS: Record<string, string> = {
   "시즌 세일": "season",
   "특별 할인": "season",
 };
+
+const HoverCtx = createContext<{ show: (g: any, el: HTMLElement) => void; hide: () => void }>({
+  show: () => {},
+  hide: () => {},
+});
+
+/** 카드에 붙이는 호버 핸들러. 확대/영상용 로컬 state 와 설명 패널을 같이 다룬다.
+   특집 카드처럼 자체 정보 패널이 있는 경우엔 floating=false 로 띄우지 않는다. */
+function useCardHover(g: any, floating = true) {
+  const [hover, setHover] = useState(false);
+  const ctx = useContext(HoverCtx);
+  return {
+    hover,
+    bind: {
+      onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
+        setHover(true);
+        if (floating) ctx.show(g, e.currentTarget);
+      },
+      onMouseLeave: () => { setHover(false); if (floating) ctx.hide(); },
+    },
+  };
+}
 
 function PriceBar({ g, className = "pricebar" }: { g: any; className?: string }) {
   if (g.isFree) return <div className={className}><span className="pb-body"><span className="now">무료 플레이</span></span></div>;
@@ -271,11 +304,11 @@ function HoverVideo({ src, skipSeconds = HOVER_SKIP_SEC }: { src: string; skipSe
 // 카드들
 // ---------------------------------------------------------------
 function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
-  const [hover, setHover] = useState(false);
+  const { hover, bind } = useCardHover(g, false);
   const art = g.screenshots?.[0]?.url || g.headerImage;
   const thumbs = (g.screenshots?.slice(1, 5).length ? g.screenshots.slice(1, 5) : g.screenshots?.slice(0, 4)) ?? [];
   return (
-    <div className="feat" onClick={() => onOpen(g.slug)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className="feat" onClick={() => onOpen(g.slug)} {...bind}>
       <div className="feat-art" style={bgStyle(art)}>
         {hover && g.previewVideoUrl && (
           <HoverVideo src={g.previewVideoUrl} />
@@ -285,6 +318,8 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
       <div className="feat-info">
         <h3>{g.name}</h3>
         <Reviews g={g} />
+        {/* 호버하면 스크린샷 자리에 게임 설명을 보여준다 */}
+        {hover && g.shortDesc && <p className="feat-desc">{g.shortDesc}</p>}
         <div className="thumbs">
           {thumbs.map((s: any, i: number) => (
             <div key={i} className="thumb" style={bgStyle(s.thumb || s.url)} />
@@ -309,11 +344,11 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
 }
 
 function DealCard({ g, size, onOpen }: { g: any; size: "big" | "sm"; onOpen: (slug: string) => void }) {
-  const [hover, setHover] = useState(false);
+  const { hover, bind } = useCardHover(g);
   const art = size === "big" ? (g.capsuleImage || g.headerImage) : g.headerImage;
   const cls = TAGLINE_CLASS[g.discountLabel] || "season";
   return (
-    <div className={`deal-${size}`} onClick={() => onOpen(g.slug)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className={`deal-${size}`} onClick={() => onOpen(g.slug)} {...bind}>
       <span className={`tagline ${cls}`}>{g.discountLabel || "할인"}</span>
       <div className="art" style={bgStyle(art)}>
         {hover && g.previewVideoUrl && (
@@ -326,9 +361,9 @@ function DealCard({ g, size, onOpen }: { g: any; size: "big" | "sm"; onOpen: (sl
 }
 
 function SpotCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
-  const [hover, setHover] = useState(false);
+  const { hover, bind } = useCardHover(g);
   return (
-    <div className="spot-card" onClick={() => onOpen(g.slug)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className="spot-card" onClick={() => onOpen(g.slug)} {...bind}>
       <div className="art" style={bgStyle(g.headerImage)}>
         {hover && g.previewVideoUrl && (
           <HoverVideo src={g.previewVideoUrl} />
@@ -339,9 +374,9 @@ function SpotCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
 }
 
 function CheapCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
-  const [hover, setHover] = useState(false);
+  const { hover, bind } = useCardHover(g);
   return (
-    <div className="cheap-card" onClick={() => onOpen(g.slug)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className="cheap-card" onClick={() => onOpen(g.slug)} {...bind}>
       <div className="art" style={bgStyle(g.capsuleImage || g.headerImage)}>
         {hover && g.previewVideoUrl && (
           <HoverVideo src={g.previewVideoUrl} />
@@ -408,6 +443,8 @@ export default function Home() {
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [hoverInfo, setHoverInfo] = useState<HoverInfo>(null);
+  const [recent, setRecent] = useState<string[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -568,6 +605,11 @@ export default function Home() {
 
   /** 게임 카드 클릭. 모달 대신 상세 페이지(#app/<slug>)로 넘어간다. */
   function openModal(slug: string) {
+    // 최근에 본 게임 목록 갱신 (최신순, 최대 6개)
+    const next = [slug, ...readRecent().filter((x) => x !== slug)].slice(0, 6);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+    setRecent(next);
+
     window.location.hash = "app/" + encodeURIComponent(slug);
     setModalSlug(slug);
     setView("game");
@@ -618,27 +660,73 @@ export default function Home() {
         .filter(Boolean)
     : [];
 
+  const hoverCtx = {
+    show: (g: any, el: HTMLElement) => setHoverInfo({ g, rect: el.getBoundingClientRect() }),
+    hide: () => setHoverInfo(null),
+  };
+
   return (
-    <>
+    <HoverCtx.Provider value={hoverCtx}>
       <header className="topbar">
         <div className="wrap">
+          {/* 좁은 화면에서만 보이는 햄버거. 상점 내비의 "메뉴" 를 연다 */}
+          <button className="nav-burger" type="button" aria-label="메뉴" onClick={() => {
+            document.querySelector<HTMLButtonElement>(".nav-all > .item")?.click();
+          }}>
+            <span /><span /><span />
+          </button>
           <a className="logo" href="#" onClick={(e) => goView("store", e)}>
             {/* eslint-disable-next-line @next/next/no-img-element -- 정적 SVG 한 장이라 최적화 대상이 아니다 */}
             <img src="/logo_steam.svg" alt="STEAM" width={145} height={44} />
           </a>
           <nav className="mainnav">
-            <a className={view === "store" ? "on" : ""} href="#" onClick={(e) => goView("store", e)}>상점</a>
-            <a href="#">커뮤니티</a>
-            {/* 로그인하면 실제 Steam 처럼 계정 이름이 내비에 들어오고 채팅이 붙는다 */}
+            {/* 실제 Steam 처럼 hover 로 열린다. 항목마다 하위 메뉴가 붙는다. */}
+            <div className="mn-item">
+              <a className={view === "store" ? "on" : ""} href="#" onClick={(e) => goView("store", e)}>상점</a>
+              <div className="mn-drop">
+                <a href="#" onClick={(e) => goView("store", e)}>홈</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>맞춤 대기열</a>
+                <a href="#" onClick={(e) => user ? goView("wishlist", e) : goView("login", e)}>찜 목록</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>포인트 상점</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>뉴스</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>차트</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>정보</a>
+              </div>
+            </div>
+
+            <div className="mn-item">
+              <a href="#" onClick={(e) => e.preventDefault()}>커뮤니티</a>
+              <div className="mn-drop">
+                <a href="#" onClick={(e) => e.preventDefault()}>홈</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>토론</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>창작마당</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>장터</a>
+                <a href="#" onClick={(e) => e.preventDefault()}>방송</a>
+              </div>
+            </div>
+
             {user ? (
               <>
-                <a href="#" className="mainnav-me">{user.nickname.toUpperCase()}</a>
-                <a href="#">채팅</a>
+                <div className="mn-item">
+                  <a href="#" className="mainnav-me" onClick={(e) => e.preventDefault()}>{user.nickname.toUpperCase()}</a>
+                  <div className="mn-drop">
+                    <a href="#" onClick={(e) => e.preventDefault()}>활동</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>프로필</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>친구</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>게임</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>그룹</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>콘텐츠</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>배지</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>보관함</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>Steam 돌아보기</a>
+                  </div>
+                </div>
+                <div className="mn-item"><a href="#" onClick={(e) => e.preventDefault()}>채팅</a></div>
               </>
             ) : (
-              <a href="#">정보</a>
+              <div className="mn-item"><a href="#" onClick={(e) => e.preventDefault()}>정보</a></div>
             )}
-            <a href="#">지원</a>
+            <div className="mn-item"><a href="#" onClick={(e) => e.preventDefault()}>지원</a></div>
           </nav>
           <div className="topright">
             {/* 로그인하면 설치 버튼이 초록에서 반투명 회색으로 바뀐다 (실측 #67707B33) */}
@@ -724,6 +812,8 @@ export default function Home() {
         onTab={goTab}
         onCloseResults={() => setSearchResults(null)}
         wishlistCount={user ? wishlist.length : null}
+        cartCount={cart.length}
+        recentSlugs={recent}
         onOpenCart={(e) => goView("cart", e)}
         onOpenWishlist={(e) => goView("wishlist", e)}
       />
@@ -771,8 +861,15 @@ export default function Home() {
                 <div className="queue">
                   <div className="q-left">
                     <h4>맞춤 대기열 둘러보기</h4>
-                    <p>로그인하여 인기 게임, 신규 출시 게임, 추천 게임 보기</p>
-                    <a className="btn-blue" href="#login" onClick={(e) => goView("login", e)}>로그인</a>
+                    {/* 로그인 상태면 로그인 버튼을 감춘다 */}
+                    <p>
+                      {user
+                        ? "인기 게임, 신규 출시 게임, 추천 게임을 살펴보세요"
+                        : "로그인하여 인기 게임, 신규 출시 게임, 추천 게임 보기"}
+                    </p>
+                    {!user && (
+                      <a className="btn-blue" href="#login" onClick={(e) => goView("login", e)}>로그인</a>
+                    )}
                   </div>
                   <div className="q-right">
                     {data.featured.slice(0, 4).map((g: any) => <div key={g.slug} style={bgStyle(g.headerImage)} />)}
@@ -941,6 +1038,7 @@ export default function Home() {
         </div>
       </footer>
 
-    </>
+      <GameHoverCard info={hoverInfo} />
+    </HoverCtx.Provider>
   );
 }
