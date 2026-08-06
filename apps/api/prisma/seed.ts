@@ -44,6 +44,10 @@ interface SeedGame {
   categories: string[];
   screenshots: { url: string; thumbUrl: string }[];
 
+  // fetch-movies.ts가 덧붙인 필드. 구버전 games.json에는 없을 수 있어 optional
+  previewVideoUrl?: string | null;
+  detailVideoUrl?: string | null;
+
   // enrich-steam.ts가 덧붙인 필드. 구버전 games.json에는 없을 수 있어 optional
   reviewScore?: number | null;
   reviewScoreDesc?: string | null;
@@ -109,7 +113,12 @@ async function seedGames(games: SeedGame[]) {
   for (const g of games) {
     const game = await prisma.game.upsert({
       where: { slug: g.slug },
-      update: { priceKrw: g.priceKrw, ...steamFields(g) },
+      update: {
+        priceKrw: g.priceKrw,
+        previewVideoUrl: g.previewVideoUrl ?? null,
+        detailVideoUrl: g.detailVideoUrl ?? null,
+        ...steamFields(g),
+      },
       create: {
         steamAppId: g.steamAppId,
         slug: g.slug,
@@ -118,6 +127,8 @@ async function seedGames(games: SeedGame[]) {
         description: g.description,
         headerImage: g.headerImage,
         capsuleImage: g.capsuleImage,
+        previewVideoUrl: g.previewVideoUrl ?? null,
+        detailVideoUrl: g.detailVideoUrl ?? null,
         priceKrw: g.priceKrw,
         isFree: g.isFree,
         releaseDate: parseReleaseDate(g.releaseDate),
