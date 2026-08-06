@@ -352,6 +352,99 @@ function CheapCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   );
 }
 
+// ---------------------------------------------------------------
+// 카테고리(장르) 페이지
+// ---------------------------------------------------------------
+function CategoryPage({
+  slug,
+  user,
+  wishlist,
+  onOpenGame,
+  onLogin,
+}: {
+  slug: string;
+  user: User | null;
+  wishlist: any[];
+  onOpenGame: (slug: string) => void;
+  onLogin: (e: React.MouseEvent) => void;
+}) {
+  const [cat, setCat] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [subTab, setSubTab] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCat(null);
+    setError(null);
+    setSubTab(null);
+    fetch("/api/category/" + encodeURIComponent(slug))
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(setCat)
+      .catch((e) => setError(e.message));
+  }, [slug]);
+
+  if (error) return <div className="err">카테고리를 불러오지 못했습니다: {error}</div>;
+  if (!cat) return <div className="loading">불러오는 중…</div>;
+
+  const filtered = subTab ? cat.popular.filter((g: any) => g.tags.includes(subTab)) : cat.popular;
+  const wishInCat = wishlist.filter((w: any) => w.tags?.includes(cat.name));
+
+  return (
+    <div className="catpage">
+      <div className="carousel-bleed">
+        <Carousel autoMs={7000} slides={cat.hero.map((g: any) => <Hero key={g.slug} g={g} onOpen={onOpenGame} />)} />
+      </div>
+      <div className="wrap">
+        <h1 className="cp-title">{cat.name}</h1>
+
+        <div className="cat-tabs">
+          <button type="button" className={"cat-tab" + (!subTab ? " on" : "")} onClick={() => setSubTab(null)}>특집</button>
+          {cat.subTags.map((t: string) => (
+            <button
+              key={t}
+              type="button"
+              className={"cat-tab" + (subTab === t ? " on" : "")}
+              onClick={() => setSubTab(t)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <section className="section">
+          <div className="sec-head"><h2 className="sec-title">찜 목록에 있는 게임</h2></div>
+          {user ? (
+            wishInCat.length ? (
+              <div className="spot-body">
+                {wishInCat.slice(0, 4).map((g: any) => <SpotCard key={g.slug} g={g} onOpen={onOpenGame} />)}
+              </div>
+            ) : (
+              <div className="cp-empty"><p>이 카테고리에서 찜한 게임이 없습니다.</p></div>
+            )
+          ) : (
+            <div className="cp-empty">
+              <p>나만을 위해 엄선된 추가 제품을 보려면 로그인하세요.</p>
+              <a className="btn-blue" href="#login" onClick={onLogin}>로그인</a>
+            </div>
+          )}
+        </section>
+
+        <section className="section">
+          <div className="sec-head"><h2 className="sec-title">인기 게임</h2></div>
+          {filtered.length ? (
+            <div className="cheap">
+              {filtered.slice(0, 10).map((g: any) => (
+                <DealCard key={g.slug} g={g} size="sm" onOpen={onOpenGame} />
+              ))}
+            </div>
+          ) : (
+            <div className="cp-empty"><p>해당하는 게임이 없습니다.</p></div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
 function RelRow({ g, onOpen, onHover }: { g: any; onOpen: (slug: string) => void; onHover: () => void }) {
   return (
     <div className="rel-row" onClick={() => onOpen(g.slug)} onMouseEnter={onHover}>
@@ -393,7 +486,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist">("store");
+  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category">("store");
+  const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
   // user id를 그대로 key로 쓰면 안 됨 - 로그인 순간에도 리마운트되어 메시지가 사라진다).
@@ -421,7 +515,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist"> = {
+    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category"> = {
       "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
       "#cart": "cart", "#wishlist": "wishlist",
     };
@@ -431,6 +525,12 @@ export default function Home() {
       if (h.startsWith("#app/")) {
         setModalSlug(decodeURIComponent(h.slice("#app/".length)));
         setView("game");
+        return;
+      }
+      // #category/<slug> 는 카테고리(장르) 페이지
+      if (h.startsWith("#category/")) {
+        setCategorySlug(decodeURIComponent(h.slice("#category/".length)));
+        setView("category");
         return;
       }
       setModalSlug(null);
@@ -557,7 +657,7 @@ export default function Home() {
     login: "login", signup: "signup", create: "create", done: "verified", cart: "cart", wishlist: "wishlist",
   };
 
-  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist", e?: React.MouseEvent) {
+  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category", e?: React.MouseEvent) {
     e?.preventDefault();
     window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
@@ -571,6 +671,14 @@ export default function Home() {
     window.location.hash = "app/" + encodeURIComponent(slug);
     setModalSlug(slug);
     setView("game");
+    window.scrollTo({ top: 0 });
+  }
+
+  /** 카테고리(장르) 타일 클릭 -> 전용 페이지(#category/<slug>)로 이동 */
+  function openCategory(slug: string) {
+    window.location.hash = "category/" + encodeURIComponent(slug);
+    setCategorySlug(slug);
+    setView("category");
     window.scrollTo({ top: 0 });
   }
 
@@ -726,6 +834,7 @@ export default function Home() {
         wishlistCount={user ? wishlist.length : null}
         onOpenCart={(e) => goView("cart", e)}
         onOpenWishlist={(e) => goView("wishlist", e)}
+        onOpenCategory={openCategory}
       />
 
       {view === "store" && (
@@ -831,7 +940,7 @@ export default function Home() {
                   slides={catSlides.map((items: any[], i: number) => (
                     <div className="cats" key={i}>
                       {items.map((c: any) => (
-                        <div className="cat" key={c.slug} onClick={() => searchByTag(c.name)}>
+                        <div className="cat" key={c.slug} onClick={() => openCategory(c.slug)}>
                           <div className="veil" style={bgStyle(c.image)} />
                           <b>{c.name}</b>
                           <small>{c.count}종</small>
@@ -901,6 +1010,16 @@ export default function Home() {
             <a className="btn-blue" href="#login" onClick={(e) => goView("login", e)}>로그인</a>
           </div></div>
         )
+      )}
+
+      {view === "category" && categorySlug && (
+        <CategoryPage
+          slug={categorySlug}
+          user={user}
+          wishlist={wishlist}
+          onOpenGame={openModal}
+          onLogin={(e) => goView("login", e)}
+        />
       )}
 
       <Auth

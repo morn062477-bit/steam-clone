@@ -59,6 +59,7 @@ type Props = {
   wishlistCount: number | null;
   onOpenCart: (e: React.MouseEvent) => void;
   onOpenWishlist: (e: React.MouseEvent) => void;
+  onOpenCategory: (slug: string) => void;
 };
 
 export default function StoreNav({
@@ -73,6 +74,7 @@ export default function StoreNav({
   wishlistCount,
   onOpenCart,
   onOpenWishlist,
+  onOpenCategory,
 }: Props) {
   const [openNav, setOpenNav] = useState<string | null>(null);
   const [showPopular, setShowPopular] = useState(false);
@@ -258,7 +260,7 @@ export default function StoreNav({
             <div className="nd-label">선호 카테고리</div>
             <div className="nd-cat-tiles">
               {catTiles.map((c: any) => (
-                <div key={c.slug} className="cat" onClick={pick(() => onTag(c.name))}>
+                <div key={c.slug} className="cat" onClick={pick(() => onOpenCategory(c.slug))}>
                   <div className="veil" style={bgStyle(c.image)} />
                   <b>{c.name}</b>
                 </div>
