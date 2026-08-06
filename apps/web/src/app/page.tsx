@@ -152,18 +152,22 @@ function Carousel({ slides, autoMs = 0, peek = 0, peekRight = false, arrowInset,
   const [pos, setPos] = useState(loop ? 1 : 0);
   const [animate, setAnimate] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hoveringRef = useRef(false);
 
   const realIndex = loop ? (pos - 1 + n) % n : pos;
 
-  const stop = () => { if (timerRef.current) clearInterval(timerRef.current); };
+  const clearTimer = () => { if (timerRef.current) clearInterval(timerRef.current); };
+  const stop = () => { hoveringRef.current = true; clearTimer(); };
   const step = (dir: number) => {
     setAnimate(true);
     setPos((p) => p + dir);
   };
   const restart = () => {
-    stop();
+    hoveringRef.current = false;
+    clearTimer();
     if (autoMs && n > 1) {
-      timerRef.current = setInterval(() => step(1), autoMs);
+      // 타이머가 이미 예약된 순간 마우스가 들어와도, 콜백 실행 시점에 다시 확인해 건너뛴다.
+      timerRef.current = setInterval(() => { if (!hoveringRef.current) step(1); }, autoMs);
     }
   };
   const goDot = (idx: number) => {
@@ -327,13 +331,22 @@ function HoverVideo({ src, skipSeconds = HOVER_SKIP_SEC }: { src: string; skipSe
 // 카드들
 // ---------------------------------------------------------------
 function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
+  // 우리 훅(호버 확대·설명) + 브랜치의 썸네일 미리보기를 함께 쓴다.
+  // 특집 카드는 자체 정보 패널이 있어 떠 있는 설명 패널은 띄우지 않는다(false).
   const { hover, bind } = useCardHover(g, false);
+  const [activeShot, setActiveShot] = useState<string | null>(null);
   const art = g.screenshots?.[0]?.url || g.headerImage;
   const thumbs = (g.screenshots?.slice(1, 5).length ? g.screenshots.slice(1, 5) : g.screenshots?.slice(0, 4)) ?? [];
   return (
-    <div className="feat" onClick={() => onOpen(g.slug)} {...bind}>
-      <div className="feat-art" style={bgStyle(art)}>
-        {hover && g.previewVideoUrl && (
+    <div
+      className="feat"
+      onClick={() => onOpen(g.slug)}
+      {...bind}
+      onMouseLeave={(e) => { bind.onMouseLeave(); setActiveShot(null); }}
+    >
+      <div className="feat-art" style={bgStyle(activeShot || art)}>
+        {/* 썸네일을 고르는 동안엔 영상 대신 그 스크린샷을 보여준다 */}
+        {hover && !activeShot && g.previewVideoUrl && (
           <HoverVideo src={g.previewVideoUrl} />
         )}
         {g.discountPercent > 0 && <span className="badge-live"><i />{g.discountLabel}</span>}
@@ -345,7 +358,13 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
         {hover && g.shortDesc && <p className="feat-desc">{g.shortDesc}</p>}
         <div className="thumbs">
           {thumbs.map((s: any, i: number) => (
-            <div key={i} className="thumb" style={bgStyle(s.thumb || s.url)} />
+            <div
+              key={i}
+              className="thumb"
+              style={bgStyle(s.thumb || s.url)}
+              onMouseEnter={() => setActiveShot(s.url || s.thumb)}
+              onMouseLeave={() => setActiveShot(null)}
+            />
           ))}
         </div>
         <div className="feat-tags">
