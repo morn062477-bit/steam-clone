@@ -16,6 +16,7 @@ import { sendVerificationEmail } from './mailer.js';
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const NICKNAME_RE = /^[A-Za-z0-9]{6,20}$/; // 영문/숫자만, 6~20자
 
 export class AuthError extends Error {
   status: number;
@@ -90,8 +91,8 @@ export async function completeSignup(
   const password = body.password ?? '';
 
   if (!signupId) throw new AuthError(400, '가입 요청 정보가 없습니다.');
-  if (!nickname || nickname.length < 2 || nickname.length > 20)
-    throw new AuthError(400, '계정 이름은 2~20자여야 합니다.');
+  if (!nickname || !NICKNAME_RE.test(nickname))
+    throw new AuthError(400, '계정 이름은 영문/숫자로 6~20자여야 합니다.');
   if (password.length < 8) throw new AuthError(400, '비밀번호는 8자 이상이어야 합니다.');
 
   const pending = await prisma.pendingSignup.findUnique({ where: { id: signupId } });
