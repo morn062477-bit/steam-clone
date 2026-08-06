@@ -66,7 +66,7 @@ function Reviews({ g }: { g: any }) {
 // ---------------------------------------------------------------
 // 캐러셀
 // ---------------------------------------------------------------
-function Carousel({ slides, autoMs = 0, peek = 0 }: { slides: React.ReactNode[]; autoMs?: number; peek?: number }) {
+function Carousel({ slides, autoMs = 0, peek = 0, peekRight = false, arrowInset, className }: { slides: React.ReactNode[]; autoMs?: number; peek?: number; peekRight?: boolean; arrowInset?: number; className?: string }) {
   const n = slides.length;
   const loop = n > 1;
   // 회전문 트릭: 맨 앞엔 마지막 슬라이드 복제, 맨 뒤엔 첫 슬라이드 복제를 붙여둔다.
@@ -115,14 +115,18 @@ function Carousel({ slides, autoMs = 0, peek = 0 }: { slides: React.ReactNode[];
 
   // 슬라이드 폭 = 컨테이너의 (100 - peek*2)%. car-track 자체 폭을 total배로 잡아두고
   // 그 기준(%) 안에서 이동/폭을 계산해야 각 슬라이드가 정확히 peek%만큼 옆으로 삐져나온다.
-  const slideWidth = 100 - peek * 2;
+  // peekRight면 왼쪽은 안 보이고 오른쪽에만 peek%만큼 다음 슬라이드가 보이도록,
+  // 활성 슬라이드를 왼쪽에 딱 붙인다.
+  const slideWidth = peekRight ? 100 - peek : 100 - peek * 2;
   const trackWidth = total * slideWidth;
-  const translatePercent = ((peek - pos * slideWidth) / trackWidth) * 100;
+  const translatePercent = peekRight
+    ? (-(pos * slideWidth) / trackWidth) * 100
+    : ((peek - pos * slideWidth) / trackWidth) * 100;
 
   return (
-    <div className={"carousel" + (peek > 0 ? " carousel-peek" : "")} onMouseEnter={stop} onMouseLeave={restart}>
-      <button className="arrow prev" aria-label="이전" onClick={() => { step(-1); restart(); }}>‹</button>
-      <button className="arrow next" aria-label="다음" onClick={() => { step(1); restart(); }}>›</button>
+    <div className={"carousel" + (peek > 0 ? " carousel-peek" : "") + (className ? ` ${className}` : "")} onMouseEnter={stop} onMouseLeave={restart}>
+      <button className="arrow prev" style={peek > 0 && !peekRight ? { left: `${arrowInset ?? peek}%` } : undefined} aria-label="이전" onClick={() => { step(-1); restart(); }}>‹</button>
+      <button className="arrow next" style={peek > 0 ? { right: `${arrowInset ?? peek}%` } : undefined} aria-label="다음" onClick={() => { step(1); restart(); }}>›</button>
       <div className="car-view">
         <div
           className="car-track"
@@ -213,14 +217,14 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
         <div className="feat-tags">
           {g.tags.slice(0, 5).map((t: string) => <span key={t} className="pill">{t}</span>)}
         </div>
-        <div className="feat-meta">
-          <div className="rank">
-            📈
-            <div>
-              <b>{g.discountPercent > 0 ? "할인 중" : "최고 인기 게임"}</b>
-              <small>Steam 평가 {(g.reviewTotal || 0).toLocaleString("ko-KR")}개</small>
-            </div>
+        <div className="rank">
+          <span className="rank-icon">📈</span>
+          <div>
+            <b>{g.discountPercent > 0 ? "할인 중" : "최고 인기 게임"}</b>
+            <small>Steam 평가 {(g.reviewTotal || 0).toLocaleString("ko-KR")}개</small>
           </div>
+        </div>
+        <div className="feat-meta">
           <span className="price-tag">{priceText(g)}</span>
         </div>
       </div>
@@ -235,7 +239,6 @@ function DealCard({ g, size, onOpen }: { g: any; size: "big" | "sm"; onOpen: (sl
     <div className={`deal-${size}`} onClick={() => onOpen(g.slug)}>
       <span className={`tagline ${cls}`}>{g.discountLabel || "할인"}</span>
       <div className="art" style={bgStyle(art)} />
-      <div className="card-name">{g.name}</div>
       <PriceBar g={g} />
     </div>
   );
@@ -245,8 +248,6 @@ function SpotCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   return (
     <div className="spot-card" onClick={() => onOpen(g.slug)}>
       <div className="art" style={bgStyle(g.headerImage)} />
-      <div className="card-name">{g.name}</div>
-      <PriceBar g={g} />
     </div>
   );
 }
@@ -267,7 +268,7 @@ function RelRow({ g, onOpen, onHover }: { g: any; onOpen: (slug: string) => void
 
 function RelSide({ g }: { g: any }) {
   if (!g) return null;
-  const shots = g.screenshots?.slice(0, 3) ?? [];
+  const shots = g.screenshots?.slice(0, 4) ?? [];
   return (
     <>
       <h4>{g.name}</h4>
@@ -390,7 +391,7 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const dealSlides = data ? chunk(data.deals, 4).filter((c: any[]) => c.length >= 2) : [];
+  const dealSlides = data ? chunk(data.deals, 6).filter((c: any[]) => c.length >= 2) : [];
   const catSlides = data ? chunk(data.categories, 5) : [];
   const cheapSlides = data ? chunk(data.cheap, 5) : [];
   const loginPool = data
@@ -475,40 +476,28 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="carousel-bleed">
-                  <Carousel autoMs={7000} peek={17} slides={data.featured.map((g: any) => <FeatCard key={g.slug} g={g} onOpen={openModal} />)} />
-                </div>
-                <div className="wrap">
-                <div className="promo">
-                  <div className="left">
-                    <span className="kicker">STEAM</span>
-                    <h4>여름 세일<br />진행 중</h4>
-                    <p>현재 {data.stats.discounts}종 할인 중 · 전체 {data.stats.games}종</p>
-                  </div>
-                  <div className="right"><div className="box">할인 종료<br />{ymd(data.deals[0]?.discountEndsAt)}</div></div>
-                </div>
+                  <Carousel autoMs={7000} peek={12} arrowInset={9} slides={data.featured.map((g: any) => <FeatCard key={g.slug} g={g} onOpen={openModal} />)} />
                 </div>
               </section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="sec-head">
                   <h2 className="sec-title">할인 및 이벤트</h2>
                   <button className="more-btn">더 보기</button>
                 </div>
                 <Carousel
                   autoMs={9000}
-                  slides={dealSlides.map((chunkItems: any[], i: number) => {
-                    const [b1, b2, s1, s2] = chunkItems;
-                    return (
-                      <div className="deals" key={i}>
-                        {b1 && <DealCard g={b1} size="big" onOpen={openModal} />}
-                        {b2 && <DealCard g={b2} size="big" onOpen={openModal} />}
-                        <div className="deal-col">
-                          {s1 && <DealCard g={s1} size="sm" onOpen={openModal} />}
-                          {s2 && <DealCard g={s2} size="sm" onOpen={openModal} />}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  peek={6}
+                  peekRight
+                  arrowInset={-3.5}
+                  className="deals-carousel"
+                  slides={dealSlides.map((chunkItems: any[], i: number) => (
+                    <div className="deals" key={i}>
+                      {chunkItems.map((g: any) => (
+                        <DealCard key={g.slug} g={g} size="sm" onOpen={openModal} />
+                      ))}
+                    </div>
+                  ))}
                 />
                 <div className="queue">
                   <div className="q-left">
@@ -522,7 +511,7 @@ export default function Home() {
                 </div>
               </div></section>
 
-              <section className="section"><div className="wrap spotlights">
+              <section className="section"><div className="wrap spotlights align-feat">
                 {data.spotlights.map((s: any) => (
                   <div className="spot" key={s.tag}>
                     <div className="sec-head"><div><h2 className="sec-title">{s.tag} 게임</h2><div className="sec-sub">집중 조명 태그</div></div></div>
@@ -534,7 +523,7 @@ export default function Home() {
                 ))}
               </div></section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="tabs" id="relTabs">
                   {data.tabs.map((t: any, i: number) => (
                     <button
@@ -566,7 +555,7 @@ export default function Home() {
                 </div>
               </div></section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="sec-head"><h2 className="sec-title">카테고리별 검색</h2></div>
                 <Carousel
                   autoMs={0}
@@ -584,7 +573,7 @@ export default function Home() {
                 />
               </div></section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="sec-head">
                   <h2 className="sec-title">₩ 10,000 미만</h2>
                   <div className="headbtns">더 보기: <button className="more-btn">₩ 10,000 미만</button><button className="more-btn">₩ 5,000 미만</button></div>
@@ -596,7 +585,6 @@ export default function Home() {
                       {items.map((g: any) => (
                         <div className="cheap-card" key={g.slug} onClick={() => openModal(g.slug)}>
                           <div className="art" style={bgStyle(g.capsuleImage || g.headerImage)} />
-                          <div className="card-name">{g.name}</div>
                           <PriceBar g={g} />
                         </div>
                       ))}

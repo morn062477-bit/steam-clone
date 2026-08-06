@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { DM_Sans, Noto_Sans_KR } from "next/font/google";
+import "./globals.css";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -13,19 +12,10 @@ const dmSans = DM_Sans({
 const notoKR = Noto_Sans_KR({
   variable: "--font-noto-kr",
   // next/font 타입 목록에 korean 이 빠져 있지만 실제로는 한글 subset 을 받아온다.
+  // 이걸 빼면 한글이 Noto Sans KR 대신 시스템 폰트로 떨어진다.
   subsets: ["latin", "korean"] as any,
   weight: ["400", "500", "700"],
   display: "swap",
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -37,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${dmSans.variable} ${notoKR.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${notoKR.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
