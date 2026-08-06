@@ -300,45 +300,44 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* ---------- 섹션 공통 ---------- */
 .section{padding:10px 0 6px}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px}
-.feat-sec-head{padding:0 14%}
+.feat-sec-head{padding:0 7%}
 .align-feat{padding:0 6%}
 .sec-title{font-size:20px;color:#fff;font-weight:700;letter-spacing:.2px}
-.sec-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
-.more-btn{background: #e2dfdf;color:var(--bg-dark);font-size:12px;padding:4px 20px; font-weight:700; border-radius:2px}
+.sec-sub{font-size:15px;color:var(--text-dim);margin-top:2px}
+.more-btn{background: #e2dfdf;color:var(--bg-dark);font-size:12px;padding:4px 20px; font-weight:800; border-radius:2px}
 .more-btn:hover{background:white;color:var(--bg-dark)}
 .giftcard{
-  display:flex;align-items:center;gap:8px;background:linear-gradient(to right,#1387b8,#0f6d94);
+  display:flex;align-items:center;gap:10px;background:linear-gradient(to right,#1387b8,#0f6d94);
   padding:5px 14px 5px 8px;border-radius:2px;color:#e3f2fb;font-size:13px;
 }
-.gc-icon{width:44px;height:24px;background:
-  radial-gradient(circle at 20% 50%,#0d3d5c 6px,transparent 7px),
-  radial-gradient(circle at 55% 50%,#0d3d5c 6px,transparent 7px),
-  radial-gradient(circle at 88% 50%,#0d3d5c 6px,transparent 7px),
-  #6bb8dd;border-radius:2px}
+.gc-icon{
+  width:60px;height:42px;margin-top:-16px;margin-bottom:-4px;margin-left:-8px;border-radius:2px;
+  background:url('https://cdn.fastly.steamstatic.com/store/home/gc_fan.webp') center/contain no-repeat;
+}
 
 /* ---------- 캐러셀 ---------- */
 .carousel{position:relative}
+.deals-carousel .car-view{box-shadow:0 0 12px rgba(0,0,0,.3)}
+.deals-carousel .car-slide:not(.active) .deals{filter:blur(4px)}
 .carousel-bleed{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
 .car-view{overflow:hidden}
 .car-track{display:flex;transition:transform .4s ease}
-.car-slide{flex:0 0 100%; padding: 0 20px; display:flex; align-items:center}
+.car-slide{flex:0 0 100%; padding: 0 0px; display:flex; align-items:center}
 .car-slide>*{width:100%}
 .arrow{
-  position:absolute;top:0;bottom:0;width:44px;display:flex;align-items:center;justify-content:center;
-  background:transparent;color:#4d6a86;font-size:80px;line-height:1;z-index:5;
+  position:absolute;top:0;bottom:0;width:60px;display:flex;align-items:center;justify-content:center;
+  background:transparent;color:#8897a5;font-size:110px;line-height:1;z-index:5;
 }
 .arrow:hover{color:#c7d5e0}
-.arrow.prev{left:0}
-.arrow.next{right:0}
-.carousel-peek .arrow.prev{left:17%}
-.carousel-peek .arrow.next{right:17%}
+.arrow.prev{left:-50}
+.arrow.next{right:-50}
 .dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
 .dot{width:15px;height:9px;border-radius:5px;background:#2f3f4f;cursor:pointer}
 .dot.on{background:#c7d5e0}
 
 /* ---------- 특집 및 추천 ---------- */
 .feat{display:flex;background:#1e3452;box-shadow:0 0 12px rgba(0,0,0,.35);cursor:pointer}
-.feat-art{flex:0 0 65.5%;height:500px;position:relative}
+.feat-art{flex:0 0 75%;height:550px;position:relative}
 .car-slide:not(.active) .feat-art{height:450px; filter:grayscale(1) blur(2px)}
 .car-slide.peek-prev .feat{flex-direction:row-reverse}
 .badge-live{
@@ -356,31 +355,16 @@ button{font-family:inherit;cursor:pointer;border:0}
 .reviews span{color:var(--text-dim)}
 .thumbs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .thumb{height:90px;border-radius:2px}
-.feat-meta{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between}
-.rank{display:flex;gap:8px;align-items:center;color:var(--green);font-size:13px}
+.feat-meta{margin-top:auto;display:flex;align-items:flex-end;justify-content:flex-end}
+.rank{display:flex;gap:8px;align-items:center;color:var(--green);font-size:13px;margin:32px 0 20px}
+.rank-icon{font-size:28px;line-height:1}
 .rank small{display:block;color:var(--text);font-size:12px}
 .rank b{color:#fff}
 .price-tag{background:rgba(0,0,0,.4);color:#c7d5e0;padding:4px 8px;font-size:13px;border-radius:2px}
 .feat-tags{display:flex;flex-wrap:wrap;gap:4px;margin:12px 0 0}
 
-/* ---------- 프로모 배너 ---------- */
-.promo{
-  margin-top:18px;height:150px;border-radius:3px;overflow:hidden;position:relative;
-  background:linear-gradient(105deg,#160f2b 0%,#221641 42%,#2b3f5e 60%,#a9d8e8 100%);
-  display:flex;align-items:center;
-}
-.promo .left{padding:0 30px;color:#fff}
-.promo .left .kicker{
-  display:inline-block;background:linear-gradient(90deg,#ff3ea5,#ff77c4);color:#12071f;
-  font-weight:800;letter-spacing:3px;padding:3px 16px;transform:skewX(-10deg);font-size:15px;
-}
-.promo .left h4{font-size:34px;line-height:1.05;margin:8px 0;color:#67e8ff;font-weight:800;text-shadow:0 0 12px rgba(103,232,255,.5)}
-.promo .left p{color:#ff6fb1;font-size:13px}
-.promo .right{margin-left:auto;padding:0 40px;text-align:right}
-.promo .right .box{background:#cfe9f5;color:#0f2e3d;padding:8px 18px;font-weight:700;font-size:17px;border-radius:2px;line-height:1.4}
-
 /* ---------- 할인 및 이벤트 ---------- */
-.deals{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:15px;background:#243953;padding:14px;box-shadow:0 0 12px rgba(0,0,0,.3)}
+.deals{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:15px;background:#243953;padding:14px}
 .deal-sm{position:relative;cursor:pointer}
 .deal-sm .art{height:180px;border-radius:2px}
 .tagline{

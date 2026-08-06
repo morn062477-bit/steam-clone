@@ -65,7 +65,7 @@ function Reviews({ g }: { g: any }) {
 // ---------------------------------------------------------------
 // 캐러셀
 // ---------------------------------------------------------------
-function Carousel({ slides, autoMs = 0, peek = 0 }: { slides: React.ReactNode[]; autoMs?: number; peek?: number }) {
+function Carousel({ slides, autoMs = 0, peek = 0, peekRight = false, arrowInset, className }: { slides: React.ReactNode[]; autoMs?: number; peek?: number; peekRight?: boolean; arrowInset?: number; className?: string }) {
   const n = slides.length;
   const loop = n > 1;
   // 회전문 트릭: 맨 앞엔 마지막 슬라이드 복제, 맨 뒤엔 첫 슬라이드 복제를 붙여둔다.
@@ -114,14 +114,18 @@ function Carousel({ slides, autoMs = 0, peek = 0 }: { slides: React.ReactNode[];
 
   // 슬라이드 폭 = 컨테이너의 (100 - peek*2)%. car-track 자체 폭을 total배로 잡아두고
   // 그 기준(%) 안에서 이동/폭을 계산해야 각 슬라이드가 정확히 peek%만큼 옆으로 삐져나온다.
-  const slideWidth = 100 - peek * 2;
+  // peekRight면 왼쪽은 안 보이고 오른쪽에만 peek%만큼 다음 슬라이드가 보이도록,
+  // 활성 슬라이드를 왼쪽에 딱 붙인다.
+  const slideWidth = peekRight ? 100 - peek : 100 - peek * 2;
   const trackWidth = total * slideWidth;
-  const translatePercent = ((peek - pos * slideWidth) / trackWidth) * 100;
+  const translatePercent = peekRight
+    ? (-(pos * slideWidth) / trackWidth) * 100
+    : ((peek - pos * slideWidth) / trackWidth) * 100;
 
   return (
-    <div className={"carousel" + (peek > 0 ? " carousel-peek" : "")} onMouseEnter={stop} onMouseLeave={restart}>
-      <button className="arrow prev" aria-label="이전" onClick={() => { step(-1); restart(); }}>‹</button>
-      <button className="arrow next" aria-label="다음" onClick={() => { step(1); restart(); }}>›</button>
+    <div className={"carousel" + (peek > 0 ? " carousel-peek" : "") + (className ? ` ${className}` : "")} onMouseEnter={stop} onMouseLeave={restart}>
+      <button className="arrow prev" style={peek > 0 && !peekRight ? { left: `${arrowInset ?? peek}%` } : undefined} aria-label="이전" onClick={() => { step(-1); restart(); }}>‹</button>
+      <button className="arrow next" style={peek > 0 ? { right: `${arrowInset ?? peek}%` } : undefined} aria-label="다음" onClick={() => { step(1); restart(); }}>›</button>
       <div className="car-view">
         <div
           className="car-track"
@@ -212,14 +216,14 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
         <div className="feat-tags">
           {g.tags.slice(0, 5).map((t: string) => <span key={t} className="pill">{t}</span>)}
         </div>
-        <div className="feat-meta">
-          <div className="rank">
-            📈
-            <div>
-              <b>{g.discountPercent > 0 ? "할인 중" : "최고 인기 게임"}</b>
-              <small>Steam 평가 {(g.reviewTotal || 0).toLocaleString("ko-KR")}개</small>
-            </div>
+        <div className="rank">
+          <span className="rank-icon">📈</span>
+          <div>
+            <b>{g.discountPercent > 0 ? "할인 중" : "최고 인기 게임"}</b>
+            <small>Steam 평가 {(g.reviewTotal || 0).toLocaleString("ko-KR")}개</small>
           </div>
+        </div>
+        <div className="feat-meta">
           <span className="price-tag">{priceText(g)}</span>
         </div>
       </div>
@@ -557,17 +561,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="carousel-bleed">
-                  <Carousel autoMs={7000} peek={17} slides={data.featured.map((g: any) => <FeatCard key={g.slug} g={g} onOpen={openModal} />)} />
-                </div>
-                <div className="wrap">
-                <div className="promo">
-                  <div className="left">
-                    <span className="kicker">STEAM</span>
-                    <h4>여름 세일<br />진행 중</h4>
-                    <p>현재 {data.stats.discounts}종 할인 중 · 전체 {data.stats.games}종</p>
-                  </div>
-                  <div className="right"><div className="box">할인 종료<br />{ymd(data.deals[0]?.discountEndsAt)}</div></div>
-                </div>
+                  <Carousel autoMs={7000} peek={12} arrowInset={9} slides={data.featured.map((g: any) => <FeatCard key={g.slug} g={g} onOpen={openModal} />)} />
                 </div>
               </section>
 
@@ -578,6 +572,10 @@ export default function Home() {
                 </div>
                 <Carousel
                   autoMs={9000}
+                  peek={6}
+                  peekRight
+                  arrowInset={-3.5}
+                  className="deals-carousel"
                   slides={dealSlides.map((chunkItems: any[], i: number) => (
                     <div className="deals" key={i}>
                       {chunkItems.map((g: any) => (
