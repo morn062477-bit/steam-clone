@@ -76,6 +76,9 @@ model Game {
   orderItems  OrderItem[]
   libraryItems LibraryItem[]
   dlcs        GameDlc[]
+  // 동영상 미리보기 및 상세 트레일러 URL (스팀 CDN)
+  previewVideoUrl String? // 마우스 호버용 (480p)
+  detailVideoUrl  String? // 상세 페이지/모달용 (고화질 max)
 
   @@index([releaseDate])
   @@index([priceKrw])
