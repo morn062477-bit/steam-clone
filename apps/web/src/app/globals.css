@@ -1,13 +1,14 @@
 
 :root{
   --bg:#1b2838;
-  --bg-dark:#171a21;
+  --bg-dark:#121419;
   --bg-panel:#16202d;
+  --blue-box: #243953;
   --blue:#66c0f4;
   --text:#c7d5e0;
   --text-dim:#8f98a0;
   --green:#a4d007;
-  --green-bg:#4c6b22;
+  --green-bg:#82c81f;
   --nav-h:36px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -22,7 +23,7 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 a{color:var(--text);text-decoration:none}
-.wrap{width:92%;max-width:1700px;margin:0 auto;position:relative}
+.wrap{width: 100%; max-width:1700px;margin:0 auto;position:relative}
 img{display:block}
 button{font-family:inherit;cursor:pointer;border:0}
 
@@ -124,11 +125,11 @@ button{font-family:inherit;cursor:pointer;border:0}
 .section{padding:10px 0 6px}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px}
 .feat-sec-head{padding:0 14%}
-.align-feat{padding:0 14%}
+.align-feat{padding:0 6%}
 .sec-title{font-size:20px;color:#fff;font-weight:700;letter-spacing:.2px}
 .sec-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
-.more-btn{background:rgba(103,193,245,.2);color:var(--text);font-size:12px;padding:4px 12px;border-radius:2px}
-.more-btn:hover{background:var(--blue);color:#0d1b26}
+.more-btn{background: #e2dfdf;color:var(--bg-dark);font-size:12px;padding:4px 20px; font-weight:700; border-radius:2px}
+.more-btn:hover{background:white;color:var(--bg-dark)}
 .giftcard{
   display:flex;align-items:center;gap:8px;background:linear-gradient(to right,#1387b8,#0f6d94);
   padding:5px 14px 5px 8px;border-radius:2px;color:#e3f2fb;font-size:13px;
@@ -203,12 +204,9 @@ button{font-family:inherit;cursor:pointer;border:0}
 .promo .right .box{background:#cfe9f5;color:#0f2e3d;padding:8px 18px;font-weight:700;font-size:17px;border-radius:2px;line-height:1.4}
 
 /* ---------- 할인 및 이벤트 ---------- */
-.deals{display:flex;gap:12px;background:#16202d;padding:14px;box-shadow:0 0 12px rgba(0,0,0,.3)}
-.deal-big{flex:1;position:relative;cursor:pointer}
-.deal-big .art{height:392px;border-radius:2px}
-.deal-col{flex:1;display:flex;flex-direction:column;gap:12px}
+.deals{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:15px;background:#243953;padding:14px;box-shadow:0 0 12px rgba(0,0,0,.3)}
 .deal-sm{position:relative;cursor:pointer}
-.deal-sm .art{height:190px;border-radius:2px}
+.deal-sm .art{height:180px;border-radius:2px}
 .tagline{
   position:absolute;left:0;top:0;font-size:12px;color:#fff;padding:4px 12px;border-radius:0 0 2px 0;z-index:2;
 }
@@ -216,16 +214,11 @@ button{font-family:inherit;cursor:pointer;border:0}
 .tagline.day{background:#3c8ec4}
 .tagline.season{background:#4b6cc4}
 .pricebar{position:absolute;right:0;bottom:0;display:flex;align-items:stretch;font-size:13px;z-index:2}
-.disc{background:var(--green-bg);color:var(--green);padding:6px 8px;font-weight:600}
+.deal-sm .pricebar,.spot-card .pricebar{position:static;justify-content:flex-end}
+.disc{background:var(--green-bg);color:var(--bg-dark);padding:6px 8px;font-weight:900}
 .pb-body{background:rgba(0,0,0,.75);display:flex;align-items:center;gap:8px;padding:6px 10px}
 .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
 .now{color:#c7d5e0}
-.card-name{
-  position:absolute;left:0;right:0;bottom:0;padding:26px 10px 8px;color:#fff;font-size:13px;
-  background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);pointer-events:none;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.deal-big .card-name{padding-right:170px}
 
 /* ---------- 로그인 배너 ---------- */
 .queue{
@@ -243,9 +236,9 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* ---------- 태그 스포트라이트 ---------- */
 .spotlights{display:flex;gap:22px}
 .spot{flex:1}
-.spot-body{background:#16202d;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;box-shadow:0 0 12px rgba(0,0,0,.3)}
+.spot-body{background:var(--blue-box);color:var(--bg-dark);font-size:12px;padding:19px 10px;display:grid;grid-template-columns:1fr 1fr;gap:29px;box-shadow:0 0 12px rgba(0,0,0,.3)}
 .spot-card{position:relative;cursor:pointer}
-.spot-card .art{height:130px;border-radius:2px}
+.spot-card .art{height:150px;border-radius:2px}
 .spot-foot{display:flex;justify-content:flex-end;margin-top:10px}
 
 /* ---------- 신규 출시 ---------- */
@@ -270,7 +263,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .rel-side .score{font-size:13px;color:var(--blue);margin-bottom:12px}
 .tag-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
 .pill{background:rgba(103,193,245,.14);color:#8fb8d6;font-size:11px;padding:3px 8px;border-radius:2px}
-.side-shot{height:120px;border-radius:2px;margin-bottom:8px}
+.side-shot{height:175px;border-radius:2px;margin-bottom:8px}
 .rel-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 12px;font-size:12px;color:var(--text-dim)}
 
 /* ---------- 카테고리 ---------- */

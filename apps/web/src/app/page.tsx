@@ -232,7 +232,6 @@ function DealCard({ g, size, onOpen }: { g: any; size: "big" | "sm"; onOpen: (sl
     <div className={`deal-${size}`} onClick={() => onOpen(g.slug)}>
       <span className={`tagline ${cls}`}>{g.discountLabel || "할인"}</span>
       <div className="art" style={bgStyle(art)} />
-      <div className="card-name">{g.name}</div>
       <PriceBar g={g} />
     </div>
   );
@@ -242,8 +241,6 @@ function SpotCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   return (
     <div className="spot-card" onClick={() => onOpen(g.slug)}>
       <div className="art" style={bgStyle(g.headerImage)} />
-      <div className="card-name">{g.name}</div>
-      <PriceBar g={g} />
     </div>
   );
 }
@@ -264,7 +261,7 @@ function RelRow({ g, onOpen, onHover }: { g: any; onOpen: (slug: string) => void
 
 function RelSide({ g }: { g: any }) {
   if (!g) return null;
-  const shots = g.screenshots?.slice(0, 3) ?? [];
+  const shots = g.screenshots?.slice(0, 4) ?? [];
   return (
     <>
       <h4>{g.name}</h4>
@@ -567,7 +564,7 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const dealSlides = data ? chunk(data.deals, 4).filter((c: any[]) => c.length >= 2) : [];
+  const dealSlides = data ? chunk(data.deals, 6).filter((c: any[]) => c.length >= 2) : [];
   const catSlides = data ? chunk(data.categories, 5) : [];
   const cheapSlides = data ? chunk(data.cheap, 5) : [];
   const loginPool = data
@@ -683,19 +680,13 @@ export default function Home() {
                 </div>
                 <Carousel
                   autoMs={9000}
-                  slides={dealSlides.map((chunkItems: any[], i: number) => {
-                    const [b1, b2, s1, s2] = chunkItems;
-                    return (
-                      <div className="deals" key={i}>
-                        {b1 && <DealCard g={b1} size="big" onOpen={openModal} />}
-                        {b2 && <DealCard g={b2} size="big" onOpen={openModal} />}
-                        <div className="deal-col">
-                          {s1 && <DealCard g={s1} size="sm" onOpen={openModal} />}
-                          {s2 && <DealCard g={s2} size="sm" onOpen={openModal} />}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  slides={dealSlides.map((chunkItems: any[], i: number) => (
+                    <div className="deals" key={i}>
+                      {chunkItems.map((g: any) => (
+                        <DealCard key={g.slug} g={g} size="sm" onOpen={openModal} />
+                      ))}
+                    </div>
+                  ))}
                 />
                 <div className="queue">
                   <div className="q-left">
@@ -783,7 +774,6 @@ export default function Home() {
                       {items.map((g: any) => (
                         <div className="cheap-card" key={g.slug} onClick={() => openModal(g.slug)}>
                           <div className="art" style={bgStyle(g.capsuleImage || g.headerImage)} />
-                          <div className="card-name">{g.name}</div>
                           <PriceBar g={g} />
                         </div>
                       ))}
