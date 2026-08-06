@@ -1,0 +1,287 @@
+// apps/api/prisma/schema.prisma
+//
+// Steam 상점 클론 DB 스키마
+// - 가격은 모두 "원 단위 정수(Int)". 소수점/Float 절대 사용 금지.
+// - 할인가는 저장하지 않고 Discount.percent로 계산한다. (계산은 서버에서만)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------
+// 게임 도메인 (BE 1 담당)
+// ---------------------------------------------------------------
+
+model Game {
+  id          String  @id @default(cuid())
+  steamAppId  Int?    @unique // 시드 출처 추적용. 자체 등록 게임은 null
+  slug        String  @unique // URL용. 예: "dead-by-daylight"
+  name        String
+  shortDesc   String  @db.Text
+  description String  @db.Text
+
+  headerImage  String // 460x215 리스트/카드용
+  capsuleImage String // 600x900 세로 대형 카드용
+
+  priceKrw   Int     @default(0) // 정가(원). 무료 게임은 0
+  isFree     Boolean @default(false)
+
+  releaseDate DateTime?
+  comingSoon  Boolean   @default(false)
+
+  developer String
+  publisher String
+
+  requiredAge Int  @default(0)
+  metacritic  Int?
+
+  supportsWindows Boolean @default(true)
+  supportsMac     Boolean @default(false)
+  supportsLinux   Boolean @default(false)
+
+  // 정렬/집계 캐시. 리뷰 생성/삭제 시 서비스에서 갱신
+  reviewCount     Int @default(0)
+  positiveCount   Int @default(0)
+  wishlistCount   Int @default(0)
+
+  // Steam 원본 리뷰 집계. 위의 reviewCount(우리 서비스 리뷰)와 별개다.
+  // 시드 시점 스냅샷이므로 실시간 값이 아니다.
+  steamReviewScore     Int?    // 0~9. 리뷰가 너무 적으면 null
+  steamReviewDesc      String? // "매우 긍정적" 등
+  steamReviewTotal     Int     @default(0)
+  steamReviewPositive  Int     @default(0)
+  steamReviewNegative  Int     @default(0)
+  steamPositivePercent Int?    // 0~100. 리뷰 0건이면 null
+
+  // 시스템 요구사항. {minimum, recommended} 평문.
+  // 미지원 플랫폼이거나 Steam이 안 주면 null
+  reqWindows Json?
+  reqMac     Json?
+  reqLinux   Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tags        GameTag[]
+  screenshots Screenshot[]
+  discounts   Discount[]
+  reviews     Review[]
+  cartItems   CartItem[]
+  wishlistItems WishlistItem[]
+  orderItems  OrderItem[]
+  libraryItems LibraryItem[]
+  dlcs        GameDlc[]
+
+  @@index([releaseDate])
+  @@index([priceKrw])
+  @@index([name])
+  @@index([steamReviewTotal])
+}
+
+/// 게임의 DLC 목록. Steam appid만 저장한다.
+/// 이름/가격은 별도 조회가 필요해 시드에 포함하지 않았다.
+model GameDlc {
+  gameId   String
+  dlcAppId Int
+  order    Int    @default(0)
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@id([gameId, dlcAppId])
+  @@index([dlcAppId])
+}
+
+model Tag {
+  id    String  @id @default(cuid())
+  name  String
+  slug  String  @unique
+  kind  TagKind @default(USER_TAG)
+
+  games GameTag[]
+
+  @@index([kind])
+}
+
+enum TagKind {
+  GENRE     // 액션, 어드벤처, RPG
+  CATEGORY  // 싱글 플레이어, 협동, 도전과제
+  USER_TAG  // 로그라이크, 픽셀 그래픽
+}
+
+model GameTag {
+  gameId String
+  tagId  String
+  order  Int    @default(0) // 상점 페이지 노출 순서
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([gameId, tagId])
+  @@index([tagId])
+}
+
+model Screenshot {
+  id        String @id @default(cuid())
+  gameId    String
+  url       String
+  thumbUrl  String
+  order     Int    @default(0)
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@index([gameId, order])
+}
+
+model Discount {
+  id        String       @id @default(cuid())
+  gameId    String
+  percent   Int          // 1~100
+  type      DiscountType @default(SPECIAL)
+  startsAt  DateTime
+  endsAt    DateTime
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  // "지금 활성인 할인" 조회가 가장 빈번하므로 인덱스 필수
+  @@index([gameId, startsAt, endsAt])
+  @@index([endsAt])
+}
+
+enum DiscountType {
+  DAILY    // 일일 특가
+  WEEKEND  // 주중 특가
+  SPECIAL  // 특별 할인
+  SEASONAL // 여름/겨울 세일
+}
+
+// ---------------------------------------------------------------
+// 사용자 도메인 (BE 2 담당)
+// ---------------------------------------------------------------
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String
+  nickname     String  @unique
+  avatarUrl    String?
+  country      String  @default("KR")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews       Review[]
+  cartItems     CartItem[]
+  wishlistItems WishlistItem[]
+  orders        Order[]
+  library       LibraryItem[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique // 평문 저장 금지
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Review {
+  id              String   @id @default(cuid())
+  userId          String
+  gameId          String
+  isRecommended   Boolean
+  content         String   @db.Text
+  playtimeMinutes Int      @default(0)
+  helpfulCount    Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId]) // 한 게임당 리뷰 1개
+  @@index([gameId, createdAt])
+}
+
+model CartItem {
+  id       String   @id @default(cuid())
+  userId   String
+  gameId   String
+  addedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+}
+
+model WishlistItem {
+  id       String   @id @default(cuid())
+  userId   String
+  gameId   String
+  priority Int      @default(0)
+  addedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  totalKrw    Int
+  status      OrderStatus @default(PAID)
+  createdAt   DateTime    @default(now())
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@index([userId, createdAt])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+model OrderItem {
+  id             String @id @default(cuid())
+  orderId        String
+  gameId         String
+  // 주문 시점 가격을 박제한다. 나중에 정가/할인이 바뀌어도 영수증은 불변
+  priceKrw       Int
+  discountPercent Int   @default(0)
+  paidKrw        Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  game  Game  @relation(fields: [gameId], references: [id])
+
+  @@index([orderId])
+}
+
+model LibraryItem {
+  id       String   @id @default(cuid())
+  userId   String
+  gameId   String
+  ownedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId]) // 같은 게임 중복 보유 불가
+}

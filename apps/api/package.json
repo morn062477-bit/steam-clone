@@ -1,0 +1,25 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "db:push": "prisma db push --schema=prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "games": "tsx scripts/list-games.ts",
+    "fetch": "tsx scripts/fetch-steam.ts",
+    "enrich": "tsx scripts/enrich-steam.ts"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "prisma": "^5.22.0",
+    "tsx": "^4.23.7"
+  }
+}
