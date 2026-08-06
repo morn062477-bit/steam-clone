@@ -523,7 +523,19 @@ export default function Home() {
             {user && (
               <span className="topuser">
                 <b>{user.nickname}</b>
-                <a href="#" onClick={(e) => { e.preventDefault(); writeUser(null); setUser(null); goView("store"); }}>로그아웃</a>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    fetch("/api/logout", { method: "POST" }).finally(() => {
+                      writeUser(null);
+                      setUser(null);
+                      goView("store");
+                    });
+                  }}
+                >
+                  로그아웃
+                </a>
               </span>
             )}
             <span className="sep">|</span>
