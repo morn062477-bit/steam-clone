@@ -13,20 +13,21 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
+  overflow-x:hidden;
   background:#1b2838;
   background-image:linear-gradient(to bottom,#1b2838 0,#1b2838 200px,#1b2838 100%);
   color:var(--text);
-  font-family:"Motiva Sans","Segoe UI","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
+  font-family:var(--font-dm-sans),"Motiva Sans","Segoe UI","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
   font-size:14px;
   -webkit-font-smoothing:antialiased;
 }
 a{color:var(--text);text-decoration:none}
-.wrap{width:940px;margin:0 auto;position:relative}
+.wrap{width:92%;max-width:1700px;margin:0 auto;position:relative}
 img{display:block}
 button{font-family:inherit;cursor:pointer;border:0}
 
 /* DB 이미지를 얹는 공통 규칙 */
-.art,.thumb,.rel-cap,.side-shot,.feat-art,.cat .veil,.hero-bg,.q-right div{
+.art,.thumb,.rel-cap,.side-shot,.feat-art,.cat .veil,.hero-bg,.hero-bg-blur,.q-right div{
   background-size:cover;background-position:center;background-color:#0e1621;
 }
 
@@ -88,13 +89,27 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 히어로 배너 ---------- */
 .hero{height:340px;position:relative;overflow:hidden;background:#0e1621}
-.hero-bg{position:absolute;inset:0;filter:saturate(1.05)}
+.hero-bg-blur{
+  position:absolute;inset:-30px;
+  filter:blur(50px) saturate(1.4) brightness(.5);
+  transform:scale(1.15);
+  z-index:0;
+}
+.hero-edge-fade{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(to right,#0e1621 0%,transparent 30%,transparent 70%,#0e1621 100%);
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:2;filter:saturate(1.05);
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 22%,#000 78%,transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0%,#000 22%,#000 78%,transparent 100%);
+}
 .hero-bg::after{
   content:"";position:absolute;inset:0;
   background:linear-gradient(90deg,rgba(11,18,26,.92) 0%,rgba(11,18,26,.72) 42%,rgba(11,18,26,.15) 75%),
              linear-gradient(0deg,#1b2838 0,rgba(27,40,56,0) 30%);
 }
-.hero-inner{position:relative;z-index:2;height:100%;display:flex;align-items:center;gap:28px}
+.hero-inner{position:relative;z-index:3;height:100%;display:flex;align-items:center;gap:28px}
 .hero-cap{width:190px;height:285px;border-radius:3px;flex:0 0 auto;box-shadow:0 6px 24px rgba(0,0,0,.6);background-size:cover;background-position:center}
 .hero-txt{max-width:520px}
 .hero-kicker{display:inline-block;background:rgba(102,192,244,.18);color:var(--blue);font-size:12px;padding:3px 10px;border-radius:2px;margin-bottom:10px}
@@ -106,9 +121,10 @@ button{font-family:inherit;cursor:pointer;border:0}
 .hero-cta:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
 
 /* ---------- 섹션 공통 ---------- */
-.section{padding:26px 0 6px}
+.section{padding:10px 0 6px}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px}
-.sec-title{font-size:22px;color:#fff;font-weight:400;letter-spacing:.2px}
+.feat-sec-head{padding:0 14%}
+.sec-title{font-size:20px;color:#fff;font-weight:700;letter-spacing:.2px}
 .sec-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
 .more-btn{background:rgba(103,193,245,.2);color:var(--text);font-size:12px;padding:4px 12px;border-radius:2px}
 .more-btn:hover{background:var(--blue);color:#0d1b26}
@@ -124,35 +140,44 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 캐러셀 ---------- */
 .carousel{position:relative}
+.carousel-bleed{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
 .car-view{overflow:hidden}
 .car-track{display:flex;transition:transform .4s ease}
-.car-slide{flex:0 0 100%}
+.car-slide{flex:0 0 100%; padding: 0 20px; display:flex; align-items:center}
+.car-slide>*{width:100%}
 .arrow{
   position:absolute;top:0;bottom:0;width:44px;display:flex;align-items:center;justify-content:center;
-  background:transparent;color:#4d6a86;font-size:40px;line-height:1;z-index:5;
+  background:transparent;color:#4d6a86;font-size:80px;line-height:1;z-index:5;
 }
 .arrow:hover{color:#c7d5e0}
-.arrow.prev{left:-46px}
-.arrow.next{right:-46px}
+.arrow.prev{left:0}
+.arrow.next{right:0}
+.carousel-peek .arrow.prev{left:17%}
+.carousel-peek .arrow.next{right:17%}
 .dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
 .dot{width:15px;height:9px;border-radius:5px;background:#2f3f4f;cursor:pointer}
 .dot.on{background:#c7d5e0}
 
 /* ---------- 특집 및 추천 ---------- */
-.feat{display:flex;background:#16202d;box-shadow:0 0 12px rgba(0,0,0,.35);cursor:pointer}
-.feat-art{flex:0 0 616px;height:353px;position:relative}
+.feat{display:flex;background:#1e3452;box-shadow:0 0 12px rgba(0,0,0,.35);cursor:pointer}
+.feat-art{flex:0 0 65.5%;height:500px;position:relative}
+.car-slide:not(.active) .feat-art{height:450px; filter:grayscale(1) blur(2px)}
+.car-slide.peek-prev .feat{flex-direction:row-reverse}
 .badge-live{
   position:absolute;left:10px;top:10px;background:rgba(0,0,0,.6);color:#e6e6e6;font-size:11px;
   padding:4px 9px;border-radius:2px;display:flex;align-items:center;gap:6px;
 }
 .badge-live i{width:7px;height:7px;border-radius:50%;background:#c94141;display:block}
-.feat-info{flex:1;padding:16px 20px;display:flex;flex-direction:column;min-width:0}
+.feat-info{
+  flex:1;padding:16px 20px;display:flex;flex-direction:column;min-width:0;
+  background:linear-gradient(135deg,rgba(102,192,244,.22) 0%,rgba(164,208,7,.16) 45%,rgba(180,90,220,.2) 100%),#16202d;
+}
 .feat-info h3{font-size:20px;color:#fff;font-weight:400;margin-bottom:4px}
 .reviews{font-size:13px;color:#b58f5a;margin-bottom:14px}
 .reviews.positive{color:#66c0f4}
 .reviews span{color:var(--text-dim)}
-.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.thumb{height:82px;border-radius:2px}
+.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.thumb{height:90px;border-radius:2px}
 .feat-meta{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between}
 .rank{display:flex;gap:8px;align-items:center;color:var(--green);font-size:13px}
 .rank small{display:block;color:var(--text);font-size:12px}

@@ -63,19 +63,34 @@ function Reviews({ g }: { g: any }) {
 // ---------------------------------------------------------------
 // 캐러셀
 // ---------------------------------------------------------------
-function Carousel({ slides, autoMs = 0 }: { slides: React.ReactNode[]; autoMs?: number }) {
-  const [i, setI] = useState(0);
+function Carousel({ slides, autoMs = 0, peek = 0 }: { slides: React.ReactNode[]; autoMs?: number; peek?: number }) {
+  const n = slides.length;
+  const loop = n > 1;
+  // 회전문 트릭: 맨 앞엔 마지막 슬라이드 복제, 맨 뒤엔 첫 슬라이드 복제를 붙여둔다.
+  // pos(렌더링 인덱스)는 1..n이 진짜 슬라이드, 0과 n+1은 가짜(복제) 자리.
+  const rendered = loop ? [slides[n - 1], ...slides, slides[0]] : slides;
+  const total = rendered.length;
+
+  const [pos, setPos] = useState(loop ? 1 : 0);
+  const [animate, setAnimate] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const realIndex = loop ? (pos - 1 + n) % n : pos;
+
   const stop = () => { if (timerRef.current) clearInterval(timerRef.current); };
+  const step = (dir: number) => {
+    setAnimate(true);
+    setPos((p) => p + dir);
+  };
   const restart = () => {
     stop();
-    if (autoMs && slides.length > 1) {
-      timerRef.current = setInterval(() => setI((v) => (v + 1) % slides.length), autoMs);
+    if (autoMs && n > 1) {
+      timerRef.current = setInterval(() => step(1), autoMs);
     }
   };
-  const go = (n: number) => {
-    setI(((n % slides.length) + slides.length) % slides.length);
+  const goDot = (idx: number) => {
+    setAnimate(true);
+    setPos(loop ? idx + 1 : idx);
     restart();
   };
 
@@ -83,22 +98,51 @@ function Carousel({ slides, autoMs = 0 }: { slides: React.ReactNode[]; autoMs?: 
     restart();
     return stop;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoMs, slides.length]);
+  }, [autoMs, n]);
 
-  if (!slides.length) return null;
+  // 복제 슬라이드(0 또는 total-1)에 도착하면, 트랜지션이 끝나자마자
+  // 애니메이션 없이 진짜 위치(1 또는 n)로 순간이동시켜서 티 안 나게 이어붙인다.
+  const handleTransitionEnd = () => {
+    if (!loop) return;
+    if (pos === total - 1) { setAnimate(false); setPos(1); }
+    else if (pos === 0) { setAnimate(false); setPos(n); }
+  };
+
+  if (!n) return null;
+
+  // 슬라이드 폭 = 컨테이너의 (100 - peek*2)%. car-track 자체 폭을 total배로 잡아두고
+  // 그 기준(%) 안에서 이동/폭을 계산해야 각 슬라이드가 정확히 peek%만큼 옆으로 삐져나온다.
+  const slideWidth = 100 - peek * 2;
+  const trackWidth = total * slideWidth;
+  const translatePercent = ((peek - pos * slideWidth) / trackWidth) * 100;
 
   return (
-    <div className="carousel" onMouseEnter={stop} onMouseLeave={restart}>
-      <button className="arrow prev" aria-label="이전" onClick={() => go(i - 1)}>‹</button>
-      <button className="arrow next" aria-label="다음" onClick={() => go(i + 1)}>›</button>
+    <div className={"carousel" + (peek > 0 ? " carousel-peek" : "")} onMouseEnter={stop} onMouseLeave={restart}>
+      <button className="arrow prev" aria-label="이전" onClick={() => { step(-1); restart(); }}>‹</button>
+      <button className="arrow next" aria-label="다음" onClick={() => { step(1); restart(); }}>›</button>
       <div className="car-view">
-        <div className="car-track" style={{ transform: `translateX(${-i * 100}%)` }}>
-          {slides}
+        <div
+          className="car-track"
+          onTransitionEnd={handleTransitionEnd}
+          style={{
+            width: `${trackWidth}%`,
+            transform: `translateX(${translatePercent}%)`,
+            transition: animate ? undefined : "none",
+          }}
+        >
+          {rendered.map((slide, idx) => {
+            const peekCls = idx === pos ? " active" : idx === pos - 1 ? " peek-prev" : idx === pos + 1 ? " peek-next" : "";
+            return (
+              <div className={"car-slide" + peekCls} key={idx} style={{ flex: `0 0 ${100 / total}%` }}>
+                {slide}
+              </div>
+            );
+          })}
         </div>
       </div>
       <div className="dots">
-        {slides.map((_, n) => (
-          <span key={n} className={"dot" + (n === i ? " on" : "")} onClick={() => go(n)} />
+        {slides.map((_, idx) => (
+          <span key={idx} className={"dot" + (idx === realIndex ? " on" : "")} onClick={() => goDot(idx)} />
         ))}
       </div>
     </div>
@@ -113,6 +157,8 @@ function Hero({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   const shot = g.screenshots?.[0]?.url || g.headerImage;
   return (
     <section className="hero">
+      <div className="hero-bg-blur" style={bgStyle(shot)} />
+      <div className="hero-edge-fade" />
       <div className="hero-bg" style={bgStyle(shot)} />
       <div className="wrap hero-inner">
         <div className="hero-cap" style={bgStyle(g.capsuleImage || g.headerImage)} />
@@ -149,32 +195,30 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   const art = g.screenshots?.[0]?.url || g.headerImage;
   const thumbs = (g.screenshots?.slice(1, 5).length ? g.screenshots.slice(1, 5) : g.screenshots?.slice(0, 4)) ?? [];
   return (
-    <div className="car-slide">
-      <div className="feat" onClick={() => onOpen(g.slug)}>
-        <div className="feat-art" style={bgStyle(art)}>
-          {g.discountPercent > 0 && <span className="badge-live"><i />{g.discountLabel}</span>}
+    <div className="feat" onClick={() => onOpen(g.slug)}>
+      <div className="feat-art" style={bgStyle(art)}>
+        {g.discountPercent > 0 && <span className="badge-live"><i />{g.discountLabel}</span>}
+      </div>
+      <div className="feat-info">
+        <h3>{g.name}</h3>
+        <Reviews g={g} />
+        <div className="thumbs">
+          {thumbs.map((s: any, i: number) => (
+            <div key={i} className="thumb" style={bgStyle(s.thumb || s.url)} />
+          ))}
         </div>
-        <div className="feat-info">
-          <h3>{g.name}</h3>
-          <Reviews g={g} />
-          <div className="thumbs">
-            {thumbs.map((s: any, i: number) => (
-              <div key={i} className="thumb" style={bgStyle(s.thumb || s.url)} />
-            ))}
-          </div>
-          <div className="feat-tags">
-            {g.tags.slice(0, 5).map((t: string) => <span key={t} className="pill">{t}</span>)}
-          </div>
-          <div className="feat-meta">
-            <div className="rank">
-              📈
-              <div>
-                <b>{g.discountPercent > 0 ? "할인 중" : "최고 인기 게임"}</b>
-                <small>Steam 평가 {(g.reviewTotal || 0).toLocaleString("ko-KR")}개</small>
-              </div>
+        <div className="feat-tags">
+          {g.tags.slice(0, 5).map((t: string) => <span key={t} className="pill">{t}</span>)}
+        </div>
+        <div className="feat-meta">
+          <div className="rank">
+            📈
+            <div>
+              <b>{g.discountPercent > 0 ? "할인 중" : "최고 인기 게임"}</b>
+              <small>Steam 평가 {(g.reviewTotal || 0).toLocaleString("ko-KR")}개</small>
             </div>
-            <span className="price-tag">{priceText(g)}</span>
           </div>
+          <span className="price-tag">{priceText(g)}</span>
         </div>
       </div>
     </div>
@@ -610,12 +654,17 @@ export default function Home() {
             <>
               <Hero g={data.hero} onOpen={openModal} />
 
-              <section className="section"><div className="wrap">
-                <div className="sec-head">
-                  <h2 className="sec-title">특집 및 추천 게임</h2>
-                  <a className="giftcard" href="#"><span className="gc-icon" />기프트 카드 보내기</a>
+              <section className="section">
+                <div className="wrap">
+                  <div className="sec-head feat-sec-head">
+                    <h2 className="sec-title">특집 및 추천 게임</h2>
+                    <a className="giftcard" href="#"><span className="gc-icon" />기프트 카드 보내기</a>
+                  </div>
                 </div>
-                <Carousel autoMs={7000} slides={data.featured.map((g: any) => <FeatCard key={g.slug} g={g} onOpen={openModal} />)} />
+                <div className="carousel-bleed">
+                  <Carousel autoMs={7000} peek={17} slides={data.featured.map((g: any) => <FeatCard key={g.slug} g={g} onOpen={openModal} />)} />
+                </div>
+                <div className="wrap">
                 <div className="promo">
                   <div className="left">
                     <span className="kicker">STEAM</span>
@@ -624,7 +673,8 @@ export default function Home() {
                   </div>
                   <div className="right"><div className="box">할인 종료<br />{ymd(data.deals[0]?.discountEndsAt)}</div></div>
                 </div>
-              </div></section>
+                </div>
+              </section>
 
               <section className="section"><div className="wrap">
                 <div className="sec-head">
@@ -636,14 +686,14 @@ export default function Home() {
                   slides={dealSlides.map((chunkItems: any[], i: number) => {
                     const [b1, b2, s1, s2] = chunkItems;
                     return (
-                      <div className="car-slide" key={i}><div className="deals">
+                      <div className="deals" key={i}>
                         {b1 && <DealCard g={b1} size="big" onOpen={openModal} />}
                         {b2 && <DealCard g={b2} size="big" onOpen={openModal} />}
                         <div className="deal-col">
                           {s1 && <DealCard g={s1} size="sm" onOpen={openModal} />}
                           {s2 && <DealCard g={s2} size="sm" onOpen={openModal} />}
                         </div>
-                      </div></div>
+                      </div>
                     );
                   })}
                 />
@@ -708,7 +758,7 @@ export default function Home() {
                 <Carousel
                   autoMs={0}
                   slides={catSlides.map((items: any[], i: number) => (
-                    <div className="car-slide" key={i}><div className="cats">
+                    <div className="cats" key={i}>
                       {items.map((c: any) => (
                         <div className="cat" key={c.slug} onClick={() => searchByTag(c.name)}>
                           <div className="veil" style={bgStyle(c.image)} />
@@ -716,7 +766,7 @@ export default function Home() {
                           <small>{c.count}종</small>
                         </div>
                       ))}
-                    </div></div>
+                    </div>
                   ))}
                 />
               </div></section>
@@ -729,7 +779,7 @@ export default function Home() {
                 <Carousel
                   autoMs={0}
                   slides={cheapSlides.map((items: any[], i: number) => (
-                    <div className="car-slide" key={i}><div className="cheap">
+                    <div className="cheap" key={i}>
                       {items.map((g: any) => (
                         <div className="cheap-card" key={g.slug} onClick={() => openModal(g.slug)}>
                           <div className="art" style={bgStyle(g.capsuleImage || g.headerImage)} />
@@ -737,7 +787,7 @@ export default function Home() {
                           <PriceBar g={g} />
                         </div>
                       ))}
-                    </div></div>
+                    </div>
                   ))}
                 />
               </div></section>
