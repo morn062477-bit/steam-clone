@@ -676,7 +676,7 @@ export default function Home() {
                 </div>
               </section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="sec-head">
                   <h2 className="sec-title">할인 및 이벤트</h2>
                   <button className="more-btn">더 보기</button>
@@ -709,7 +709,7 @@ export default function Home() {
                 </div>
               </div></section>
 
-              <section className="section"><div className="wrap spotlights">
+              <section className="section"><div className="wrap spotlights align-feat">
                 {data.spotlights.map((s: any) => (
                   <div className="spot" key={s.tag}>
                     <div className="sec-head"><div><h2 className="sec-title">{s.tag} 게임</h2><div className="sec-sub">집중 조명 태그</div></div></div>
@@ -721,7 +721,7 @@ export default function Home() {
                 ))}
               </div></section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="tabs">
                   {data.tabs.map((t: any, i: number) => (
                     <button
@@ -753,7 +753,7 @@ export default function Home() {
                 </div>
               </div></section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="sec-head"><h2 className="sec-title">카테고리별 검색</h2></div>
                 <Carousel
                   autoMs={0}
@@ -771,7 +771,7 @@ export default function Home() {
                 />
               </div></section>
 
-              <section className="section"><div className="wrap">
+              <section className="section"><div className="wrap align-feat">
                 <div className="sec-head">
                   <h2 className="sec-title">₩ 10,000 미만</h2>
                   <div className="headbtns">더 보기: <button className="more-btn">₩ 10,000 미만</button><button className="more-btn">₩ 5,000 미만</button></div>

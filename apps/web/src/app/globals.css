@@ -124,6 +124,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .section{padding:10px 0 6px}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px}
 .feat-sec-head{padding:0 14%}
+.align-feat{padding:0 14%}
 .sec-title{font-size:20px;color:#fff;font-weight:700;letter-spacing:.2px}
 .sec-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
 .more-btn{background:rgba(103,193,245,.2);color:var(--text);font-size:12px;padding:4px 12px;border-radius:2px}
