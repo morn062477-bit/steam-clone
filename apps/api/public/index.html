@@ -3,407 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171a21">
 <title>Steam 상점</title>
-<style>
-:root{
-  --bg:#1b2838;
-  --bg-dark:#171a21;
-  --bg-panel:#16202d;
-  --blue:#66c0f4;
-  --text:#c7d5e0;
-  --text-dim:#8f98a0;
-  --green:#a4d007;
-  --green-bg:#4c6b22;
-  --nav-h:36px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  background:#1b2838;
-  background-image:linear-gradient(to bottom,#1b2838 0,#1b2838 200px,#1b2838 100%);
-  color:var(--text);
-  font-family:"Motiva Sans","Segoe UI","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif;
-  font-size:14px;
-  -webkit-font-smoothing:antialiased;
-}
-a{color:var(--text);text-decoration:none}
-.wrap{width:940px;margin:0 auto;position:relative}
-img{display:block}
-button{font-family:inherit;cursor:pointer;border:0}
-
-/* DB 이미지를 얹는 공통 규칙 */
-.art,.thumb,.rel-cap,.side-shot,.feat-art,.cat .veil,.hero-bg,.q-right div{
-  background-size:cover;background-position:center;background-color:#0e1621;
-}
-
-/* ---------- 상단 헤더 ---------- */
-.topbar{background:var(--bg-dark);height:104px}
-.topbar .wrap{display:flex;align-items:center;height:104px}
-.logo{display:flex;align-items:center;gap:8px;margin-right:34px}
-.logo svg{width:38px;height:38px}
-.logo img{height:74px;width:auto;object-fit:contain}
-.logo span{font-size:29px;letter-spacing:1px;color:#e8e8e8;font-weight:400}
-.logo sup{font-size:9px;vertical-align:super}
-.mainnav{display:flex;gap:20px;padding-top:6px}
-.mainnav a{font-size:15px;color:#b8b6b4;text-transform:none}
-.mainnav a:hover{color:#fff}
-.mainnav a.on{color:var(--blue)}
-.topright{margin-left:auto;display:flex;align-items:center;gap:10px;align-self:flex-start;margin-top:14px;font-size:12px}
-.btn-install{
-  background:linear-gradient(to bottom,#799905 5%,#536904 95%);
-  color:#fff;padding:5px 12px;border-radius:2px;display:flex;align-items:center;gap:6px;font-size:12px;
-}
-.btn-install:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%);color:#fff}
-.topright .sep{color:#4c5966}
-.topright a{color:#b8b6b4}
-.topright a:hover{color:#fff}
-
-/* ---------- 상점 내비 ---------- */
-.storenav{
-  background:linear-gradient(to right,#1b2838 45%,#1b2838 100%);
-  background-color:#1a2332;height:var(--nav-h);position:sticky;top:0;z-index:60;
-  box-shadow:0 0 3px rgba(0,0,0,.4);
-}
-.storenav .wrap{display:flex;align-items:center;height:var(--nav-h)}
-.storenav .item{
-  color:#b8c4d0;font-size:12px;padding:0 12px;height:var(--nav-h);display:flex;align-items:center;
-  gap:5px;text-transform:none;letter-spacing:.3px;
-}
-.storenav .item:hover{color:#fff;background:rgba(103,193,245,.12)}
-.caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid #7d8b98}
-.navitem{position:relative;height:100%}
-.navdrop{
-  position:absolute;top:100%;left:0;min-width:200px;background:#1b2838;border:1px solid #2f4257;
-  box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:70;display:none;padding:6px 0;
-}
-.navitem:hover .navdrop{display:block}
-.navdrop a{display:block;padding:8px 16px;color:#b8c4d0;font-size:13px;white-space:nowrap}
-.navdrop a:hover{background:#2a475e;color:#fff}
-.navdrop .navcount{color:#7b90a3;font-size:11px;margin-left:6px}
-
-/* 메가 메뉴 (검색 / 추천 제품 / 카테고리) */
-.navdrop.mega{min-width:640px;padding:18px;gap:0}
-.navitem:hover .navdrop.mega{display:flex}
-.mega-col{padding:0 20px;border-right:1px solid #2f4257;white-space:normal}
-.mega-col:last-child{border-right:0}
-.mega-col > b{display:block;color:#7b90a3;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding:0 16px}
-.mega-links{width:200px;padding-left:0}
-.mega-links a{padding:8px 16px}
-.mega-links a:first-child{margin-bottom:6px}
-.mega-link-sub b{display:block;color:#dfe6ec;font-weight:400;font-size:13px}
-.mega-link-sub small{display:block;color:#7b90a3;font-size:11px;margin-top:2px}
-.mega-link-sub:hover b{color:#fff}
-
-.mega-banners{width:260px;padding:0 20px;display:flex;flex-direction:column;gap:10px}
-.mega-banner{
-  position:relative;height:80px;border-radius:2px;background-size:cover;background-position:center;
-  cursor:pointer;overflow:hidden;
-}
-.mega-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),rgba(0,0,0,.15))}
-.mega-banner span{position:absolute;left:10px;bottom:8px;color:#fff;font-size:13px;font-weight:600;z-index:1;background:rgba(20,30,40,.7);padding:4px 10px;border-radius:2px}
-
-.mega-plain{width:170px}
-.mega-plain a{padding:6px 16px}
-
-.mega-toplist{width:280px;padding-left:0}
-.mega-top-row{display:flex;align-items:center;gap:10px;padding:6px 16px;cursor:pointer}
-.mega-top-row:hover{background:#2a475e}
-.mega-top-cap{width:64px;height:30px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center}
-.mega-top-row .nm{color:#dfe6ec;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mega-top-row .pr{color:#7b90a3;font-size:11px;margin-top:2px}
-
-.mega-promo{width:180px;display:flex;align-items:center}
-.mega-promo-tile{
-  display:block;padding:14px;background:#16202d;border:1px solid #2f4257;border-radius:3px;
-}
-.mega-promo-badge{display:inline-block;background:#1e88e5;color:#fff;font-size:10px;padding:2px 6px;border-radius:2px;margin-bottom:8px}
-.mega-promo-tile b{display:block;color:#fff;font-size:13px;font-weight:400;margin-bottom:4px}
-.mega-promo-tile small{display:block;color:#7b90a3;font-size:11px;white-space:normal}
-.mega-promo-tile:hover{background:#1c2a3a}
-
-.mega-wide{flex-direction:column;min-width:680px;padding:18px 20px}
-.mega-cat-label{color:#7b90a3;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.mega-cat-tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
-.mega-cat-tiles .cat{height:90px;border-radius:3px}
-.mega-cat-tiles .cat b{font-size:12px;padding:4px 10px}
-.mega-cat-tiles .cat small{font-size:10px}
-.mega-cat-pills{display:flex;flex-wrap:wrap;gap:8px}
-.mega-cat-pills a{
-  display:inline-block;padding:6px 14px;border:1px solid #3c5164;border-radius:2px;
-  color:#b8c4d0;font-size:12px;white-space:nowrap;
-}
-.mega-cat-pills a:hover{background:#2a475e;color:#fff;border-color:#2a475e}
-.searchbox{margin-left:auto;display:flex;height:26px;background:#316282;position:relative}
-.searchbox input{
-  background:linear-gradient(to bottom,#316282 0,#1b3654 100%);
-  border:0;outline:0;color:#cfe0ec;width:200px;padding:0 10px;font-size:12px;
-  border-radius:3px 0 0 3px;
-}
-.searchbox input::placeholder{color:#7b93a6}
-.searchbox button{background:#1e88e5;width:30px;display:flex;align-items:center;justify-content:center;border-radius:0 3px 3px 0}
-.searchbox button svg{width:13px;height:13px;fill:#0f2b45}
-
-/* 검색 결과 드롭다운 */
-.sresults{
-  position:absolute;top:28px;right:0;width:420px;background:#1b2838;border:1px solid #2f4257;
-  box-shadow:0 8px 24px rgba(0,0,0,.55);max-height:420px;overflow-y:auto;display:none;z-index:70;
-}
-.sresults.on{display:block}
-.sres-row{display:flex;gap:10px;align-items:center;padding:7px 9px;cursor:pointer}
-.sres-row:hover{background:#2a475e}
-.sres-row .cap{width:120px;height:45px;flex:0 0 auto;border-radius:2px}
-.sres-row .nm{flex:1;min-width:0;color:#dfe6ec;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sres-row .pr{font-size:12px;color:var(--text-dim);white-space:nowrap}
-.sres-empty{padding:14px;color:var(--text-dim);font-size:12px;text-align:center}
-
-/* ---------- 히어로 배너 ---------- */
-.hero{height:340px;position:relative;overflow:hidden;background:#0e1621}
-.hero-bg{position:absolute;inset:0;filter:saturate(1.05)}
-.hero-bg::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,rgba(11,18,26,.92) 0%,rgba(11,18,26,.72) 42%,rgba(11,18,26,.15) 75%),
-             linear-gradient(0deg,#1b2838 0,rgba(27,40,56,0) 30%);
-}
-.hero-inner{position:relative;z-index:2;height:100%;display:flex;align-items:center;gap:28px}
-.hero-cap{width:190px;height:285px;border-radius:3px;flex:0 0 auto;box-shadow:0 6px 24px rgba(0,0,0,.6);background-size:cover;background-position:center}
-.hero-txt{max-width:520px}
-.hero-kicker{display:inline-block;background:rgba(102,192,244,.18);color:var(--blue);font-size:12px;padding:3px 10px;border-radius:2px;margin-bottom:10px}
-.hero-txt h1{color:#fff;font-size:42px;font-weight:700;line-height:1.1;margin-bottom:8px}
-.hero-txt .desc{color:#b4c3d0;font-size:13px;line-height:1.6;margin-bottom:12px;max-height:44px;overflow:hidden}
-.hero-meta{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--text-dim);margin-bottom:16px}
-.hero-buy{display:flex;align-items:center;gap:12px}
-.hero-cta{background:linear-gradient(to bottom,#799905 5%,#536904 95%);color:#fff;padding:10px 26px;font-size:16px;border-radius:2px}
-.hero-cta:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
-
-/* ---------- 섹션 공통 ---------- */
-.section{padding:26px 0 6px}
-.sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px}
-.sec-title{font-size:22px;color:#fff;font-weight:400;letter-spacing:.2px}
-.sec-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
-.more-btn{background:rgba(103,193,245,.2);color:var(--text);font-size:12px;padding:4px 12px;border-radius:2px}
-.more-btn:hover{background:var(--blue);color:#0d1b26}
-.giftcard{
-  display:flex;align-items:center;gap:8px;background:linear-gradient(to right,#1387b8,#0f6d94);
-  padding:5px 14px 5px 8px;border-radius:2px;color:#e3f2fb;font-size:13px;
-}
-.gc-icon{width:44px;height:24px;background:
-  radial-gradient(circle at 20% 50%,#0d3d5c 6px,transparent 7px),
-  radial-gradient(circle at 55% 50%,#0d3d5c 6px,transparent 7px),
-  radial-gradient(circle at 88% 50%,#0d3d5c 6px,transparent 7px),
-  #6bb8dd;border-radius:2px}
-
-/* ---------- 캐러셀 ---------- */
-.carousel{position:relative}
-.car-view{overflow:hidden}
-.car-track{display:flex;transition:transform .4s ease}
-.car-slide{flex:0 0 100%}
-.arrow{
-  position:absolute;top:0;bottom:0;width:44px;display:flex;align-items:center;justify-content:center;
-  background:transparent;color:#4d6a86;font-size:40px;line-height:1;z-index:5;
-}
-.arrow:hover{color:#c7d5e0}
-.arrow.prev{left:-46px}
-.arrow.next{right:-46px}
-.dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
-.dot{width:15px;height:9px;border-radius:5px;background:#2f3f4f;cursor:pointer}
-.dot.on{background:#c7d5e0}
-
-/* ---------- 특집 및 추천 ---------- */
-.feat{display:flex;background:#16202d;box-shadow:0 0 12px rgba(0,0,0,.35);cursor:pointer}
-.feat-art{flex:0 0 616px;height:353px;position:relative}
-.badge-live{
-  position:absolute;left:10px;top:10px;background:rgba(0,0,0,.6);color:#e6e6e6;font-size:11px;
-  padding:4px 9px;border-radius:2px;display:flex;align-items:center;gap:6px;
-}
-.badge-live i{width:7px;height:7px;border-radius:50%;background:#c94141;display:block}
-.feat-info{flex:1;padding:16px 20px;display:flex;flex-direction:column;min-width:0}
-.feat-info h3{font-size:20px;color:#fff;font-weight:400;margin-bottom:4px}
-.reviews{font-size:13px;color:#b58f5a;margin-bottom:14px}
-.reviews.positive{color:#66c0f4}
-.reviews span{color:var(--text-dim)}
-.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.thumb{height:82px;border-radius:2px}
-.feat-meta{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between}
-.rank{display:flex;gap:8px;align-items:center;color:var(--green);font-size:13px}
-.rank small{display:block;color:var(--text);font-size:12px}
-.rank b{color:#fff}
-.price-tag{background:rgba(0,0,0,.4);color:#c7d5e0;padding:4px 8px;font-size:13px;border-radius:2px}
-.feat-tags{display:flex;flex-wrap:wrap;gap:4px;margin:12px 0 0}
-
-/* ---------- 프로모 배너 ---------- */
-.promo{
-  margin-top:18px;height:150px;border-radius:3px;overflow:hidden;position:relative;
-  background:linear-gradient(105deg,#160f2b 0%,#221641 42%,#2b3f5e 60%,#a9d8e8 100%);
-  display:flex;align-items:center;
-}
-.promo .left{padding:0 30px;color:#fff}
-.promo .left .kicker{
-  display:inline-block;background:linear-gradient(90deg,#ff3ea5,#ff77c4);color:#12071f;
-  font-weight:800;letter-spacing:3px;padding:3px 16px;transform:skewX(-10deg);font-size:15px;
-}
-.promo .left h4{font-size:34px;line-height:1.05;margin:8px 0;color:#67e8ff;font-weight:800;text-shadow:0 0 12px rgba(103,232,255,.5)}
-.promo .left p{color:#ff6fb1;font-size:13px}
-.promo .right{margin-left:auto;padding:0 40px;text-align:right}
-.promo .right .box{background:#cfe9f5;color:#0f2e3d;padding:8px 18px;font-weight:700;font-size:17px;border-radius:2px;line-height:1.4}
-
-/* ---------- 할인 및 이벤트 ---------- */
-.deals{display:flex;gap:12px;background:#16202d;padding:14px;box-shadow:0 0 12px rgba(0,0,0,.3)}
-.deal-big{flex:1;position:relative;cursor:pointer}
-.deal-big .art{height:392px;border-radius:2px}
-.deal-col{flex:1;display:flex;flex-direction:column;gap:12px}
-.deal-sm{position:relative;cursor:pointer}
-.deal-sm .art{height:190px;border-radius:2px}
-.tagline{
-  position:absolute;left:0;top:0;font-size:12px;color:#fff;padding:4px 12px;border-radius:0 0 2px 0;z-index:2;
-}
-.tagline.week{background:#a3388f}
-.tagline.day{background:#3c8ec4}
-.tagline.season{background:#4b6cc4}
-.pricebar{position:absolute;right:0;bottom:0;display:flex;align-items:stretch;font-size:13px;z-index:2}
-.disc{background:var(--green-bg);color:var(--green);padding:6px 8px;font-weight:600}
-.pb-body{background:rgba(0,0,0,.75);display:flex;align-items:center;gap:8px;padding:6px 10px}
-.was{color:#7a8b99;text-decoration:line-through;font-size:12px}
-.now{color:#c7d5e0}
-.card-name{
-  position:absolute;left:0;right:0;bottom:0;padding:26px 10px 8px;color:#fff;font-size:13px;
-  background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);pointer-events:none;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.deal-big .card-name{padding-right:170px}
-
-/* ---------- 로그인 배너 ---------- */
-.queue{
-  margin-top:20px;height:150px;border-radius:3px;overflow:hidden;position:relative;
-  background:linear-gradient(100deg,#6b3fa0 0%,#4a3a8c 45%,#2c4a86 100%);
-  display:flex;align-items:center;
-}
-.queue .q-left{padding:0 34px;z-index:2}
-.queue h4{color:#fff;font-size:24px;font-weight:600;margin-bottom:6px}
-.queue p{color:#cfd6e4;font-size:14px;margin-bottom:12px}
-.btn-blue{background:linear-gradient(to bottom,#47bfff 5%,#1a44c2 95%);color:#fff;padding:7px 20px;border-radius:2px;font-size:14px;display:inline-block}
-.queue .q-right{position:absolute;right:0;top:0;bottom:0;width:520px;display:flex;gap:10px;transform:skewX(-6deg) translateX(30px);opacity:.85}
-.queue .q-right div{flex:1;border-radius:3px}
-
-/* ---------- 태그 스포트라이트 ---------- */
-.spotlights{display:flex;gap:22px}
-.spot{flex:1}
-.spot-body{background:#16202d;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;box-shadow:0 0 12px rgba(0,0,0,.3)}
-.spot-card{position:relative;cursor:pointer}
-.spot-card .art{height:130px;border-radius:2px}
-.spot-foot{display:flex;justify-content:flex-end;margin-top:10px}
-
-/* ---------- 신규 출시 ---------- */
-.tabs{display:flex;gap:26px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px;flex-wrap:wrap}
-.tab{background:none;color:var(--text-dim);font-size:18px;padding:6px 2px 10px;position:relative}
-.tab.on{color:#fff}
-.tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--blue)}
-.releases{display:flex;gap:14px}
-.rel-list{flex:1;background:#16202d;box-shadow:0 0 12px rgba(0,0,0,.3);min-width:0}
-.rel-row{display:flex;align-items:center;gap:14px;padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.25);cursor:pointer}
-.rel-row:hover{background:linear-gradient(to right,#3d4450,#2a3f5a)}
-.rel-cap{width:184px;height:69px;border-radius:2px;flex:0 0 auto;position:relative;overflow:hidden}
-.rel-meta{flex:1;min-width:0}
-.rel-meta h5{font-size:16px;color:#fff;font-weight:400;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rel-meta .tags{font-size:12px;color:#7b90a3;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rel-meta .date{font-size:12px;color:#5d7183}
-.rel-price{display:flex;align-items:stretch;font-size:13px;margin-left:auto;flex:0 0 auto}
-.rel-price .pb-body{background:rgba(0,0,0,.3)}
-.rel-side{flex:0 0 300px;background:#16202d;padding:14px;box-shadow:0 0 12px rgba(0,0,0,.3);align-self:flex-start}
-.rel-side h4{color:#fff;font-size:18px;font-weight:400;margin-bottom:8px}
-.rel-side .lang{font-size:12px;color:var(--text-dim);margin-bottom:2px}
-.rel-side .score{font-size:13px;color:var(--blue);margin-bottom:12px}
-.tag-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
-.pill{background:rgba(103,193,245,.14);color:#8fb8d6;font-size:11px;padding:3px 8px;border-radius:2px}
-.side-shot{height:120px;border-radius:2px;margin-bottom:8px}
-.rel-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 12px;font-size:12px;color:var(--text-dim)}
-
-/* ---------- 카테고리 ---------- */
-.cats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.cat{height:150px;border-radius:3px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
-.cat b{background:rgba(255,255,255,.92);color:#1b2838;font-size:15px;padding:6px 16px;border-radius:2px;position:relative;z-index:2}
-.cat small{position:absolute;bottom:8px;right:10px;z-index:2;color:#dfe8ef;font-size:11px}
-.cat .veil{position:absolute;inset:0}
-.cat .veil::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(27,40,56,.55),rgba(10,16,24,.75))}
-
-/* ---------- 저가 게임 ---------- */
-.cheap{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.cheap-card{position:relative;cursor:pointer}
-.cheap-card .art{height:135px;border-radius:2px}
-.headbtns{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)}
-
-/* ---------- 게임 상세 모달 ---------- */
-.modal-back{position:fixed;inset:0;background:rgba(6,10,15,.82);z-index:100;display:none;overflow-y:auto;padding:40px 12px}
-.modal-back.on{display:block}
-.modal{width:940px;margin:0 auto;background:linear-gradient(#1b2838 0,#16202d 260px);box-shadow:0 12px 50px rgba(0,0,0,.7);position:relative}
-.modal-x{position:absolute;right:10px;top:8px;background:none;color:#8fa3b5;font-size:26px;line-height:1;z-index:5}
-.modal-x:hover{color:#fff}
-.m-head{padding:20px 24px 0}
-.m-head h2{color:#fff;font-size:26px;font-weight:400}
-.m-head .sub{color:var(--text-dim);font-size:12px;margin-top:4px}
-.m-body{display:flex;gap:16px;padding:14px 24px 24px}
-.m-left{flex:1;min-width:0}
-.m-shot{width:100%;height:340px;border-radius:2px;background-size:cover;background-position:center;margin-bottom:8px}
-.m-strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
-.m-strip div{width:110px;height:62px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center;cursor:pointer;opacity:.6}
-.m-strip div.on{opacity:1;outline:1px solid var(--blue)}
-.m-right{flex:0 0 324px}
-.m-cap{width:100%;height:150px;border-radius:2px;background-size:cover;background-position:center;margin-bottom:10px}
-.m-desc{color:#b4c3d0;font-size:13px;line-height:1.6;margin-bottom:12px}
-.m-rows{font-size:12px;color:var(--text-dim);line-height:1.9;margin-bottom:12px}
-.m-rows b{color:#c7d5e0;font-weight:400;display:inline-block;width:66px}
-.m-buy{background:#000;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.m-buy .btn-green{background:linear-gradient(to bottom,#799905 5%,#536904 95%);color:#fff;padding:8px 18px;border-radius:2px;font-size:14px}
-.m-about{color:#acb9c4;font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:230px;overflow-y:auto;padding-right:6px}
-.m-sec{color:#fff;font-size:15px;margin:16px 0 8px;font-weight:400;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:5px}
-.m-review{background:#16202d;padding:10px 12px;margin-bottom:8px;border-left:3px solid #4b6cc4}
-.m-review .who{font-size:12px;color:var(--text-dim);margin-bottom:5px}
-.m-review .who b{color:#c7d5e0;font-weight:400}
-.m-review .rec{color:var(--blue)}
-.m-review .norec{color:#c96a4a}
-.m-review p{font-size:13px;color:#b4c3d0;line-height:1.6}
-.m-req{font-size:12px;color:#8fa3b5;line-height:1.7;white-space:pre-wrap;background:#16202d;padding:12px;max-height:200px;overflow-y:auto}
-
-.loading{padding:60px 0;text-align:center;color:var(--text-dim);font-size:14px}
-.err{padding:40px;text-align:center;color:#e08b6a;font-size:13px;line-height:1.8}
-
-/* ---------- 푸터 ---------- */
-footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font-size:12px;line-height:1.7}
-.foot-grid{display:flex;gap:40px}
-.foot-brand{flex:0 0 300px}
-.foot-logos{display:flex;gap:14px;align-items:center;margin-bottom:16px;opacity:.5}
-.foot-logos .lg{border:1px solid #4a5560;color:#8b98a3;padding:4px 12px;letter-spacing:3px;font-size:14px}
-.foot-logos img{height:16px;width:auto}
-.foot-col h6{color:#b0bec9;font-size:12px;letter-spacing:1px;margin-bottom:8px}
-.foot-col a{display:block;color:#556772}
-.foot-col a:hover{color:#b0bec9}
-.socials{display:flex;gap:14px;margin-top:16px}
-.socials i{width:22px;height:22px;background:#4a5560;border-radius:3px;display:block}
-
-@media (max-width:980px){
-  .wrap{width:100%;padding:0 12px}
-  .arrow.prev{left:0}.arrow.next{right:0}
-  .feat{flex-direction:column}.feat-art{flex:none;width:100%;height:220px}
-  .deals,.spotlights,.releases{flex-direction:column}
-  .rel-side{flex:none;width:100%}
-  .cats,.cheap{grid-template-columns:repeat(2,1fr)}
-  .hero-cap{display:none}
-  .hero-txt h1{font-size:30px}
-  .modal{width:100%}
-  .m-body{flex-direction:column}.m-right{flex:none;width:100%}
-  .sresults{width:100%;right:auto;left:0}
-}
-</style>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
 <!-- ===== 헤더 ===== -->
 <header class="topbar">
   <div class="wrap">
-    <a class="logo" href="#">
+    <a class="logo" href="#" data-view="store">
       <img src="/header_logo.png" alt="Steam logo">
     </a>
-    <nav class="mainnav">
-      <a class="on" href="#">상점</a>
+    <nav class="mainnav" id="mainnav">
+      <a class="on" href="#" data-view="store">상점</a>
       <a href="#">커뮤니티</a>
       <a href="#">정보</a>
       <a href="#">지원</a>
@@ -413,7 +26,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
         <svg width="14" height="14" viewBox="0 0 16 16" fill="#fff"><path d="M8 11L3 6h3V1h4v5h3z"/><rect x="2" y="12" width="12" height="2"/></svg>
         Steam 설치
       </a>
-      <a href="#">로그인</a>
+      <a href="#login" id="topLogin" data-view="login">로그인</a>
       <span class="sep">|</span>
       <a href="#">언어 ▾</a>
     </div>
@@ -524,6 +137,118 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   <div class="loading">DB에서 상점 데이터를 불러오는 중…</div>
 </div>
 
+<!-- ===== 로그인 화면 ===== -->
+<section id="loginView">
+  <div class="login-bg" id="loginBg"></div>
+  <div class="login-veil"></div>
+
+  <div class="login-inner">
+    <div class="wrap">
+      <h1 class="login-title">로그인</h1>
+
+      <form class="login-box" id="loginForm" autocomplete="off">
+        <div class="login-left">
+          <label class="field-label" for="account">계정 이름으로 로그인</label>
+          <input class="login-input" type="text" id="account">
+
+          <label class="field-label" for="password" style="color:var(--text)">비밀번호</label>
+          <input class="login-input" type="password" id="password">
+
+          <label class="checkbox-row">
+            <input type="checkbox" checked>
+            로그인 정보 저장
+          </label>
+
+          <button class="btn-login" type="submit">로그인</button>
+          <div class="login-msg" id="loginMsg"></div>
+          <p class="help-link"><a href="#">로그인 관련 문제</a></p>
+        </div>
+
+        <div class="login-right">
+          <p class="qr-title">또는 <strong>QR 코드로 로그인</strong></p>
+          <div class="qr-code">
+            <svg viewBox="0 0 21 21" shape-rendering="crispEdges" role="img" aria-label="QR 코드 자리 표시자">
+              <rect width="21" height="21" fill="#fff"/>
+              <g fill="#000">
+                <path d="M0 0h7v7H0z"/><path d="M1 1h5v5H1z" fill="#fff"/><path d="M2 2h3v3H2z"/>
+                <path d="M14 0h7v7h-7z"/><path d="M15 1h5v5h-5z" fill="#fff"/><path d="M16 2h3v3h-3z"/>
+                <path d="M0 14h7v7H0z"/><path d="M1 15h5v5H1z" fill="#fff"/><path d="M2 16h3v3H2z"/>
+                <path d="M9 0h1v1H9zM11 1h1v1h-1zM9 2h1v1H9zM12 3h1v1h-1zM9 4h1v1H9zM11 5h1v1h-1z"/>
+                <path d="M0 9h1v1H0zM2 9h1v1H2zM4 10h1v1H4zM1 11h1v1H1zM5 11h1v1H5zM3 12h1v1H3z"/>
+                <path d="M9 9h1v1H9zM11 9h1v1h-1zM13 10h1v1h-1zM10 11h1v1h-1zM12 12h1v1h-1zM9 13h1v1H9z"/>
+                <path d="M16 9h1v1h-1zM18 10h1v1h-1zM20 11h1v1h-1zM17 12h1v1h-1zM19 13h1v1h-1z"/>
+                <path d="M9 16h1v1H9zM11 17h1v1h-1zM13 16h1v1h-1zM10 18h1v1h-1zM12 19h1v1h-1zM9 20h1v1H9z"/>
+                <path d="M16 16h1v1h-1zM18 17h1v1h-1zM20 16h1v1h-1zM17 19h1v1h-1zM19 20h1v1h-1z"/>
+              </g>
+            </svg>
+          </div>
+          <p class="qr-caption"><a href="#">Steam 모바일 앱을 사용하여 QR 코드로 로그인</a></p>
+        </div>
+      </form>
+
+      <section class="join">
+        <div class="join-left">
+          <h2>Steam에 처음 오셨나요?</h2>
+          <a href="#signup" class="btn-join" data-view="signup">가입하기</a>
+        </div>
+        <p class="join-right">
+          무료로 쉽게 가입할 수 있습니다. 수천 종류의 게임을 전 세계 새로운 친구들과 함께 즐겨보세요.
+          <a href="#" data-view="store">상점 둘러보기</a>
+        </p>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 계정 만들기 ===== -->
+<section id="signupView">
+  <div class="signup-bg" id="signupBg"></div>
+  <div class="signup-veil"></div>
+
+  <div class="signup-inner">
+    <div class="wrap">
+      <h1 class="signup-title">계정 만들기</h1>
+
+      <form class="signup-form" id="signupForm" autocomplete="off">
+        <label class="su-label" for="suEmail">이메일 주소</label>
+        <input class="su-input" type="email" id="suEmail">
+
+        <label class="su-label" for="suEmail2">이메일 주소 확인</label>
+        <input class="su-input" type="email" id="suEmail2">
+
+        <label class="su-label" for="suCountry">거주 국가</label>
+        <select class="su-input su-select" id="suCountry">
+          <option>대한민국</option>
+          <option>미국</option>
+          <option>일본</option>
+          <option>중국</option>
+          <option>독일</option>
+          <option>영국</option>
+          <option>캐나다</option>
+        </select>
+
+        <div class="su-captcha">
+          <span class="su-box" id="suCaptcha" role="checkbox" aria-checked="false" tabindex="0"></span>
+          <span class="txt">사람입니다</span>
+          <span class="su-brand">
+            <span class="su-mark"></span>
+            <b>hCaptcha</b>
+            개인정보 보호 - 약관
+          </span>
+        </div>
+
+        <label class="su-agree">
+          <input type="checkbox" id="suAgree">
+          <span>본인은 만 13세 이상이며 <a href="#">Steam 이용 약관</a> 및 <a href="#">Valve 개인정보 처리방침</a>에 동의합니다.</span>
+        </label>
+
+        <button class="su-submit" type="submit">계속</button>
+        <div class="signup-msg" id="signupMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
 <!-- ===== 푸터 ===== -->
 <footer>
   <div class="wrap foot-grid">
@@ -555,561 +280,58 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   </div>
 </footer>
 
+<!-- ===== 인증 완료 화면 ===== -->
+<section id="doneView">
+  <div class="done-bg" id="doneBg"></div>
+  <div class="done-veil"></div>
+  <div class="done-inner">
+    <div class="wrap">
+      <h1>이메일 인증 완료</h1>
+      <p>이전 창으로 돌아가서 이메일 주소 인증을 완료해 주시기 바랍니다.</p>
+      <p class="note">*이 창을 닫으셔도 됩니다</p>
+      <a class="btn-blue" href="#login" data-view="login">로그인하러 가기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 이메일 인증 모달 ===== -->
+<div class="verify-back" id="verifyBack">
+  <div class="verify">
+    <h3>이메일 주소 인증</h3>
+
+    <div class="v-panel">
+      <p class="v-msg">
+        Steam에서 보내드린 이메일을 <b id="vEmail"></b>에서 확인하시고 계정 설정을 완료하세요.
+      </p>
+      <div class="v-bars" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="v-status" id="vStatus">인증 대기 중...</div>
+    </div>
+
+    <p class="v-ask">이메일을 받지 못하셨나요?</p>
+    <button class="v-toggle" id="vToggle" type="button">펼치기 ⌄</button>
+
+    <div class="v-help" id="vHelp">
+      <p>이메일을 받지 못했다면, 아래의 문제 해결 절차를 따라 주세요.</p>
+      <ol>
+        <li>본인의 이메일 주소가 '<span id="vEmail2"></span>'이 맞는지, 오타가 포함되어 있지는 않은지 확인해 주세요.</li>
+        <li>'steampowered.com'에서 온 이메일이 스팸 또는 휴지통 폴더에 있는지 확인해 주세요.</li>
+        <li>잠시만 기다려 주세요. 간혹 이메일 서버가 느려져 메일 수신에 다소 시간이 걸릴 수 있습니다.</li>
+      </ol>
+      <p>이메일 주소를 변경하려면 <a href="#signup" data-view="signup" id="vChange">여기를 클릭</a>하세요.</p>
+    </div>
+
+    <div class="v-fake">
+      <p>서버가 없는 데모입니다. 실제 메일은 발송되지 않으니 아래 버튼으로 인증을 대신하세요.</p>
+      <button type="button" id="vConfirm">인증 메일 링크 클릭하기</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== 게임 상세 모달 ===== -->
 <div class="modal-back" id="modalBack">
   <div class="modal" id="modal"></div>
 </div>
 
-<script>
-// ===============================================================
-// 유틸
-// ===============================================================
-const $ = (s, r = document) => r.querySelector(s);
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const won = (n) => '₩ ' + Number(n).toLocaleString('ko-KR');
-const bg = (url) => (url ? `background-image:url('${esc(url)}')` : '');
-
-function ymd(iso) {
-  if (!iso) return '출시일 미정';
-  const d = new Date(iso);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-}
-
-/** 리뷰 요약. 긍정 비율에 따라 색을 바꾼다. */
-function reviewHtml(g) {
-  if (!g.reviewDesc) return '<div class="reviews"><span>평가 없음</span></div>';
-  const cls = (g.reviewPercent ?? 0) >= 70 ? 'reviews positive' : 'reviews';
-  const cnt = g.reviewTotal ? ` <span>(평가 ${g.reviewTotal.toLocaleString('ko-KR')}개)</span>` : '';
-  return `<div class="${cls}">${esc(g.reviewDesc)}${cnt}</div>`;
-}
-
-/** 가격 바. 할인 여부/무료/출시예정을 모두 여기서 처리한다. */
-function priceBar(g, cls = 'pricebar') {
-  if (g.isFree) return `<div class="${cls}"><span class="pb-body"><span class="now">무료 플레이</span></span></div>`;
-  if (g.priceKrw <= 0) return `<div class="${cls}"><span class="pb-body"><span class="now">${g.comingSoon ? '출시 예정' : '가격 미정'}</span></span></div>`;
-  if (g.discountPercent > 0) {
-    return `<div class="${cls}">
-      <span class="disc">-${g.discountPercent}%</span>
-      <span class="pb-body"><span class="was">${won(g.priceKrw)}</span><span class="now">${won(g.finalKrw)}</span></span>
-    </div>`;
-  }
-  return `<div class="${cls}"><span class="pb-body"><span class="now">${won(g.priceKrw)}</span></span></div>`;
-}
-
-function priceText(g) {
-  if (g.isFree) return '무료 플레이';
-  if (g.priceKrw <= 0) return g.comingSoon ? '출시 예정' : '가격 미정';
-  if (g.discountPercent > 0) return `-${g.discountPercent}%  ${won(g.finalKrw)}`;
-  return won(g.priceKrw);
-}
-
-const TAGLINE_CLASS = { '일일 특가': 'day', '주중 특가': 'week', '시즌 세일': 'season', '특별 할인': 'season' };
-
-// ===============================================================
-// 렌더
-// ===============================================================
-function renderHero(g) {
-  if (!g) return;
-  const shot = g.screenshots[0]?.url || g.headerImage;
-  $('#hero').innerHTML = `
-    <div class="hero-bg" style="${bg(shot)}"></div>
-    <div class="wrap hero-inner">
-      <div class="hero-cap" style="${bg(g.capsuleImage || g.headerImage)}"></div>
-      <div class="hero-txt">
-        ${g.discountPercent > 0 ? `<span class="hero-kicker">${esc(g.discountLabel || '할인')} · -${g.discountPercent}%</span>` : '<span class="hero-kicker">지금 인기</span>'}
-        <h1>${esc(g.name)}</h1>
-        <div class="hero-meta">
-          <span>${esc(g.developer)}</span>
-          <span>·</span>
-          <span>${ymd(g.releaseDate)}</span>
-          ${g.reviewDesc ? `<span>·</span><span style="color:var(--blue)">${esc(g.reviewDesc)}</span>` : ''}
-        </div>
-        <div class="hero-buy">
-          <a class="hero-cta" href="#" data-slug="${esc(g.slug)}">상점 페이지 보기</a>
-          <span class="price-tag">${priceText(g)}</span>
-        </div>
-      </div>
-    </div>`;
-  $('#hero .hero-cta').addEventListener('click', (e) => { e.preventDefault(); openGame(g.slug); });
-}
-
-function featSlide(g) {
-  const art = g.screenshots[0]?.url || g.headerImage;
-  const thumbs = (g.screenshots.slice(1, 5).length ? g.screenshots.slice(1, 5) : g.screenshots.slice(0, 4))
-    .map((s) => `<div class="thumb" style="${bg(s.thumb || s.url)}"></div>`).join('');
-  return `<div class="car-slide">
-    <div class="feat" data-slug="${esc(g.slug)}">
-      <div class="feat-art" style="${bg(art)}">
-        ${g.discountPercent > 0 ? `<span class="badge-live"><i></i>${esc(g.discountLabel)}</span>` : ''}
-      </div>
-      <div class="feat-info">
-        <h3>${esc(g.name)}</h3>
-        ${reviewHtml(g)}
-        <div class="thumbs">${thumbs}</div>
-        <div class="feat-tags">${g.tags.slice(0, 5).map((t) => `<span class="pill">${esc(t)}</span>`).join('')}</div>
-        <div class="feat-meta">
-          <div class="rank">📈<div><b>${g.discountPercent > 0 ? '할인 중' : '최고 인기 게임'}</b><small>Steam 평가 ${(g.reviewTotal || 0).toLocaleString('ko-KR')}개</small></div></div>
-          <span class="price-tag">${priceText(g)}</span>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-function dealCard(g, size) {
-  const art = size === 'big' ? (g.capsuleImage || g.headerImage) : g.headerImage;
-  const cls = TAGLINE_CLASS[g.discountLabel] || 'season';
-  return `<div class="deal-${size}" data-slug="${esc(g.slug)}">
-    <span class="tagline ${cls}">${esc(g.discountLabel || '할인')}</span>
-    <div class="art" style="${bg(art)}"></div>
-    <div class="card-name">${esc(g.name)}</div>
-    ${priceBar(g)}
-  </div>`;
-}
-
-function dealSlide(chunk) {
-  const [b1, b2, s1, s2] = chunk;
-  return `<div class="car-slide"><div class="deals">
-    ${b1 ? dealCard(b1, 'big') : ''}
-    ${b2 ? dealCard(b2, 'big') : ''}
-    <div class="deal-col">
-      ${s1 ? dealCard(s1, 'sm') : ''}
-      ${s2 ? dealCard(s2, 'sm') : ''}
-    </div>
-  </div></div>`;
-}
-
-function spotBlock(s) {
-  return `<div class="spot">
-    <div class="sec-head"><div><h2 class="sec-title">${esc(s.tag)} 게임</h2><div class="sec-sub">집중 조명 태그</div></div></div>
-    <div class="spot-body">
-      ${s.games.map((g) => `
-        <div class="spot-card" data-slug="${esc(g.slug)}">
-          <div class="art" style="${bg(g.headerImage)}"></div>
-          <div class="card-name">${esc(g.name)}</div>
-          ${priceBar(g)}
-        </div>`).join('')}
-    </div>
-    <div class="spot-foot"><button class="more-btn">더 보기</button></div>
-  </div>`;
-}
-
-function relRow(g) {
-  return `<div class="rel-row" data-slug="${esc(g.slug)}">
-    <div class="rel-cap" style="${bg(g.headerImage)}"></div>
-    <div class="rel-meta">
-      <h5>${esc(g.name)}</h5>
-      <div class="tags">${esc(g.tags.slice(0, 4).join(', ')) || '태그 없음'}</div>
-      <div class="date">출시: ${ymd(g.releaseDate)}</div>
-    </div>
-    ${priceBar(g, 'rel-price')}
-  </div>`;
-}
-
-function relSide(g) {
-  if (!g) return '';
-  const shots = g.screenshots.slice(0, 3).map((s) => `<div class="side-shot" style="${bg(s.thumb || s.url)}"></div>`).join('');
-  return `<h4>${esc(g.name)}</h4>
-    <div class="lang">Steam 사용자 평가</div>
-    <div class="score">${esc(g.reviewDesc || '평가 없음')}${g.reviewTotal ? ` (${g.reviewTotal.toLocaleString('ko-KR')})` : ''}</div>
-    <div class="tag-pills">${g.tags.slice(0, 6).map((t) => `<span class="pill">${esc(t)}</span>`).join('')}</div>
-    ${shots}`;
-}
-
-function catSlide(items) {
-  return `<div class="car-slide"><div class="cats">
-    ${items.map((c) => `
-      <div class="cat" data-tag="${esc(c.name)}">
-        <div class="veil" style="${bg(c.image)}"></div>
-        <b>${esc(c.name)}</b>
-        <small>${c.count}종</small>
-      </div>`).join('')}
-  </div></div>`;
-}
-
-function cheapSlide(items) {
-  return `<div class="car-slide"><div class="cheap">
-    ${items.map((g) => `
-      <div class="cheap-card" data-slug="${esc(g.slug)}">
-        <div class="art" style="${bg(g.capsuleImage || g.headerImage)}"></div>
-        <div class="card-name">${esc(g.name)}</div>
-        ${priceBar(g)}
-      </div>`).join('')}
-  </div></div>`;
-}
-
-const chunk = (arr, n) => arr.reduce((a, _, i) => (i % n ? a : [...a, arr.slice(i, i + n)]), []);
-
-// ===============================================================
-// 화면 조립
-// ===============================================================
-let HOME = null;
-
-function render(data) {
-  HOME = data;
-  const dealSlides = chunk(data.deals, 4).filter((c) => c.length >= 2);
-  const catSlides = chunk(data.categories, 5);
-  const cheapSlides = chunk(data.cheap, 5);
-
-  $('#app').innerHTML = `
-  <!-- 특집 및 추천 -->
-  <section class="section"><div class="wrap">
-    <div class="sec-head">
-      <h2 class="sec-title">특집 및 추천 게임</h2>
-      <a class="giftcard" href="#"><span class="gc-icon"></span>기프트 카드 보내기</a>
-    </div>
-    <div class="carousel" id="featCar">
-      <button class="arrow prev" aria-label="이전">‹</button>
-      <button class="arrow next" aria-label="다음">›</button>
-      <div class="car-view"><div class="car-track">${data.featured.map(featSlide).join('')}</div></div>
-      <div class="dots"></div>
-    </div>
-    <div class="promo">
-      <div class="left">
-        <span class="kicker">STEAM</span>
-        <h4>여름 세일<br>진행 중</h4>
-        <p>현재 ${data.stats.discounts}종 할인 중 · 전체 ${data.stats.games}종</p>
-      </div>
-      <div class="right"><div class="box">할인 종료<br>${ymd(data.deals[0]?.discountEndsAt)}</div></div>
-    </div>
-  </div></section>
-
-  <!-- 할인 및 이벤트 -->
-  <section class="section"><div class="wrap">
-    <div class="sec-head">
-      <h2 class="sec-title">할인 및 이벤트</h2>
-      <button class="more-btn">더 보기</button>
-    </div>
-    <div class="carousel" id="dealCar">
-      <button class="arrow prev" aria-label="이전">‹</button>
-      <button class="arrow next" aria-label="다음">›</button>
-      <div class="car-view"><div class="car-track">${dealSlides.map(dealSlide).join('')}</div></div>
-      <div class="dots"></div>
-    </div>
-    <div class="queue">
-      <div class="q-left">
-        <h4>맞춤 대기열 둘러보기</h4>
-        <p>로그인하여 인기 게임, 신규 출시 게임, 추천 게임 보기</p>
-        <a class="btn-blue" href="#">로그인</a>
-      </div>
-      <div class="q-right">
-        ${data.featured.slice(0, 4).map((g) => `<div style="${bg(g.headerImage)}"></div>`).join('')}
-      </div>
-    </div>
-  </div></section>
-
-  <!-- 태그 스포트라이트 -->
-  <section class="section"><div class="wrap spotlights">
-    ${data.spotlights.map(spotBlock).join('')}
-  </div></section>
-
-  <!-- 신규 출시 -->
-  <section class="section"><div class="wrap">
-    <div class="tabs" id="relTabs">
-      ${data.tabs.map((t, i) => `<button class="tab${i === 0 ? ' on' : ''}" data-i="${i}">${esc(t.label)}</button>`).join('')}
-    </div>
-    <div class="releases">
-      <div class="rel-list">
-        <div id="relRows"></div>
-        <div class="rel-foot">
-          더 보기:
-          <button class="more-btn">인기 신규 출시 게임</button>
-          <span>또는</span>
-          <button class="more-btn">신규 출시 게임 전체</button>
-        </div>
-      </div>
-      <aside class="rel-side" id="relSide"></aside>
-    </div>
-  </div></section>
-
-  <!-- 카테고리 -->
-  <section class="section"><div class="wrap">
-    <div class="sec-head"><h2 class="sec-title">카테고리별 검색</h2></div>
-    <div class="carousel" id="catCar">
-      <button class="arrow prev" aria-label="이전">‹</button>
-      <button class="arrow next" aria-label="다음">›</button>
-      <div class="car-view"><div class="car-track">${catSlides.map(catSlide).join('')}</div></div>
-      <div class="dots"></div>
-    </div>
-  </div></section>
-
-  <!-- 1만원 미만 -->
-  <section class="section"><div class="wrap">
-    <div class="sec-head">
-      <h2 class="sec-title">₩ 10,000 미만</h2>
-      <div class="headbtns">더 보기: <button class="more-btn">₩ 10,000 미만</button><button class="more-btn">₩ 5,000 미만</button></div>
-    </div>
-    <div class="carousel" id="cheapCar">
-      <button class="arrow prev" aria-label="이전">‹</button>
-      <button class="arrow next" aria-label="다음">›</button>
-      <div class="car-view"><div class="car-track">${cheapSlides.map(cheapSlide).join('')}</div></div>
-      <div class="dots"></div>
-    </div>
-  </div></section>`;
-
-  renderHero(data.hero);
-  showTab(0);
-
-  initCarousel('featCar', 7000);
-  initCarousel('dealCar', 9000);
-  initCarousel('catCar', 0);
-  initCarousel('cheapCar', 0);
-
-  // 탭
-  document.querySelectorAll('#relTabs .tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('#relTabs .tab').forEach((t) => t.classList.remove('on'));
-      tab.classList.add('on');
-      showTab(Number(tab.dataset.i));
-    });
-  });
-
-  // 상단 메가 메뉴: 실제 데이터로 채운다
-  const tiles = data.categories.slice(0, 6);
-  const pills = data.categories.slice(6);
-  $('#navCatTiles').innerHTML = tiles.map((c) => `
-    <div class="cat" data-tag="${esc(c.name)}">
-      <div class="veil" style="${bg(c.image)}"></div>
-      <b>${esc(c.name)}</b>
-      <small>${c.count}종</small>
-    </div>`).join('');
-  $('#navCatPills').innerHTML = pills.map((c) => `
-    <a href="#" data-tag="${esc(c.name)}">${esc(c.name)}<span class="navcount">${c.count}종</span></a>`).join('');
-
-  const topGames = data.tabs.find((t) => t.key === 'top')?.games ?? [];
-  const top3 = topGames.slice(0, 3);
-  $('#navTopGames').innerHTML = top3.map((g) => `
-    <div class="mega-top-row" data-slug="${esc(g.slug)}">
-      <div class="mega-top-cap" style="${bg(g.headerImage)}"></div>
-      <div><div class="nm">${esc(g.name)}</div><div class="pr">${priceText(g)}</div></div>
-    </div>`).join('');
-
-  const banner1 = topGames[0];
-  const banner2 = data.deals[0] || topGames[1];
-  $('#navSearchBanners').innerHTML = [
-    banner1 ? `<div class="mega-banner" data-slug="${esc(banner1.slug)}" style="${bg(banner1.headerImage)}"><span>최고 인기 게임</span></div>` : '',
-    banner2 ? `<div class="mega-banner" data-slug="${esc(banner2.slug)}" style="${bg(banner2.headerImage)}"><span>할인 및 이벤트</span></div>` : '',
-  ].join('');
-
-  // 카드 클릭 -> 상세
-  document.addEventListener('click', onCardClick);
-}
-
-// 상단 메가 메뉴의 탭 이동 링크 (신규 출시 / 출시 예정 / 최고 인기 / 특별 할인)
-document.querySelectorAll('.navdrop a[data-tab]').forEach((a) => {
-  a.addEventListener('click', (e) => {
-    e.preventDefault();
-    const i = HOME.tabs.findIndex((t) => t.key === a.dataset.tab);
-    if (i < 0) return;
-    document.querySelectorAll('#relTabs .tab').forEach((t) => t.classList.remove('on'));
-    document.querySelector(`#relTabs .tab[data-i="${i}"]`)?.classList.add('on');
-    showTab(i);
-    $('#relTabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-});
-
-// 상단 "카테고리" 메가 메뉴 항목 클릭 -> 장르 검색 (동적으로 생성되므로 위임 처리)
-$('#navCatMega').addEventListener('click', (e) => {
-  const a = e.target.closest('[data-tag]');
-  if (!a) return;
-  e.preventDefault();
-  $('#q').value = '';
-  runSearchByTag(a.dataset.tag);
-});
-
-function showTab(i) {
-  const games = HOME.tabs[i].games;
-  $('#relRows').innerHTML = games.length ? games.map(relRow).join('') : '<div class="loading">해당하는 게임이 없습니다.</div>';
-  $('#relSide').innerHTML = relSide(games[0]);
-  document.querySelectorAll('#relRows .rel-row').forEach((row, n) => {
-    row.addEventListener('mouseenter', () => { $('#relSide').innerHTML = relSide(games[n]); });
-  });
-}
-
-function onCardClick(e) {
-  const el = e.target.closest('[data-slug]');
-  if (el) { openGame(el.dataset.slug); return; }
-  const cat = e.target.closest('[data-tag]');
-  if (cat) { $('#q').value = ''; runSearchByTag(cat.dataset.tag); }
-}
-
-// ===============================================================
-// 상세 모달
-// ===============================================================
-async function openGame(slug) {
-  const back = $('#modalBack');
-  back.classList.add('on');
-  document.body.style.overflow = 'hidden';
-  $('#modal').innerHTML = '<div class="loading">불러오는 중…</div>';
-
-  const res = await fetch('/api/game/' + encodeURIComponent(slug));
-  if (!res.ok) { $('#modal').innerHTML = '<div class="err">게임을 찾을 수 없습니다.</div>'; return; }
-  const g = await res.json();
-
-  const shots = g.screenshots;
-  const req = g.reqWindows?.minimum ? String(g.reqWindows.minimum) : null;
-  const plat = [g.platforms.windows && 'Windows', g.platforms.mac && 'macOS', g.platforms.linux && 'Linux'].filter(Boolean).join(', ');
-
-  $('#modal').innerHTML = `
-    <button class="modal-x" aria-label="닫기">×</button>
-    <div class="m-head">
-      <h2>${esc(g.name)}</h2>
-      <div class="sub">${esc(g.developer)} · ${ymd(g.releaseDate)}${g.steamAppId ? ` · appid ${g.steamAppId}` : ''}${g.metacritic ? ` · 메타크리틱 ${g.metacritic}` : ''}</div>
-    </div>
-    <div class="m-body">
-      <div class="m-left">
-        <div class="m-shot" id="mShot" style="${bg(shots[0]?.url || g.headerImage)}"></div>
-        <div class="m-strip">
-          ${shots.map((s, i) => `<div data-i="${i}" class="${i === 0 ? 'on' : ''}" style="${bg(s.thumb || s.url)}"></div>`).join('')}
-        </div>
-        <h3 class="m-sec">게임 정보</h3>
-        <div class="m-about">${esc(g.description || g.shortDesc)}</div>
-        ${g.reviews.length ? `
-          <h3 class="m-sec">사용자 평가 (${g.reviewCountLocal})</h3>
-          ${g.reviews.map((r) => `
-            <div class="m-review">
-              <div class="who"><b>${esc(r.nickname)}</b> · <span class="${r.isRecommended ? 'rec' : 'norec'}">${r.isRecommended ? '추천' : '비추천'}</span> · ${r.playtimeHours}시간 플레이 · 도움됨 ${r.helpfulCount}</div>
-              <p>${esc(r.content)}</p>
-            </div>`).join('')}` : ''}
-        ${req ? `<h3 class="m-sec">최소 시스템 요구 사항</h3><div class="m-req">${esc(req)}</div>` : ''}
-      </div>
-      <div class="m-right">
-        <div class="m-cap" style="${bg(g.headerImage)}"></div>
-        <div class="m-desc">${esc(g.shortDesc)}</div>
-        <div class="m-rows">
-          <div><b>평가</b> ${esc(g.reviewDesc || '평가 없음')}${g.reviewPercent != null ? ` (${g.reviewPercent}%)` : ''}</div>
-          <div><b>출시일</b> ${ymd(g.releaseDate)}</div>
-          <div><b>개발자</b> ${esc(g.developer)}</div>
-          <div><b>배급사</b> ${esc(g.publisher)}</div>
-          <div><b>플랫폼</b> ${esc(plat || '-')}</div>
-          <div><b>이용 등급</b> ${g.requiredAge ? g.requiredAge + '세 이상' : '전체 이용가'}</div>
-          ${g.dlcCount ? `<div><b>DLC</b> ${g.dlcCount}종</div>` : ''}
-        </div>
-        <div class="m-buy">
-          ${g.discountPercent > 0
-            ? `<span class="disc">-${g.discountPercent}%</span><span><span class="was">${won(g.priceKrw)}</span> <span class="now">${won(g.finalKrw)}</span></span>`
-            : `<span class="now">${priceText(g)}</span>`}
-          <button class="btn-green">카트에 추가</button>
-        </div>
-        <div class="tag-pills">${g.tags.map((t) => `<span class="pill">${esc(t)}</span>`).join('')}</div>
-      </div>
-    </div>`;
-
-  $('#modal .modal-x').addEventListener('click', closeModal);
-  document.querySelectorAll('#modal .m-strip div').forEach((d) => {
-    d.addEventListener('click', () => {
-      document.querySelectorAll('#modal .m-strip div').forEach((x) => x.classList.remove('on'));
-      d.classList.add('on');
-      $('#mShot').style.backgroundImage = `url('${shots[Number(d.dataset.i)].url}')`;
-    });
-  });
-  back.scrollTop = 0;
-}
-
-function closeModal() {
-  $('#modalBack').classList.remove('on');
-  document.body.style.overflow = '';
-}
-$('#modalBack').addEventListener('click', (e) => { if (e.target.id === 'modalBack') closeModal(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-
-// ===============================================================
-// 검색
-// ===============================================================
-let searchTimer = null;
-
-function renderResults(rows) {
-  const box = $('#sresults');
-  if (!rows.length) { box.innerHTML = '<div class="sres-empty">검색 결과가 없습니다.</div>'; box.classList.add('on'); return; }
-  box.innerHTML = rows.map((g) => `
-    <div class="sres-row" data-slug="${esc(g.slug)}">
-      <div class="cap" style="${bg(g.headerImage)}"></div>
-      <div class="nm">${esc(g.name)}</div>
-      <div class="pr">${priceText(g)}</div>
-    </div>`).join('');
-  box.classList.add('on');
-  box.querySelectorAll('.sres-row').forEach((r) => {
-    r.addEventListener('click', () => { box.classList.remove('on'); openGame(r.dataset.slug); });
-  });
-}
-
-async function runSearch(q) {
-  if (!q.trim()) { $('#sresults').classList.remove('on'); return; }
-  const rows = await (await fetch('/api/search?q=' + encodeURIComponent(q))).json();
-  renderResults(rows);
-}
-
-/** 카테고리 카드 클릭 시, 해당 장르 게임을 모아 결과창에 띄운다. */
-function runSearchByTag(tag) {
-  const seen = new Set(), rows = [];
-  const pools = [...HOME.tabs.flatMap((t) => t.games), ...HOME.deals, ...HOME.featured, ...HOME.cheap, HOME.hero];
-  for (const g of pools) {
-    if (!g || seen.has(g.slug) || !g.tags.includes(tag)) continue;
-    seen.add(g.slug);
-    rows.push(g);
-  }
-  $('#q').value = tag;
-  renderResults(rows.slice(0, 12));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-$('#q').addEventListener('input', (e) => {
-  clearTimeout(searchTimer);
-  const v = e.target.value;
-  searchTimer = setTimeout(() => runSearch(v), 220);
-});
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.searchbox')) $('#sresults').classList.remove('on');
-});
-
-// ===============================================================
-// 캐러셀
-// ===============================================================
-function initCarousel(id, autoMs) {
-  const root = document.getElementById(id);
-  if (!root) return;
-  const track = root.querySelector('.car-track');
-  const slides = [...root.querySelectorAll('.car-slide')];
-  const dotsBox = root.querySelector('.dots');
-  let i = 0, timer = null;
-  if (!slides.length) return;
-
-  slides.forEach((_, n) => {
-    const d = document.createElement('span');
-    d.className = 'dot' + (n === 0 ? ' on' : '');
-    d.addEventListener('click', () => go(n));
-    dotsBox.appendChild(d);
-  });
-  const dots = [...dotsBox.children];
-
-  function go(n) {
-    i = (n + slides.length) % slides.length;
-    track.style.transform = `translateX(${-i * 100}%)`;
-    dots.forEach((d, k) => d.classList.toggle('on', k === i));
-    restart();
-  }
-  function restart() {
-    if (!autoMs) return;
-    clearInterval(timer);
-    timer = setInterval(() => go(i + 1), autoMs);
-  }
-
-  root.querySelector('.prev').addEventListener('click', () => go(i - 1));
-  root.querySelector('.next').addEventListener('click', () => go(i + 1));
-  root.addEventListener('mouseenter', () => clearInterval(timer));
-  root.addEventListener('mouseleave', restart);
-  restart();
-}
-
-// ===============================================================
-// 부팅
-// ===============================================================
-fetch('/api/home')
-  .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then(render)
-  .catch((err) => {
-    $('#app').innerHTML = `<div class="err">DB에서 데이터를 불러오지 못했습니다.<br>${esc(err.message)}<br><br>서버 콘솔을 확인하세요.</div>`;
-  });
-</script>
+<script src="/app.js" defer></script>
 </body>
 </html>

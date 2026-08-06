@@ -1,13 +1,13 @@
 /**
  * server.ts
  *
- * Steam 상점 클론 - 정적 페이지(public/index.html)와 DB를 붙이는 최소 API 서버.
+ * Steam 상점 클론 - 정적 페이지(public/)와 DB를 붙이는 최소 API 서버.
  * 의존성 추가 없이 node:http + Prisma만 쓴다.
  *
  * 실행: pnpm dev  (= tsx server.ts)
  *
  * 엔드포인트
- *   GET /                  public/index.html
+ *   GET /                  public/index.html (그 외 경로는 public/ 정적 파일)
  *   GET /api/home          첫 화면에 필요한 모든 섹션을 한 번에
  *   GET /api/game/:slug    게임 상세 (모달용)
  *   GET /api/search?q=     이름 검색
@@ -37,6 +37,19 @@ for (const line of readFileSync(path.join(ROOT, '.env'), 'utf-8').split('\n')) {
 
 const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT ?? 3000);
+
+const PUBLIC_DIR = path.join(ROOT, 'public');
+const MIME: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
+};
 
 // ---------------------------------------------------------------
 // 공통 select / DTO
@@ -344,15 +357,6 @@ async function search(q: string) {
 // HTTP
 // ---------------------------------------------------------------
 
-const STATIC_MIME: Record<string, string> = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-};
-
 function json(res: ServerResponse, data: unknown, status = 200) {
   const body = JSON.stringify(data);
   res.writeHead(status, {
@@ -388,22 +392,18 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     return json(res, await search(url.searchParams.get('q') ?? ''));
   }
 
-  if (p === '/' || p === '/index.html') {
-    const html = await readFile(path.join(ROOT, 'public', 'index.html'));
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    return res.end(html);
-  }
+  // public/ 정적 파일. 디렉터리 밖으로 나가는 경로는 거른다.
+  const rel = p === '/' ? 'index.html' : p.slice(1);
+  const file = path.resolve(PUBLIC_DIR, rel);
+  const type = MIME[path.extname(file)];
 
-  // public/ 정적 파일 (로고 등). 경로 순회 방지를 위해 public 밖으로는 못 나가게 막는다.
-  const publicDir = path.join(ROOT, 'public');
-  const filePath = path.join(publicDir, decodeURIComponent(p));
-  if (filePath.startsWith(publicDir)) {
+  if (type && file.startsWith(PUBLIC_DIR + path.sep)) {
     try {
-      const data = await readFile(filePath);
-      res.writeHead(200, { 'Content-Type': STATIC_MIME[path.extname(filePath)] ?? 'application/octet-stream' });
-      return res.end(data);
+      const body = await readFile(file);
+      res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' });
+      return res.end(body);
     } catch {
-      // 파일 없음 → 아래 404로 이어짐
+      /* 아래 404로 */
     }
   }
 
