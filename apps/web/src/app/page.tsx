@@ -94,18 +94,22 @@ function Carousel({ slides, autoMs = 0, peek = 0, peekRight = false, arrowInset,
   const [pos, setPos] = useState(loop ? 1 : 0);
   const [animate, setAnimate] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hoveringRef = useRef(false);
 
   const realIndex = loop ? (pos - 1 + n) % n : pos;
 
-  const stop = () => { if (timerRef.current) clearInterval(timerRef.current); };
+  const clearTimer = () => { if (timerRef.current) clearInterval(timerRef.current); };
+  const stop = () => { hoveringRef.current = true; clearTimer(); };
   const step = (dir: number) => {
     setAnimate(true);
     setPos((p) => p + dir);
   };
   const restart = () => {
-    stop();
+    hoveringRef.current = false;
+    clearTimer();
     if (autoMs && n > 1) {
-      timerRef.current = setInterval(() => step(1), autoMs);
+      // 타이머가 이미 예약된 순간 마우스가 들어와도, 콜백 실행 시점에 다시 확인해 건너뛴다.
+      timerRef.current = setInterval(() => { if (!hoveringRef.current) step(1); }, autoMs);
     }
   };
   const goDot = (idx: number) => {
@@ -270,12 +274,13 @@ function HoverVideo({ src, skipSeconds = HOVER_SKIP_SEC }: { src: string; skipSe
 // ---------------------------------------------------------------
 function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   const [hover, setHover] = useState(false);
+  const [activeShot, setActiveShot] = useState<string | null>(null);
   const art = g.screenshots?.[0]?.url || g.headerImage;
   const thumbs = (g.screenshots?.slice(1, 5).length ? g.screenshots.slice(1, 5) : g.screenshots?.slice(0, 4)) ?? [];
   return (
-    <div className="feat" onClick={() => onOpen(g.slug)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      <div className="feat-art" style={bgStyle(art)}>
-        {hover && g.previewVideoUrl && (
+    <div className="feat" onClick={() => onOpen(g.slug)} onMouseEnter={() => setHover(true)} onMouseLeave={() => { setHover(false); setActiveShot(null); }}>
+      <div className="feat-art" style={bgStyle(activeShot || art)}>
+        {hover && !activeShot && g.previewVideoUrl && (
           <HoverVideo src={g.previewVideoUrl} />
         )}
         {g.discountPercent > 0 && <span className="badge-live"><i />{g.discountLabel}</span>}
@@ -285,7 +290,13 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
         <Reviews g={g} />
         <div className="thumbs">
           {thumbs.map((s: any, i: number) => (
-            <div key={i} className="thumb" style={bgStyle(s.thumb || s.url)} />
+            <div
+              key={i}
+              className="thumb"
+              style={bgStyle(s.thumb || s.url)}
+              onMouseEnter={() => setActiveShot(s.url || s.thumb)}
+              onMouseLeave={() => setActiveShot(null)}
+            />
           ))}
         </div>
         <div className="feat-tags">

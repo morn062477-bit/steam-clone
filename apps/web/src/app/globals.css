@@ -25,6 +25,16 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 a{color:var(--text);text-decoration:none}
+
+/* 스크롤바 뒷 배경(트랙) 제거. 막대만 보이게.
+   문서 전체 스크롤바는 html/body에 직접 붙여야 크롬이 확실히 인식한다. */
+html,body,*{scrollbar-width:thin;scrollbar-color:#2a3f5a transparent}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{-webkit-appearance:none;width:3px;height:3px}
+html::-webkit-scrollbar-track,body::-webkit-scrollbar-track,*::-webkit-scrollbar-track{background:transparent}
+html::-webkit-scrollbar-thumb,body::-webkit-scrollbar-thumb,*::-webkit-scrollbar-thumb{background:#2a3f5a;border-radius:6px}
+html::-webkit-scrollbar-thumb:hover,body::-webkit-scrollbar-thumb:hover,*::-webkit-scrollbar-thumb:hover{background:#3a5578}
+html::-webkit-scrollbar-button,body::-webkit-scrollbar-button,*::-webkit-scrollbar-button{-webkit-appearance:none;display:none;width:0;height:0}
+html::-webkit-scrollbar-corner,body::-webkit-scrollbar-corner,*::-webkit-scrollbar-corner{background:transparent}
 .wrap{width:100%;max-width:1700px;margin:0 auto;position:relative}
 /* 헤더/내비는 본문보다 안쪽으로 모은다. 화면이 넓어도 양 끝까지 벌어지지 않게 한다.
    드롭다운 폭은 .navdrop-in 에서 같은 값으로 맞춘다. */
@@ -394,7 +404,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* ---------- 특집 및 추천 ---------- */
 .feat{display:flex;background:#1e3452;box-shadow:0 0 12px rgba(0,0,0,.35);cursor:pointer;overflow:hidden}
 .feat-art{flex:0 0 75%;height:550px;position:relative;overflow:hidden;transition:transform .3s ease}
-.feat:hover .feat-art{transform:scale(1.04)}
+.feat:hover .feat-art{transform:scale(1.02)}
 .car-slide:not(.active) .feat-art{height:450px; filter:grayscale(1) blur(2px)}
 .car-slide.peek-prev .feat{flex-direction:row-reverse}
 .badge-live{
@@ -411,7 +421,8 @@ button{font-family:inherit;cursor:pointer;border:0}
 .reviews.positive{color:#66c0f4}
 .reviews span{color:var(--text-dim)}
 .thumbs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.thumb{height:90px;border-radius:2px}
+.thumb{height:90px;border-radius:2px;cursor:pointer;transition:outline-color .15s ease;outline:2px solid transparent;outline-offset:-2px}
+.thumb:hover{outline-color:#66c0f4}
 .feat-meta{margin-top:auto;display:flex;align-items:flex-end;justify-content:flex-end}
 .rank{display:flex;gap:8px;align-items:center;color:var(--green);font-size:13px;margin:32px 0 20px}
 .rank-icon{font-size:28px;line-height:1}
@@ -425,7 +436,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .deal-sm,.deal-big{position:relative;cursor:pointer;overflow:hidden}
 .deal-sm .art{height:180px;border-radius:2px}
 .deal-sm .art,.deal-big .art{overflow:hidden;transition:transform .3s ease}
-.deal-sm:hover .art,.deal-big:hover .art{transform:scale(1.06)}
+.deal-sm:hover .art,.deal-big:hover .art{transform:scale(1.02)}
 .tagline{
   position:absolute;left:0;top:0;font-size:12px;color:#fff;padding:4px 12px;border-radius:0 0 2px 0;z-index:2;
 }
@@ -458,7 +469,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .spot-body{background:var(--blue-box);color:var(--bg-dark);font-size:12px;padding:19px 10px;display:grid;grid-template-columns:1fr 1fr;gap:29px;box-shadow:0 0 12px rgba(0,0,0,.3)}
 .spot-card{position:relative;cursor:pointer;overflow:hidden}
 .spot-card .art{height:150px;border-radius:2px;overflow:hidden;transition:transform .3s ease}
-.spot-card:hover .art{transform:scale(1.06)}
+.spot-card:hover .art{transform:scale(1.02)}
 .spot-foot{display:flex;justify-content:flex-end;margin-top:10px}
 
 /* ---------- 신규 출시 ---------- */
@@ -498,7 +509,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .cheap{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
 .cheap-card{position:relative;cursor:pointer;overflow:hidden}
 .cheap-card .art{height:135px;border-radius:2px;overflow:hidden;transition:transform .3s ease}
-.cheap-card:hover .art{transform:scale(1.06)}
+.cheap-card:hover .art{transform:scale(1.02)}
 .headbtns{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)}
 
 /* ---------- 카드 호버 시 트레일러 영상 재생 ---------- */
