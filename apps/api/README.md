@@ -16,6 +16,20 @@ Steam Storefront API에서 수집한 게임 데이터를 PostgreSQL(AWS RDS)에 
 | `public/index.html` | 상점 첫 화면. `/api/home` 으로 DB 데이터를 받아 렌더 |
 | `seed/games.json` | 수집 결과 94종. 재수집 불필요 |
 
+## 준비물
+
+| | 버전 | 이유 |
+|---|---|---|
+| Node | **20.9 이상** | `apps/web` 의 Next 16 이 요구한다. pnpm 11 도 20 이상이 필요하다 |
+| pnpm | **11.20 이상** | 루트 `pnpm-lock.yaml` 이 pnpm 11 형식이다 |
+
+Node 18 로는 `pnpm --filter web dev` 가 바로 실패한다. pnpm 9/10 으로 설치하면
+플랫폼별 네이티브 바이너리(예: `@tailwindcss/oxide-darwin-arm64`)가 빠져서
+Next 빌드가 500 으로 죽는다. 버전을 맞추는 게 제일 빠르다.
+
+`pnpm install` 은 **반드시 리포 루트에서** 실행한다. `apps/web` 안에서 돌리면
+워크스페이스 루트를 못 찾는다.
+
 ## 실행
 
 RDS 접속 정보가 없으면(개인 개발 환경) `embedded-postgres`로 로컬 DB를 새로 띄우면 된다.
