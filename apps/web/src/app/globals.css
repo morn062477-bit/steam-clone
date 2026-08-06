@@ -664,16 +664,9 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .v-help ol{margin:10px 0 14px 20px}
 .v-help li{margin-bottom:8px}
 .v-help a{color:var(--blue)}
-.v-fake{
-  margin-top:22px;padding-top:18px;border-top:1px solid #363b42;
-  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-}
-.v-fake p{color:#7d868f;font-size:12px;line-height:1.5;flex:1;min-width:200px}
-.v-fake button{
-  background:linear-gradient(to bottom,#799905 5%,#536904 95%);
-  color:#fff;padding:9px 20px;border-radius:2px;font-size:14px;
-}
-.v-fake button:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
+.v-resend{color:var(--blue);font-size:13px;text-decoration:underline}
+.v-resend:hover{color:#fff}
+.v-resend-msg{color:#8f98a0;font-size:12px}
 /* ---------- 계정 만들기 (이메일 인증 다음 단계) ---------- */
 #createView{display:none;position:relative;min-height:760px;overflow:hidden}
 #createView.on{display:block}
