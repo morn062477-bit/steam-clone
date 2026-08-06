@@ -27,7 +27,7 @@ import { PrismaClient } from '@prisma/client';
 // .env 로드 (dotenv 미설치라 직접 파싱)
 // ---------------------------------------------------------------
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname));
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')));
 
 for (const line of readFileSync(path.join(ROOT, '.env'), 'utf-8').split('\n')) {
   const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*"?(.*?)"?\s*$/);
