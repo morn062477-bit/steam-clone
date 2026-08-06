@@ -39,11 +39,15 @@ export default function GamePage({
   onBack,
   onOpenGame,
   onTag,
+  inCart,
+  onToggleCart,
 }: {
   slug: string;
   onBack: () => void;
   onOpenGame: (slug: string) => void;
   onTag: (tag: string) => void;
+  inCart: boolean;
+  onToggleCart: (slug: string) => void;
 }) {
   const [g, setG] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -173,7 +177,13 @@ export default function GamePage({
                 ) : (
                   <span className="gp-prices"><span className="now">{priceText(g)}</span></span>
                 )}
-                <button className="gp-cart" type="button">장바구니에 추가</button>
+                <button
+                  className={"gp-cart" + (inCart ? " on" : "")}
+                  type="button"
+                  onClick={() => onToggleCart(slug)}
+                >
+                  {inCart ? "장바구니에서 제거" : "장바구니에 추가"}
+                </button>
               </div>
             </div>
 

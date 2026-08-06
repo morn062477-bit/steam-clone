@@ -734,6 +734,31 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cr-submit:disabled{filter:grayscale(.6) brightness(.7);cursor:default}
 .create-msg{margin-top:14px;font-size:13px;color:#e08b6a;min-height:18px;max-width:300px;line-height:1.5}
 .create-msg.ok{color:var(--green)}
+/* ---------- 장바구니 ---------- */
+.cart-wrap{position:relative}
+.cart-btn{position:relative;background:none;padding:4px;display:flex;align-items:center}
+.cart-btn:hover svg path{stroke:var(--blue)}
+.cart-badge{
+  position:absolute;top:-4px;right:-6px;background:var(--blue);color:#0d1b26;
+  font-size:10px;font-weight:700;line-height:1;border-radius:8px;padding:2px 5px;min-width:14px;text-align:center;
+}
+.cart-drop{
+  position:absolute;top:28px;right:0;width:320px;background:#3d4450;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);max-height:420px;overflow-y:auto;z-index:70;padding:14px;
+}
+.cart-drop h4{color:#fff;font-size:14px;font-weight:400;margin-bottom:10px}
+.cart-empty{color:#b0b8c0;font-size:13px;text-align:center;padding:14px 0}
+.cart-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.cart-row{display:flex;align-items:center;gap:10px}
+.cart-thumb{width:66px;height:31px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center;background-color:#0e1621}
+.cart-info{flex:1;min-width:0}
+.cart-name{color:#fff;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cart-price{color:#b0b8c0;font-size:12px;margin-top:2px}
+.cart-remove{background:none;color:#7d868f;font-size:16px;line-height:1;padding:2px 6px}
+.cart-remove:hover{color:#fff}
+.cart-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #4c5560;padding-top:10px;font-size:13px;color:#c7d5e0}
+.cart-total b{color:#fff;font-weight:400;font-size:15px}
+.m-buy .btn-green.on{background:linear-gradient(to bottom,#4c6b22,#3a5119);color:var(--green)}
 /* ---------- 인증 완료 화면 ---------- */
 #doneView{display:none;position:relative;min-height:640px;overflow:hidden}
 #doneView.on{display:block}
@@ -901,3 +926,4 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .gp-side,.gp-info{flex:none;width:100%}
   .gp-strip{grid-template-columns:repeat(4,1fr)}
 }
+.gp-cart.on{background:linear-gradient(to bottom,#4c6b22,#3a5119);color:var(--green)}
