@@ -13,14 +13,7 @@
 <header class="topbar">
   <div class="wrap">
     <a class="logo" href="#" data-view="store">
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="30" fill="#2a3f5a"/>
-        <circle cx="40" cy="24" r="10" fill="none" stroke="#c7d5e0" stroke-width="3"/>
-        <circle cx="40" cy="24" r="4" fill="#c7d5e0"/>
-        <circle cx="22" cy="42" r="8" fill="none" stroke="#c7d5e0" stroke-width="3"/>
-        <line x1="26" y1="38" x2="38" y2="27" stroke="#c7d5e0" stroke-width="3"/>
-      </svg>
-      <span>STEAM<sup>®</sup></span>
+      <img src="/header_logo.png" alt="Steam logo">
     </a>
     <nav class="mainnav" id="mainnav">
       <a class="on" href="#" data-view="store">상점</a>
@@ -34,6 +27,10 @@
         Steam 설치
       </a>
       <a href="#login" id="topLogin" data-view="login">로그인</a>
+      <span class="topuser" id="topUser" hidden>
+        <b id="topUserName"></b>
+        <a href="#" id="topLogout">로그아웃</a>
+      </span>
       <span class="sep">|</span>
       <a href="#">언어 ▾</a>
     </div>
@@ -43,12 +40,90 @@
 <!-- ===== 상점 내비 ===== -->
 <div class="storenav">
   <div class="wrap">
-    <a class="item" href="#">검색 <i class="caret"></i></a>
-    <a class="item" href="#">추천 제품 <i class="caret"></i></a>
-    <a class="item" href="#">카테고리 <i class="caret"></i></a>
-    <a class="item" href="#">하드웨어 <i class="caret"></i></a>
-    <a class="item" href="#">플레이 모드 <i class="caret"></i></a>
-    <a class="item" href="#">특별 섹션 <i class="caret"></i></a>
+    <div class="navitem">
+      <a class="item" href="#" onclick="return false">검색 <i class="caret"></i></a>
+      <div class="navdrop mega">
+        <div class="mega-col mega-links">
+          <a href="#" data-tab="new">상점 홈</a>
+          <a href="#" class="mega-link-sub" data-tab="new"><b>신규 출시 게임</b><small>Steam에서 새로운 콘텐츠를 살펴보세요.</small></a>
+          <a href="#" class="mega-link-sub" data-tab="soon"><b>출시 예정 게임</b><small>출시 예정 게임을 살펴보세요.</small></a>
+          <a href="#" class="mega-link-sub" data-tab="top"><b>전체 차트 및 통계</b><small>주간, 월간, 연간 인기 게임을 살펴보세요.</small></a>
+        </div>
+        <div class="mega-col mega-banners" id="navSearchBanners"></div>
+        <div class="mega-col mega-plain">
+          <b>인기 페이지</b>
+          <a href="#">무료 플레이</a>
+          <a href="#">체험판</a>
+          <a href="#">뉴스 및 업데이트</a>
+          <a href="#">포인트 상점</a>
+          <a href="#">기프트 카드</a>
+        </div>
+        <div class="mega-col mega-plain">
+          <b>내 계정</b>
+          <a href="#">환경 설정</a>
+          <a href="#">찜 목록</a>
+          <a href="#">내 가족</a>
+        </div>
+      </div>
+    </div>
+    <div class="navitem">
+      <a class="item" href="#" onclick="return false">추천 제품 <i class="caret"></i></a>
+      <div class="navdrop mega">
+        <div class="mega-col mega-toplist">
+          <b>최고 인기 게임</b>
+          <div id="navTopGames"></div>
+        </div>
+        <div class="mega-col mega-promo">
+          <a href="#" data-tab="deal" class="mega-promo-tile">
+            <span class="mega-promo-badge">할인</span>
+            <b>할인 및 이벤트</b>
+            <small>지금 진행 중인 특가를 살펴보세요.</small>
+          </a>
+        </div>
+        <div class="mega-col mega-plain">
+          <a href="#">맞춤 대기열</a>
+          <a href="#">커뮤니티 추천</a>
+          <a href="#" data-tab="new">신규 출시 게임 대기열</a>
+          <a href="#">인터랙티브 추천기</a>
+          <a href="#">친구가 즐기는 게임</a>
+          <a href="#">Steam 큐레이터</a>
+          <a href="#">추천 DLC</a>
+        </div>
+      </div>
+    </div>
+    <div class="navitem">
+      <a class="item" href="#" onclick="return false">카테고리 <i class="caret"></i></a>
+      <div class="navdrop mega mega-wide" id="navCatMega">
+        <div class="mega-cat-label">선호 카테고리</div>
+        <div class="mega-cat-tiles" id="navCatTiles"></div>
+        <div class="mega-cat-pills" id="navCatPills"></div>
+      </div>
+    </div>
+    <div class="navitem">
+      <a class="item" href="#" onclick="return false">하드웨어 <i class="caret"></i></a>
+      <div class="navdrop">
+        <a href="#">Steam Deck</a>
+        <a href="#">Steam 컨트롤러</a>
+        <a href="#">Steam Link</a>
+      </div>
+    </div>
+    <div class="navitem">
+      <a class="item" href="#" onclick="return false">플레이 모드 <i class="caret"></i></a>
+      <div class="navdrop">
+        <a href="#">싱글 플레이어</a>
+        <a href="#">멀티플레이어</a>
+        <a href="#">협동</a>
+        <a href="#">VR 지원</a>
+      </div>
+    </div>
+    <div class="navitem">
+      <a class="item" href="#" onclick="return false">특별 섹션 <i class="caret"></i></a>
+      <div class="navdrop">
+        <a href="#">Steam 특가전</a>
+        <a href="#">기프트 카드</a>
+        <a href="#">Steam 포인트 상점</a>
+      </div>
+    </div>
     <form class="searchbox" onsubmit="return false">
       <input id="q" type="text" placeholder="상점 검색" aria-label="상점 검색" autocomplete="off">
       <button type="submit" aria-label="검색">
@@ -118,7 +193,7 @@
       <section class="join">
         <div class="join-left">
           <h2>Steam에 처음 오셨나요?</h2>
-          <a href="#" class="btn-join">가입하기</a>
+          <a href="#signup" class="btn-join" data-view="signup">가입하기</a>
         </div>
         <p class="join-right">
           무료로 쉽게 가입할 수 있습니다. 수천 종류의 게임을 전 세계 새로운 친구들과 함께 즐겨보세요.
@@ -129,12 +204,61 @@
   </div>
 </section>
 
+<!-- ===== 계정 만들기 ===== -->
+<section id="signupView">
+  <div class="signup-bg" id="signupBg"></div>
+  <div class="signup-veil"></div>
+
+  <div class="signup-inner">
+    <div class="wrap">
+      <h1 class="signup-title">계정 만들기</h1>
+
+      <form class="signup-form" id="signupForm" autocomplete="off">
+        <label class="su-label" for="suEmail">이메일 주소</label>
+        <input class="su-input" type="email" id="suEmail">
+
+        <label class="su-label" for="suEmail2">이메일 주소 확인</label>
+        <input class="su-input" type="email" id="suEmail2">
+
+        <label class="su-label" for="suCountry">거주 국가</label>
+        <select class="su-input su-select" id="suCountry">
+          <option>대한민국</option>
+          <option>미국</option>
+          <option>일본</option>
+          <option>중국</option>
+          <option>독일</option>
+          <option>영국</option>
+          <option>캐나다</option>
+        </select>
+
+        <div class="su-captcha">
+          <span class="su-box" id="suCaptcha" role="checkbox" aria-checked="false" tabindex="0"></span>
+          <span class="txt">사람입니다</span>
+          <span class="su-brand">
+            <span class="su-mark"></span>
+            <b>hCaptcha</b>
+            개인정보 보호 - 약관
+          </span>
+        </div>
+
+        <label class="su-agree">
+          <input type="checkbox" id="suAgree">
+          <span>본인은 만 13세 이상이며 <a href="#">Steam 이용 약관</a> 및 <a href="#">Valve 개인정보 처리방침</a>에 동의합니다.</span>
+        </label>
+
+        <button class="su-submit" type="submit">계속</button>
+        <div class="signup-msg" id="signupMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
 <!-- ===== 푸터 ===== -->
 <footer>
   <div class="wrap foot-grid">
     <div class="foot-brand">
       <div class="foot-logos">
-        <span class="lg">STEAM®</span>
+        <img src="/logo_steam.svg" alt="Steam logo">
         <span class="lg">VALVE</span>
       </div>
       © 2026 Valve Corporation. All rights reserved. 모든 상표는 미국 및 기타 국가에서 해당 소유자의 재산입니다.<br>
@@ -159,6 +283,81 @@
     </div>
   </div>
 </footer>
+
+<!-- ===== 계정 만들기 (이메일 인증 다음 단계) ===== -->
+<section id="createView">
+  <div class="create-bg" id="createBg"></div>
+  <div class="create-veil"></div>
+
+  <div class="create-inner">
+    <div class="wrap">
+      <h1 class="create-title">계정 만들기</h1>
+
+      <form class="create-form" id="createForm" autocomplete="off">
+        <label class="cr-label" for="crName">Steam 계정 이름</label>
+        <input class="cr-input" type="text" id="crName" autocomplete="username">
+        <div class="cr-hint" id="crNameHint">영문/숫자/-/_ 3자 이상</div>
+
+        <label class="cr-label" for="crPw">비밀번호 선택</label>
+        <input class="cr-input" type="password" id="crPw" autocomplete="new-password">
+        <div class="cr-hint" id="crPwHint">8자 이상</div>
+
+        <label class="cr-label" for="crPw2">비밀번호 확인</label>
+        <input class="cr-input" type="password" id="crPw2" autocomplete="new-password">
+
+        <button class="cr-submit" id="crSubmit" type="submit">완료</button>
+        <div class="create-msg" id="createMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 가입 완료 화면 ===== -->
+<section id="doneView">
+  <div class="done-bg" id="doneBg"></div>
+  <div class="done-veil"></div>
+  <div class="done-inner">
+    <div class="wrap">
+      <h1 id="doneTitle">계정 생성 완료</h1>
+      <p id="doneMsg">계정이 만들어졌습니다. 이제 로그인할 수 있습니다.</p>
+      <p class="note">*이 창을 닫으셔도 됩니다</p>
+      <a class="btn-blue" href="#login" data-view="login">로그인하러 가기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 이메일 인증 모달 ===== -->
+<div class="verify-back" id="verifyBack">
+  <div class="verify">
+    <h3>이메일 주소 인증</h3>
+
+    <div class="v-panel">
+      <p class="v-msg">
+        Steam에서 보내드린 이메일을 <b id="vEmail"></b>에서 확인하시고 계정 설정을 완료하세요.
+      </p>
+      <div class="v-bars" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="v-status" id="vStatus">인증 대기 중...</div>
+    </div>
+
+    <p class="v-ask">이메일을 받지 못하셨나요?</p>
+    <button class="v-toggle" id="vToggle" type="button">펼치기 ⌄</button>
+
+    <div class="v-help" id="vHelp">
+      <p>이메일을 받지 못했다면, 아래의 문제 해결 절차를 따라 주세요.</p>
+      <ol>
+        <li>본인의 이메일 주소가 '<span id="vEmail2"></span>'이 맞는지, 오타가 포함되어 있지는 않은지 확인해 주세요.</li>
+        <li>'steampowered.com'에서 온 이메일이 스팸 또는 휴지통 폴더에 있는지 확인해 주세요.</li>
+        <li>잠시만 기다려 주세요. 간혹 이메일 서버가 느려져 메일 수신에 다소 시간이 걸릴 수 있습니다.</li>
+      </ol>
+      <p>이메일 주소를 변경하려면 <a href="#signup" data-view="signup" id="vChange">여기를 클릭</a>하세요.</p>
+    </div>
+
+    <div class="v-fake">
+      <p>서버가 없는 데모입니다. 실제 메일은 발송되지 않으니 아래 버튼으로 인증을 대신하세요.</p>
+      <button type="button" id="vConfirm">인증 메일 링크 클릭하기</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== 게임 상세 모달 ===== -->
 <div class="modal-back" id="modalBack">

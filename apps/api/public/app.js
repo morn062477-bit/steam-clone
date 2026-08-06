@@ -303,9 +303,58 @@ function render(data) {
     });
   });
 
+  // 상단 메가 메뉴: 실제 데이터로 채운다
+  const tiles = data.categories.slice(0, 6);
+  const pills = data.categories.slice(6);
+  $('#navCatTiles').innerHTML = tiles.map((c) => `
+    <div class="cat" data-tag="${esc(c.name)}">
+      <div class="veil" style="${bg(c.image)}"></div>
+      <b>${esc(c.name)}</b>
+      <small>${c.count}종</small>
+    </div>`).join('');
+  $('#navCatPills').innerHTML = pills.map((c) => `
+    <a href="#" data-tag="${esc(c.name)}">${esc(c.name)}<span class="navcount">${c.count}종</span></a>`).join('');
+
+  const topGames = data.tabs.find((t) => t.key === 'top')?.games ?? [];
+  const top3 = topGames.slice(0, 3);
+  $('#navTopGames').innerHTML = top3.map((g) => `
+    <div class="mega-top-row" data-slug="${esc(g.slug)}">
+      <div class="mega-top-cap" style="${bg(g.headerImage)}"></div>
+      <div><div class="nm">${esc(g.name)}</div><div class="pr">${priceText(g)}</div></div>
+    </div>`).join('');
+
+  const banner1 = topGames[0];
+  const banner2 = data.deals[0] || topGames[1];
+  $('#navSearchBanners').innerHTML = [
+    banner1 ? `<div class="mega-banner" data-slug="${esc(banner1.slug)}" style="${bg(banner1.headerImage)}"><span>최고 인기 게임</span></div>` : '',
+    banner2 ? `<div class="mega-banner" data-slug="${esc(banner2.slug)}" style="${bg(banner2.headerImage)}"><span>할인 및 이벤트</span></div>` : '',
+  ].join('');
+
   // 카드 클릭 -> 상세
   document.addEventListener('click', onCardClick);
 }
+
+// 상단 메가 메뉴의 탭 이동 링크 (신규 출시 / 출시 예정 / 최고 인기 / 특별 할인)
+document.querySelectorAll('.navdrop a[data-tab]').forEach((a) => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const i = HOME.tabs.findIndex((t) => t.key === a.dataset.tab);
+    if (i < 0) return;
+    document.querySelectorAll('#relTabs .tab').forEach((t) => t.classList.remove('on'));
+    document.querySelector(`#relTabs .tab[data-i="${i}"]`)?.classList.add('on');
+    showTab(i);
+    $('#relTabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// 상단 "카테고리" 메가 메뉴 항목 클릭 -> 장르 검색 (동적으로 생성되므로 위임 처리)
+$('#navCatMega').addEventListener('click', (e) => {
+  const a = e.target.closest('[data-tag]');
+  if (!a) return;
+  e.preventDefault();
+  $('#q').value = '';
+  runSearchByTag(a.dataset.tag);
+});
 
 function showTab(i) {
   const games = HOME.tabs[i].games;
@@ -401,7 +450,11 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 $('#modalBack').addEventListener('click', (e) => { if (e.target.id === 'modalBack') closeModal(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if ($('#verifyBack').classList.contains('on')) closeVerify();
+  else closeModal();
+});
 
 // ===============================================================
 // 검색
@@ -494,37 +547,59 @@ function initCarousel(id, autoMs) {
 // ===============================================================
 // 화면 전환 (상점 <-> 로그인)
 // ===============================================================
-const VIEWS = { store: ['#hero', '#app'], login: ['#loginView'] };
+const VIEWS = { store: 1, login: 1, signup: 1, create: 1, done: 1 };
+const HASH = { login: '#login', signup: '#signup', create: '#create', done: '#verified' };
+const VIEW_OF_HASH = Object.fromEntries(Object.entries(HASH).map(([v, h]) => [h, v]));
+
+function viewFromHash() {
+  return VIEW_OF_HASH[location.hash] || 'store';
+}
 
 function showView(name) {
   const view = VIEWS[name] ? name : 'store';
   $('#hero').style.display = view === 'store' ? '' : 'none';
   $('#app').style.display = view === 'store' ? '' : 'none';
   $('#loginView').classList.toggle('on', view === 'login');
+  $('#signupView').classList.toggle('on', view === 'signup');
+  $('#createView').classList.toggle('on', view === 'create');
+  $('#doneView').classList.toggle('on', view === 'done');
+  if (view !== 'signup') closeVerify();
 
-  document.querySelectorAll('#mainnav a').forEach((a) => a.classList.toggle('on', a.dataset.view === 'store' && view === 'store'));
+  document.querySelectorAll('#mainnav a').forEach((a) =>
+    a.classList.toggle('on', a.dataset.view === 'store' && view === 'store'));
   $('#topLogin').style.visibility = view === 'login' ? 'hidden' : '';
 
   closeModal();
   $('#sresults').classList.remove('on');
-  if (location.hash !== (view === 'login' ? '#login' : '')) {
-    history.replaceState(null, '', view === 'login' ? '#login' : location.pathname);
-  }
+
+  const want = HASH[view] || location.pathname;
+  if (location.hash !== (HASH[view] || '')) history.replaceState(null, '', want);
+
   window.scrollTo({ top: 0 });
   if (view === 'login') $('#account').focus();
+  if (view === 'signup') $('#suEmail').focus();
+  if (view === 'create') $('#crName').focus();
 }
 
-/** 로그인 배경 타일. DB 이미지가 있으면 그것으로 채운다. */
-function fillLoginBg() {
-  const pool = HOME
-    ? [...HOME.featured, ...HOME.deals, ...HOME.cheap, ...HOME.tabs.flatMap((t) => t.games)]
-        .map((g) => g.headerImage).filter(Boolean)
-    : [];
-  const box = $('#loginBg');
-  box.innerHTML = Array.from({ length: 40 }, (_, i) =>
+/** 배경 타일에 쓸 이미지 풀. DB가 아직이면 빈 배열. */
+function tilePool() {
+  if (!HOME) return [];
+  return [...HOME.featured, ...HOME.deals, ...HOME.cheap, ...HOME.tabs.flatMap((t) => t.games)]
+    .map((g) => g.headerImage).filter(Boolean);
+}
+
+function fillTiles(sel, count) {
+  const pool = tilePool();
+  $(sel).innerHTML = Array.from({ length: count }, (_, i) =>
     `<span style="${pool.length ? bg(pool[i % pool.length]) : ''}"></span>`).join('');
 }
 
+function fillLoginBg() { fillTiles('#loginBg', 40); }
+function fillSignupBg() { fillTiles('#signupBg', 24); }
+function fillCreateBg() { fillTiles('#createBg', 24); }
+function fillDoneBg() { fillTiles('#doneBg', 24); }
+
+// data-view 를 단 요소는 어디에 있든(렌더로 새로 생긴 것 포함) 화면을 바꾼다.
 document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-view]');
   if (!el) return;
@@ -532,31 +607,242 @@ document.addEventListener('click', (e) => {
   showView(el.dataset.view);
 });
 
-$('#loginForm').addEventListener('submit', (e) => {
+// 주소창에서 직접 #login / #signup 을 치거나 뒤로가기를 눌러도 따라간다.
+window.addEventListener('hashchange', () => showView(viewFromHash()));
+
+// ===============================================================
+// 세션
+//
+// 진짜 세션 쿠키/토큰은 아직 없다. 로그인 결과를 localStorage 에 들고 있다가
+// 헤더 표시에만 쓴다. 서버는 매 요청마다 이 값을 신뢰하지 않는다.
+// ===============================================================
+const SESSION_KEY = 'steam-clone:user';
+
+function currentUser() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch { return null; }
+}
+
+function setUser(user) {
+  if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  else localStorage.removeItem(SESSION_KEY);
+  paintUser();
+}
+
+function paintUser() {
+  const u = currentUser();
+  $('#topLogin').hidden = !!u;
+  $('#topUser').hidden = !u;
+  if (u) $('#topUserName').textContent = u.nickname;
+}
+
+$('#topLogout').addEventListener('click', (e) => {
+  e.preventDefault();
+  setUser(null);
+  showView('store');
+});
+
+/** JSON 을 POST 하고 { ok, status, data } 로 돌려준다. */
+async function postJson(path, body) {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ===============================================================
+// 로그인 폼 (POST /api/login)
+// ===============================================================
+$('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const msg = $('#loginMsg');
-  const id = $('#account').value.trim();
-  const pw = $('#password').value;
-  if (!id || !pw) {
+  const btn = $('#loginForm .btn-login');
+  const account = $('#account').value.trim();
+  const password = $('#password').value;
+
+  if (!account || !password) {
     msg.className = 'login-msg';
     msg.textContent = '계정 이름과 비밀번호를 모두 입력하세요.';
     return;
   }
-  msg.className = 'login-msg ok';
-  msg.textContent = `${id} 님, 화면만 있는 데모입니다. 로그인 API는 아직 없습니다.`;
+
+  btn.disabled = true;
+  msg.className = 'login-msg';
+  msg.textContent = '확인 중…';
+  try {
+    const { ok, data } = await postJson('/api/login', { account, password });
+    if (!ok) { msg.textContent = data.error || '로그인에 실패했습니다.'; return; }
+
+    setUser(data);
+    msg.className = 'login-msg ok';
+    msg.textContent = `${data.nickname} 님, 로그인되었습니다.`;
+    $('#password').value = '';
+    setTimeout(() => showView('store'), 700);
+  } catch {
+    msg.textContent = '서버에 연결하지 못했습니다.';
+  } finally {
+    btn.disabled = false;
+  }
 });
 
-window.addEventListener('hashchange', () => showView(location.hash === '#login' ? 'login' : 'store'));
+// ===============================================================
+// 계정 만들기 폼 (POST /api/signup)
+//
+// 이메일은 가입 화면에서 인증한 값을 그대로 쓴다. 인증을 건너뛰고
+// #create 로 바로 들어온 경우엔 가입 화면으로 되돌린다.
+// ===============================================================
+let pendingEmail = '';
+
+function openCreate(email) {
+  pendingEmail = email;
+  $('#createForm').reset();
+  $('#createMsg').textContent = '';
+  $('#createMsg').className = 'create-msg';
+  $('#crNameHint').textContent = `영문/숫자/-/_ 3자 이상 · ${email} 로 만듭니다`;
+  $('#crNameHint').className = 'cr-hint';
+  $('#crPwHint').textContent = '8자 이상';
+  $('#crPwHint').className = 'cr-hint';
+  $('#crSubmit').disabled = false;
+  showView('create');
+}
+
+$('#createForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = $('#createMsg');
+  const name = $('#crName').value.trim();
+  const pw = $('#crPw').value;
+  const pw2 = $('#crPw2').value;
+  msg.className = 'create-msg';
+
+  if (!pendingEmail) {
+    msg.textContent = '이메일 인증부터 다시 진행해 주세요.';
+    setTimeout(() => showView('signup'), 900);
+    return;
+  }
+  if (name.length < 3 || !/^[A-Za-z0-9_-]+$/.test(name)) {
+    msg.textContent = '계정 이름은 영문/숫자/-/_ 로 3자 이상이어야 합니다.';
+    return;
+  }
+  if (pw.length < 8) { msg.textContent = '비밀번호는 8자 이상이어야 합니다.'; return; }
+  if (pw !== pw2) { msg.textContent = '두 비밀번호가 서로 다릅니다.'; return; }
+
+  $('#crSubmit').disabled = true;
+  msg.textContent = '저장 중…';
+  try {
+    const { ok, data } = await postJson('/api/signup', { email: pendingEmail, account: name, password: pw });
+    if (!ok) {
+      msg.textContent = data.error || '계정을 만들지 못했습니다.';
+      $('#crSubmit').disabled = false;
+      return;
+    }
+
+    // 저장 성공. 완료 화면으로 넘기고 로그인 칸에 계정 이름을 미리 채워 둔다.
+    pendingEmail = '';
+    $('#doneTitle').textContent = '계정 생성 완료';
+    $('#doneMsg').textContent = `${data.nickname} 계정이 만들어졌습니다. 이제 로그인할 수 있습니다.`;
+    $('#account').value = data.nickname;
+    $('#password').value = '';
+    $('#loginMsg').textContent = '';
+    showView('done');
+  } catch {
+    msg.textContent = '서버에 연결하지 못했습니다.';
+    $('#crSubmit').disabled = false;
+  }
+});
+
+// ---------- 이메일 인증 모달 ----------
+let verifyTimer = null;
+let verifyEmail = '';
+
+function openVerify(email) {
+  verifyEmail = email;
+  $('#vEmail').textContent = email;
+  $('#vEmail2').textContent = email;
+  $('#vStatus').textContent = '인증 대기 중...';
+  $('#vStatus').className = 'v-status';
+  $('#vHelp').classList.remove('on');
+  $('#vToggle').textContent = '펼치기 ⌄';
+  $('#verifyBack').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVerify() {
+  clearTimeout(verifyTimer);
+  $('#verifyBack').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+$('#vToggle').addEventListener('click', () => {
+  const help = $('#vHelp');
+  help.classList.toggle('on');
+  $('#vToggle').textContent = help.classList.contains('on') ? '접기 ⌃' : '펼치기 ⌄';
+});
+
+$('#vChange').addEventListener('click', () => closeVerify());
+
+/** 백엔드 생기면  #vConfirm 자리에 폴링 넣으면 됨 */
+// const poll = setInterval(async () => {
+//   const r = await fetch('/api/signup/status?email=' + encodeURIComponent(email));
+//   const { verified } = await r.json();
+//   if (verified) { clearInterval(poll); /* 완료 처리 */ }
+// }, 3000);
+
+/** 데모용 인증. 실제로는 메일 링크 클릭이 이 자리를 대신한다. */
+$('#vConfirm').addEventListener('click', () => {
+  $('#vStatus').textContent = '인증 완료';
+  $('#vStatus').className = 'v-status done';
+  const email = verifyEmail;
+  verifyTimer = setTimeout(() => {
+    closeVerify();
+    openCreate(email); // 인증 다음 단계: 계정 이름/비밀번호 입력
+  }, 900);
+});
+
+$('#verifyBack').addEventListener('click', (e) => {
+  if (e.target.id === 'verifyBack') closeVerify();
+});
+
+// ---------- 가입 폼 ----------
+const suCaptcha = $('#suCaptcha');
+suCaptcha.addEventListener('click', () => {
+  suCaptcha.classList.toggle('on');
+  suCaptcha.setAttribute('aria-checked', suCaptcha.classList.contains('on'));
+});
+suCaptcha.addEventListener('keydown', (e) => {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); suCaptcha.click(); }
+});
+
+$('#signupForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const msg = $('#signupMsg');
+  const a = $('#suEmail').value.trim();
+  const b = $('#suEmail2').value.trim();
+  msg.className = 'signup-msg';
+  msg.textContent = '';
+
+  if (!a || !b) { msg.textContent = '이메일 주소를 두 칸 모두 입력하세요.'; return; }
+  if (a !== b) { msg.textContent = '두 이메일 주소가 서로 다릅니다.'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a)) { msg.textContent = '이메일 형식이 올바르지 않습니다.'; return; }
+  if (!suCaptcha.classList.contains('on')) { msg.textContent = '사람인지 확인해 주세요.'; return; }
+  if (!$('#suAgree').checked) { msg.textContent = '약관에 동의해야 계속할 수 있습니다.'; return; }
+
+  openVerify(a);
+});
 
 // ===============================================================
 // 부팅
 // ===============================================================
-fillLoginBg();
-showView(location.hash === '#login' ? 'login' : 'store');
+const fillAllBg = () => { fillLoginBg(); fillSignupBg(); fillCreateBg(); fillDoneBg(); };
+
+paintUser();
+fillAllBg();
+showView(viewFromHash());
 
 fetch('/api/home')
   .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then((data) => { render(data); fillLoginBg(); })
+  .then((data) => { render(data); fillAllBg(); })
   .catch((err) => {
     $('#app').innerHTML = `<div class="err">DB에서 데이터를 불러오지 못했습니다.<br>${esc(err.message)}<br><br>서버 콘솔을 확인하세요.</div>`;
   });
