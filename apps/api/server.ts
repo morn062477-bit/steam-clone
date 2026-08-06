@@ -13,6 +13,10 @@
  *   GET /api/search?q=     이름 검색
  *   POST /api/login        로그인 (계정 이름 또는 이메일 + 비밀번호)
  *   POST /api/logout       로그아웃 (세션 폐기)
+ *   GET  /api/cart          내 장바구니 (로그인 필요)
+ *   POST /api/cart          장바구니에 추가 { slug } (로그인 필요)
+ *   DELETE /api/cart/:slug  장바구니에서 제거 (로그인 필요)
+ *   POST /api/cart/merge    로그인 전 로컬 장바구니 병합 { slugs: string[] } (로그인 필요)
  *
  * 가격 규칙(schema.prisma 주석과 동일)
  *   - 할인가는 저장하지 않는다. 활성 Discount.percent로 서버에서만 계산한다.
@@ -25,7 +29,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import { startSignup, verifyEmail, getSignupStatus, completeSignup, AuthError } from './lib/auth.js';
-import { login, logout, SESSION_COOKIE, parseCookies, serializeCookie } from './lib/session.js';
+import { login, logout, getSessionUser, SESSION_COOKIE, parseCookies, serializeCookie } from './lib/session.js';
 
 // ---------------------------------------------------------------
 // .env 로드 (dotenv 미설치라 직접 파싱)
@@ -360,6 +364,60 @@ async function search(q: string) {
 }
 
 // ---------------------------------------------------------------
+// /api/cart (BE 2 담당)
+// ---------------------------------------------------------------
+
+async function getCart(userId: string) {
+  const now = new Date();
+  const items = await prisma.cartItem.findMany({
+    where: { userId },
+    orderBy: { addedAt: 'desc' },
+    select: { addedAt: true, game: { select: cardArgs(now) } },
+  });
+  return items.map((i) => ({ ...toCard(i.game, now), addedAt: i.addedAt }));
+}
+
+async function findGameIdBySlug(slug: string) {
+  const game = await prisma.game.findUnique({ where: { slug }, select: { id: true } });
+  if (!game) throw new AuthError(404, '게임을 찾을 수 없습니다.');
+  return game.id;
+}
+
+async function addToCart(userId: string, slug: string) {
+  const gameId = await findGameIdBySlug(slug);
+  await prisma.cartItem.upsert({
+    where: { userId_gameId: { userId, gameId } },
+    create: { userId, gameId },
+    update: {},
+  });
+  return getCart(userId);
+}
+
+async function removeFromCart(userId: string, slug: string) {
+  const gameId = await findGameIdBySlug(slug);
+  await prisma.cartItem.deleteMany({ where: { userId, gameId } });
+  return getCart(userId);
+}
+
+/** 로그인 전 로컬(게스트)에 담아둔 슬러그들을 로그인 계정 카트로 옮긴다. 없는 슬러그는 조용히 무시. */
+async function mergeCart(userId: string, slugs: string[]) {
+  const clean = [...new Set(slugs.filter((s) => typeof s === 'string' && s.trim()))];
+  if (clean.length === 0) return getCart(userId);
+
+  const games = await prisma.game.findMany({ where: { slug: { in: clean } }, select: { id: true } });
+  await Promise.all(
+    games.map((g) =>
+      prisma.cartItem.upsert({
+        where: { userId_gameId: { userId, gameId: g.id } },
+        create: { userId, gameId: g.id },
+        update: {},
+      }),
+    ),
+  );
+  return getCart(userId);
+}
+
+// ---------------------------------------------------------------
 // HTTP
 // ---------------------------------------------------------------
 
@@ -388,6 +446,14 @@ async function readJsonBody(req: IncomingMessage): Promise<any> {
   } catch {
     throw new AuthError(400, '요청 본문이 올바른 JSON이 아닙니다.');
   }
+}
+
+/** 세션 쿠키로 로그인된 사용자를 찾는다. 없으면 401. */
+async function requireUser(req: IncomingMessage) {
+  const cookies = parseCookies(req.headers.cookie);
+  const user = await getSessionUser(prisma, cookies[SESSION_COOKIE]);
+  if (!user) throw new AuthError(401, '로그인이 필요합니다.');
+  return user;
 }
 
 function verifyResultPage(tone: 'success' | 'error', headline: string, subMessage: string) {
@@ -524,6 +590,51 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     await logout(prisma, cookies[SESSION_COOKIE]);
     res.setHeader('Set-Cookie', serializeCookie(SESSION_COOKIE, '', 0));
     return json(res, { ok: true });
+  }
+
+  if (p === '/api/cart' && req.method === 'GET') {
+    try {
+      const user = await requireUser(req);
+      return json(res, await getCart(user.id));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/cart' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const body = await readJsonBody(req);
+      if (!body.slug) throw new AuthError(400, 'slug가 필요합니다.');
+      return json(res, await addToCart(user.id, body.slug), 201);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p.startsWith('/api/cart/') && p !== '/api/cart/merge' && req.method === 'DELETE') {
+    try {
+      const user = await requireUser(req);
+      const slug = decodeURIComponent(p.slice('/api/cart/'.length));
+      return json(res, await removeFromCart(user.id, slug));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/cart/merge' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const body = await readJsonBody(req);
+      const slugs = Array.isArray(body.slugs) ? body.slugs : [];
+      return json(res, await mergeCart(user.id, slugs));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
   }
 
   // public/ 정적 파일. 디렉터리 밖으로 나가는 경로는 거른다.

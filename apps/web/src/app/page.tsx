@@ -23,6 +23,23 @@ function bgStyle(url?: string | null) {
   return url ? { backgroundImage: `url('${url}')` } : undefined;
 }
 
+// 로그인 전 장바구니. 슬러그 목록만 로컬에 들고 있다가 로그인 시 서버 카트로 병합한다.
+const GUEST_CART_KEY = "steam-clone:guestCart";
+
+function readGuestCart(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const v = JSON.parse(localStorage.getItem(GUEST_CART_KEY) || "[]");
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeGuestCart(slugs: string[]) {
+  localStorage.setItem(GUEST_CART_KEY, JSON.stringify(slugs));
+}
+
 function chunk<T>(arr: T[], n: number): T[][] {
   return arr.reduce((a: T[][], _: T, i: number) => (i % n ? a : [...a, arr.slice(i, i + n)]), []);
 }
@@ -286,7 +303,17 @@ function RelSide({ g }: { g: any }) {
 // ---------------------------------------------------------------
 // 상세 모달
 // ---------------------------------------------------------------
-function Modal({ slug, onClose }: { slug: string; onClose: () => void }) {
+function Modal({
+  slug,
+  onClose,
+  inCart,
+  onToggleCart,
+}: {
+  slug: string;
+  onClose: () => void;
+  inCart: boolean;
+  onToggleCart: (slug: string) => void;
+}) {
   const [g, setG] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [shotIndex, setShotIndex] = useState(0);
@@ -384,7 +411,12 @@ function Modal({ slug, onClose }: { slug: string; onClose: () => void }) {
                   ) : (
                     <span className="now">{priceText(g)}</span>
                   )}
-                  <button className="btn-green">카트에 추가</button>
+                  <button
+                    className={"btn-green" + (inCart ? " on" : "")}
+                    onClick={() => onToggleCart(slug)}
+                  >
+                    {inCart ? "장바구니에 담김" : "카트에 추가"}
+                  </button>
                 </div>
                 <div className="tag-pills">
                   {g.tags?.map((t: string) => <span key={t} className="pill">{t}</span>)}
@@ -415,6 +447,9 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [cart, setCart] = useState<any[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/home")
@@ -438,9 +473,92 @@ export default function Home() {
     return () => window.removeEventListener("hashchange", applyHash);
   }, []);
 
-  useEffect(() => { setUser(readUser()); }, []);
+  useEffect(() => {
+    const u = readUser();
+    setUser(u);
+    if (u) {
+      fetch("/api/cart").then((r) => (r.ok ? r.json() : [])).then(setCart).catch(() => setCart([]));
+    } else {
+      loadGuestCart();
+    }
+  }, []);
 
   useEffect(() => { setRelHoverIndex(0); }, [tabIndex]);
+
+  useEffect(() => {
+    if (!cartOpen) return;
+    function onDocClick(e: MouseEvent) {
+      if (cartRef.current && !cartRef.current.contains(e.target as Node)) setCartOpen(false);
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, [cartOpen]);
+
+  /** 게스트 장바구니(슬러그만 로컬 저장)를 화면에 보여줄 카드 데이터로 채운다. */
+  async function loadGuestCart() {
+    const slugs = readGuestCart();
+    if (slugs.length === 0) { setCart([]); return; }
+    const rows = await Promise.all(
+      slugs.map((s) => fetch("/api/game/" + encodeURIComponent(s)).then((r) => (r.ok ? r.json() : null))),
+    );
+    setCart(rows.filter(Boolean));
+  }
+
+  async function addToCart(slug: string) {
+    if (user) {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug }),
+      });
+      if (res.ok) setCart(await res.json());
+      return;
+    }
+    const slugs = readGuestCart();
+    if (!slugs.includes(slug)) writeGuestCart([...slugs, slug]);
+    await loadGuestCart();
+  }
+
+  async function removeFromCart(slug: string) {
+    if (user) {
+      const res = await fetch("/api/cart/" + encodeURIComponent(slug), { method: "DELETE" });
+      if (res.ok) setCart(await res.json());
+      return;
+    }
+    writeGuestCart(readGuestCart().filter((s) => s !== slug));
+    await loadGuestCart();
+  }
+
+  /** 로그인 성공 시: 게스트 카트가 있으면 서버 카트로 병합, 없으면 그냥 서버 카트를 불러온다. */
+  async function handleLogin(u: User) {
+    writeUser(u);
+    setUser(u);
+    const guestSlugs = readGuestCart();
+    if (guestSlugs.length > 0) {
+      const res = await fetch("/api/cart/merge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slugs: guestSlugs }),
+      });
+      if (res.ok) setCart(await res.json());
+      writeGuestCart([]);
+    } else {
+      const res = await fetch("/api/cart");
+      if (res.ok) setCart(await res.json());
+    }
+  }
+
+  function handleLogout() {
+    fetch("/api/logout", { method: "POST" }).finally(() => {
+      writeUser(null);
+      setUser(null);
+      setCart([]);
+      writeGuestCart([]);
+      setCartOpen(false);
+      setAuthResetKey((k) => k + 1);
+      goView("store");
+    });
+  }
 
   const VIEW_HASH: Record<string, string> = { login: "login", signup: "signup", create: "create", done: "verified" };
 
@@ -516,6 +634,52 @@ export default function Home() {
             <a href="#">지원</a>
           </nav>
           <div className="topright">
+            <div className="cart-wrap" ref={cartRef}>
+              <button
+                type="button"
+                className="cart-btn"
+                aria-label="장바구니"
+                onClick={() => setCartOpen((v) => !v)}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="#fff">
+                  <path d="M1 1h2l.6 3M3.6 4h10.4l-1.2 6H4.8M3.6 4L4.8 10M4.8 10l-.3 1.5h9M6 14a1 1 0 100-2 1 1 0 000 2zM12 14a1 1 0 100-2 1 1 0 000 2z" fill="none" stroke="#fff" strokeWidth="1.2" />
+                </svg>
+                {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
+              </button>
+              {cartOpen && (
+                <div className="cart-drop">
+                  <h4>장바구니</h4>
+                  {cart.length === 0 && <p className="cart-empty">담긴 게임이 없습니다.</p>}
+                  {cart.length > 0 && (
+                    <>
+                      <div className="cart-list">
+                        {cart.map((g: any) => (
+                          <div className="cart-row" key={g.slug}>
+                            <div className="cart-thumb" style={bgStyle(g.headerImage)} />
+                            <div className="cart-info">
+                              <div className="cart-name">{g.name}</div>
+                              <div className="cart-price">{priceText(g)}</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="cart-remove"
+                              aria-label="장바구니에서 제거"
+                              onClick={() => removeFromCart(g.slug)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="cart-total">
+                        <span>합계</span>
+                        <b>{won(cart.reduce((sum: number, g: any) => sum + (g.finalKrw ?? 0), 0))}</b>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
             <a className="btn-install" href="#">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="#fff"><path d="M8 11L3 6h3V1h4v5h3z" /><rect x="2" y="12" width="12" height="2" /></svg>
               Steam 설치
@@ -526,20 +690,7 @@ export default function Home() {
             {user && (
               <span className="topuser">
                 <b>{user.nickname}</b>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    fetch("/api/logout", { method: "POST" }).finally(() => {
-                      writeUser(null);
-                      setUser(null);
-                      setAuthResetKey((k) => k + 1);
-                      goView("store");
-                    });
-                  }}
-                >
-                  로그아웃
-                </a>
+                <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>로그아웃</a>
               </span>
             )}
             <span className="sep">|</span>
@@ -715,7 +866,7 @@ export default function Home() {
         view={view}
         pool={loginPool}
         onView={(v) => goView(v)}
-        onLogin={(u) => { writeUser(u); setUser(u); }}
+        onLogin={handleLogin}
       />
 
       <footer>
@@ -748,7 +899,14 @@ export default function Home() {
         </div>
       </footer>
 
-      {modalSlug && <Modal slug={modalSlug} onClose={() => setModalSlug(null)} />}
+      {modalSlug && (
+        <Modal
+          slug={modalSlug}
+          onClose={() => setModalSlug(null)}
+          inCart={cart.some((g: any) => g.slug === modalSlug)}
+          onToggleCart={(slug) => (cart.some((g: any) => g.slug === slug) ? removeFromCart(slug) : addToCart(slug))}
+        />
+      )}
     </>
   );
 }
