@@ -49,6 +49,11 @@ function SresRow({ g, onPick }: { g: any; onPick: (slug: string) => void }) {
 
 type Props = {
   data: any;
+  cart: any[];
+  cartOpen: boolean;
+  cartRef: React.RefObject<HTMLDivElement | null>;
+  onToggleCartDrop: () => void;
+  onRemoveFromCart: (slug: string) => void;
   searchQuery: string;
   searchResults: any[] | null;
   onSearchInput: (v: string) => void;
@@ -67,6 +72,11 @@ export default function StoreNav({
   onTag,
   onTab,
   onCloseResults,
+  cart,
+  cartOpen,
+  cartRef,
+  onToggleCartDrop,
+  onRemoveFromCart,
 }: Props) {
   const [openNav, setOpenNav] = useState<string | null>(null);
   const [showPopular, setShowPopular] = useState(false);
@@ -458,6 +468,58 @@ export default function StoreNav({
             )}
           </div>
         </form>
+
+        {/* 찜 목록 / 장바구니. 실제 Steam 도 이 줄 오른쪽 끝에 둔다 */}
+        <a className="nav-wish" href="#" onClick={(e) => e.preventDefault()}>
+          <span className="star">★</span> 찜 목록
+        </a>
+
+        <div className="nav-cart" ref={cartRef}>
+          <button className="nav-cart-btn" type="button" onClick={onToggleCartDrop}>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+              <path d="M1 1.6h2l.6 3M3.6 4.6h11l-1.3 6H4.9M3.6 4.6l1.3 6M4.9 10.6l-.3 1.6h9.4" />
+              <circle cx="6.2" cy="13.6" r="1" />
+              <circle cx="12.4" cy="13.6" r="1" />
+            </svg>
+            장바구니
+            {cart.length > 0 && <span className="nav-cart-count">{cart.length}</span>}
+          </button>
+
+          {cartOpen && (
+            <div className="cart-drop">
+              <h4>장바구니</h4>
+              {cart.length === 0 ? (
+                <p className="cart-empty">담긴 게임이 없습니다.</p>
+              ) : (
+                <>
+                  <div className="cart-list">
+                    {cart.map((g: any) => (
+                      <div className="cart-row" key={g.slug}>
+                        <div className="cart-thumb" style={bgStyle(g.headerImage)} />
+                        <div className="cart-info">
+                          <div className="cart-name">{g.name}</div>
+                          <div className="cart-price">{priceText(g)}</div>
+                        </div>
+                        <button
+                          type="button"
+                          className="cart-remove"
+                          aria-label="장바구니에서 제거"
+                          onClick={() => onRemoveFromCart(g.slug)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="cart-total">
+                    <span>합계</span>
+                    <b>{won(cart.reduce((sum: number, g: any) => sum + (g.finalKrw ?? 0), 0))}</b>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

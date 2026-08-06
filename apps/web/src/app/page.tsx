@@ -514,72 +514,46 @@ export default function Home() {
           <nav className="mainnav">
             <a className={view === "store" ? "on" : ""} href="#" onClick={(e) => goView("store", e)}>상점</a>
             <a href="#">커뮤니티</a>
-            <a href="#">정보</a>
+            {/* 로그인하면 실제 Steam 처럼 계정 이름이 내비에 들어오고 채팅이 붙는다 */}
+            {user ? (
+              <>
+                <a href="#" className="mainnav-me">{user.nickname.toUpperCase()}</a>
+                <a href="#">채팅</a>
+              </>
+            ) : (
+              <a href="#">정보</a>
+            )}
             <a href="#">지원</a>
           </nav>
           <div className="topright">
-            <div className="cart-wrap" ref={cartRef}>
-              <button
-                type="button"
-                className="cart-btn"
-                aria-label="장바구니"
-                onClick={() => setCartOpen((v) => !v)}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="#fff">
-                  <path d="M1 1h2l.6 3M3.6 4h10.4l-1.2 6H4.8M3.6 4L4.8 10M4.8 10l-.3 1.5h9M6 14a1 1 0 100-2 1 1 0 000 2zM12 14a1 1 0 100-2 1 1 0 000 2z" fill="none" stroke="#fff" strokeWidth="1.2" />
-                </svg>
-                {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
-              </button>
-              {cartOpen && (
-                <div className="cart-drop">
-                  <h4>장바구니</h4>
-                  {cart.length === 0 && <p className="cart-empty">담긴 게임이 없습니다.</p>}
-                  {cart.length > 0 && (
-                    <>
-                      <div className="cart-list">
-                        {cart.map((g: any) => (
-                          <div className="cart-row" key={g.slug}>
-                            <div className="cart-thumb" style={bgStyle(g.headerImage)} />
-                            <div className="cart-info">
-                              <div className="cart-name">{g.name}</div>
-                              <div className="cart-price">{priceText(g)}</div>
-                            </div>
-                            <button
-                              type="button"
-                              className="cart-remove"
-                              aria-label="장바구니에서 제거"
-                              onClick={() => removeFromCart(g.slug)}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="cart-total">
-                        <span>합계</span>
-                        <b>{won(cart.reduce((sum: number, g: any) => sum + (g.finalKrw ?? 0), 0))}</b>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-            <a className="btn-install" href="#">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="#fff"><path d="M8 11L3 6h3V1h4v5h3z" /><rect x="2" y="12" width="12" height="2" /></svg>
+            <a className={"btn-install" + (user ? " gray" : "")} href="#">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 10.6L4.4 7h2.1V1.6h3V7h2.1L8 10.6z" />
+                <path d="M2.6 11.4v2a1 1 0 001 1h8.8a1 1 0 001-1v-2h-1.6v1.4H4.2v-1.4H2.6z" />
+              </svg>
               Steam 설치
             </a>
-            {!user && (
-              <a className="top-login" href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
+
+            {!user ? (
+              <>
+                <a className="top-login" href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
+                <span className="sep">|</span>
+                {/* ▾ 는 실제 Steam 처럼 오른쪽 여백(18px) 안에 ::after 로 그린다 */}
+                <a className="top-lang" href="#">언어</a>
+              </>
+            ) : (
+              <>
+                <button className="top-bell" type="button" aria-label="알림">
+                  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path d="M8 1.4a1 1 0 011 1v.5a3.9 3.9 0 013 3.8v2.2l1.2 1.9a.6.6 0 01-.5.9H3.3a.6.6 0 01-.5-.9L4 8.9V6.7a3.9 3.9 0 013-3.8v-.5a1 1 0 011-1z" />
+                    <path d="M6.4 12.5h3.2a1.6 1.6 0 01-3.2 0z" />
+                  </svg>
+                </button>
+                {/* 계정 이름. 누르면 로그아웃한다 (드롭다운 메뉴는 아직 없다) */}
+                <a className="top-name" href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>{user.nickname}</a>
+                <span className="top-avatar" aria-hidden="true">?</span>
+              </>
             )}
-            {user && (
-              <span className="topuser">
-                <b>{user.nickname}</b>
-                <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>로그아웃</a>
-              </span>
-            )}
-            <span className="sep">|</span>
-            {/* ▾ 는 실제 Steam 처럼 오른쪽 여백(18px) 안에 ::after 로 그린다 */}
-            <a className="top-lang" href="#">언어</a>
           </div>
         </div>
       </header>
@@ -593,6 +567,11 @@ export default function Home() {
         onTag={searchByTag}
         onTab={goTab}
         onCloseResults={() => setSearchResults(null)}
+        cart={cart}
+        cartOpen={cartOpen}
+        cartRef={cartRef}
+        onToggleCartDrop={() => setCartOpen((v) => !v)}
+        onRemoveFromCart={removeFromCart}
       />
 
       {view === "store" && (

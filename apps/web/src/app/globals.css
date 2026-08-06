@@ -8,7 +8,7 @@
   --text:#c7d5e0;
   --text-dim:#8f98a0;
   --green:#a4d007;
-  --green-bg:#4c6b22;
+  --green-bg:#A1CD44;   /* 할인 배지 배경 */
   --nav-h:46px;        /* 내비 바 실측 높이 */
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -74,7 +74,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .topright{
   margin-left:auto;margin-right:calc(15px + 2mm);
   display:flex;align-items:center;align-self:flex-start;margin-top:6px;
-  height:24px;font-size:11px;color:#B8B6B4;
+  height:25px;font-size:11px;color:#B8B6B4;
 }
 .topright a{color:#B8B6B4}
 .topright a:hover{color:#fff}
@@ -306,7 +306,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .sres-row .info{flex:1;min-width:0;padding-right:12px}
 .sres-row .nm{color:#fff;font-size:15px;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sres-row .pr{display:flex;align-items:center;gap:7px;font-size:13px;white-space:nowrap}
-.sres-row .pr .disc{background:var(--green-bg);color:var(--green);padding:2px 6px;font-size:12px}
+.sres-row .pr .disc{background:var(--green-bg);color:var(--bg-dark);padding:2px 6px;font-size:12px;font-weight:700}
 .sres-row .pr .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
 .sres-row .pr .now{color:#c7d5e0}
 
@@ -362,12 +362,24 @@ button{font-family:inherit;cursor:pointer;border:0}
 .sec-sub{font-size:15px;color:var(--text-dim);margin-top:2px}
 .more-btn{background: #e2dfdf;color:var(--bg-dark);font-size:12px;padding:4px 20px; font-weight:800; border-radius:2px}
 .more-btn:hover{background:white;color:var(--bg-dark)}
+/* 실제 Steam 의 .home_gift_card_link 값 그대로.
+   배경은 단색이 아니라 왼쪽 어두운 남색 -> 오른쪽 하늘색 가로 그라데이션이고,
+   hover 는 2px 떠오르면서 파란 글로우가 깔린다. */
 .giftcard{
-  display:flex;align-items:center;gap:10px;background:linear-gradient(to right,#1387b8,#0f6d94);
-  padding:5px 14px 5px 8px;border-radius:2px;color:#e3f2fb;font-size:13px;
+  display:flex;align-items:center;gap:4px;
+  height:24px;padding:3px 10px 3px 0;
+  background:linear-gradient(to right,#09141B 0%,#319DDD 100%);
+  border-radius:3px;color:#fff;font-size:13px;font-weight:500;white-space:nowrap;
+  position:relative;overflow:visible;
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.giftcard:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 24px 4px rgba(13,170,243,.35);
+  color:#fff;
 }
 .gc-icon{
-  width:60px;height:42px;margin-top:-16px;margin-bottom:-4px;margin-left:-8px;border-radius:2px;
+  width:64px;height:38px;flex:0 0 auto;margin-left:-6px;
   background:url('https://cdn.fastly.steamstatic.com/store/home/gc_fan.webp') center/contain no-repeat;
 }
 
@@ -860,7 +872,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .gp-buy-head h2{color:#fff;font-size:20px;font-weight:400}
 .gp-buy-sub{color:#66c0f4;font-size:13px;margin-top:4px}
 .gp-buy-foot{display:flex;align-items:center;justify-content:flex-end;gap:0;padding:12px 16px}
-.gp-disc{background:#4c6b22;color:#a4d007;font-size:20px;font-weight:600;padding:9px 12px}
+.gp-disc{background:var(--green-bg);color:var(--bg-dark);font-size:20px;font-weight:700;padding:9px 12px}
 .gp-prices{background:rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:14px}
 .gp-prices .was{color:#7a8b99;text-decoration:line-through}
 .gp-prices .now{color:#c7d5e0}
@@ -927,3 +939,58 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .gp-strip{grid-template-columns:repeat(4,1fr)}
 }
 .gp-cart.on{background:linear-gradient(to bottom,#4c6b22,#3a5119);color:var(--green)}
+
+/* ---------- 로그인 상태 헤더 ---------- */
+/* 내비에 들어오는 계정 이름은 대문자로 굵게 */
+.mainnav-me{font-weight:700;letter-spacing:.3px}
+
+.top-bell{
+  width:46px;height:24px;background:#67707B33;color:#B8B6B4;
+  display:flex;align-items:center;justify-content:center;border-radius:2px;
+}
+.top-bell svg{width:16px;height:16px}
+.top-bell:hover{background:#67707B66;color:#fff}
+
+.top-name{
+  position:relative;height:25px;margin:0 5px 0 0;padding:0 18px 0 4px;
+  display:flex;align-items:center;color:#B8B6B4;
+}
+.top-name::after{
+  content:"";position:absolute;right:7px;top:50%;margin-top:-1px;
+  width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:4px solid currentColor;
+}
+.top-name:hover{color:#fff}
+
+.top-avatar{
+  width:34px;height:34px;flex:0 0 auto;padding:1px;box-sizing:border-box;
+  background:#3d4450;border:1px solid #67c1f5;
+  display:flex;align-items:center;justify-content:center;
+  color:#c7d5e0;font-size:13px;
+}
+
+/* ---------- 내비 오른쪽: 찜 목록 / 장바구니 ---------- */
+.nav-wish{
+  display:flex;align-items:center;gap:5px;margin-left:16px;
+  color:#c7d5e0;font-size:13px;font-weight:600;white-space:nowrap;
+}
+.nav-wish .star{color:#fff}
+.nav-wish:hover{color:#fff}
+
+.nav-cart{position:relative;margin-left:14px}
+.nav-cart-btn{
+  display:flex;align-items:center;gap:6px;height:26px;padding:0 12px;
+  background:#1a9fff;color:#fff;font-size:13px;font-weight:600;border-radius:2px;white-space:nowrap;
+}
+.nav-cart-btn:hover{background:#47bfff}
+.nav-cart-btn svg{width:15px;height:15px}
+.nav-cart-count{
+  background:rgba(0,0,0,.25);color:#fff;font-size:12px;line-height:1;
+  padding:3px 6px;border-radius:2px;margin-left:2px;
+}
+.nav-cart .cart-drop{top:32px}
+
+/* 로그인 상태에서는 설치 버튼이 초록이 아니라 회색이다 (실제 Steam 과 동일) */
+.btn-install.gray{background:#67707B33;color:#E5E4DC}
+.btn-install.gray:hover{background:#67707B66;color:#fff}
+.btn-install svg{width:14px;height:14px;flex:0 0 auto}
