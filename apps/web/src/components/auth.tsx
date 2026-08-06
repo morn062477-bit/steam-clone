@@ -219,8 +219,8 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
       setTimeout(() => onView("signup"), 900);
       return;
     }
-    if (name.length < 3 || !/^[A-Za-z0-9_-]+$/.test(name)) {
-      return setCreateMsg({ text: "계정 이름은 영문/숫자/-/_ 로 3자 이상이어야 합니다.", ok: false });
+    if (name.length < 6 || !/^[A-Za-z0-9]+$/.test(name)) {
+      return setCreateMsg({ text: "계정 이름은 영문/숫자로 6자 이상이어야 합니다.", ok: false });
     }
     if (crPw.length < 8) return setCreateMsg({ text: "비밀번호는 8자 이상이어야 합니다.", ok: false });
     if (crPw !== crPw2) return setCreateMsg({ text: "두 비밀번호가 서로 다릅니다.", ok: false });
@@ -390,9 +390,7 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
               <label className="cr-label" htmlFor="crName">Steam 계정 이름</label>
               <input className="cr-input" type="text" id="crName" autoComplete="username"
                 value={crName} onChange={(e) => setCrName(e.target.value)} />
-              <div className="cr-hint">
-                영문/숫자/-/_ 3자 이상{pendingEmail ? ` · ${pendingEmail} 로 만듭니다` : ""}
-              </div>
+              <div className="cr-hint">영문/숫자만 사용, 6자 이상</div>
 
               <label className="cr-label" htmlFor="crPw">비밀번호 선택</label>
               <input className="cr-input" type="password" id="crPw" autoComplete="new-password"

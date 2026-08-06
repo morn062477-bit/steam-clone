@@ -11,6 +11,8 @@
  *   GET /api/home          첫 화면에 필요한 모든 섹션을 한 번에
  *   GET /api/game/:slug    게임 상세 (모달용)
  *   GET /api/search?q=     이름 검색
+ *   POST /api/login        로그인 (계정 이름 또는 이메일 + 비밀번호)
+ *   POST /api/logout       로그아웃 (세션 폐기)
  *
  * 가격 규칙(schema.prisma 주석과 동일)
  *   - 할인가는 저장하지 않는다. 활성 Discount.percent로 서버에서만 계산한다.
@@ -23,6 +25,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import { startSignup, verifyEmail, getSignupStatus, completeSignup, AuthError } from './lib/auth.js';
+import { login, logout, SESSION_COOKIE, parseCookies, serializeCookie } from './lib/session.js';
 
 // ---------------------------------------------------------------
 // .env 로드 (dotenv 미설치라 직접 파싱)
@@ -502,6 +505,25 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
       if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
       throw err;
     }
+  }
+
+  if (p === '/api/login' && req.method === 'POST') {
+    try {
+      const body = await readJsonBody(req);
+      const result = await login(prisma, body);
+      res.setHeader('Set-Cookie', serializeCookie(SESSION_COOKIE, result.token, result.maxAgeSec));
+      return json(res, result.user);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/logout' && req.method === 'POST') {
+    const cookies = parseCookies(req.headers.cookie);
+    await logout(prisma, cookies[SESSION_COOKIE]);
+    res.setHeader('Set-Cookie', serializeCookie(SESSION_COOKIE, '', 0));
+    return json(res, { ok: true });
   }
 
   // public/ 정적 파일. 디렉터리 밖으로 나가는 경로는 거른다.

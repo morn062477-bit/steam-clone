@@ -408,6 +408,9 @@ export default function Home() {
   const [relHoverIndex, setRelHoverIndex] = useState(0);
   const [view, setView] = useState<"store" | AuthView>("store");
   const [user, setUser] = useState<User | null>(null);
+  // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
+  // user id를 그대로 key로 쓰면 안 됨 - 로그인 순간에도 리마운트되어 메시지가 사라진다).
+  const [authResetKey, setAuthResetKey] = useState(0);
   const [modalSlug, setModalSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
@@ -523,7 +526,20 @@ export default function Home() {
             {user && (
               <span className="topuser">
                 <b>{user.nickname}</b>
-                <a href="#" onClick={(e) => { e.preventDefault(); writeUser(null); setUser(null); goView("store"); }}>로그아웃</a>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    fetch("/api/logout", { method: "POST" }).finally(() => {
+                      writeUser(null);
+                      setUser(null);
+                      setAuthResetKey((k) => k + 1);
+                      goView("store");
+                    });
+                  }}
+                >
+                  로그아웃
+                </a>
               </span>
             )}
             <span className="sep">|</span>
@@ -696,6 +712,7 @@ export default function Home() {
       )}
 
       <Auth
+        key={authResetKey}
         view={view}
         pool={loginPool}
         onView={(v) => goView(v)}
