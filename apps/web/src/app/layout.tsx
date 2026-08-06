@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { DM_Sans } from "next/font/google";
+import { DM_Sans, Noto_Sans_KR } from "next/font/google";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
+});
+
+// DM Sans 에는 한글 글리프가 없어서 한글은 시스템 폰트로 떨어진다.
+// 기기와 무관하게 같은 글꼴로 보이도록 한글용 웹폰트를 따로 싣는다.
+const notoKR = Noto_Sans_KR({
+  variable: "--font-noto-kr",
+  subsets: ["latin", "korean"],
+  weight: ["400", "500", "700"],
+  display: "swap",
 });
 
 const geistSans = Geist({
@@ -27,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${dmSans.variable} ${notoKR.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
