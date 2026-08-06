@@ -79,9 +79,12 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
   const [verified, setVerified] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
   const verifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // 계정 만들기
+  const [signupId, setSignupId] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState("");
   const [crName, setCrName] = useState("");
   const [crPw, setCrPw] = useState("");
@@ -90,14 +93,50 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
   const [createBusy, setCreateBusy] = useState(false);
   const [doneName, setDoneName] = useState("");
 
-  useEffect(() => () => { if (verifyTimer.current) clearTimeout(verifyTimer.current); }, []);
+  useEffect(() => () => {
+    if (verifyTimer.current) clearTimeout(verifyTimer.current);
+    if (pollTimer.current) clearInterval(pollTimer.current);
+  }, []);
 
   function closeVerify() {
     if (verifyTimer.current) clearTimeout(verifyTimer.current);
+    if (pollTimer.current) clearInterval(pollTimer.current);
     setVerifyEmail(null);
     setVerified(false);
     document.body.style.overflow = "";
   }
+
+  /** 인증 대기 모달이 떠 있는 동안 실제 서버에 인증 완료 여부를 폴링한다. */
+  useEffect(() => {
+    if (!verifyEmail || !signupId || verified) return;
+
+    pollTimer.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/auth/signup-status?id=${encodeURIComponent(signupId)}`);
+        const data = await res.json().catch(() => ({}));
+        if (!data.verified) return;
+
+        if (pollTimer.current) clearInterval(pollTimer.current);
+        setVerified(true);
+        verifyTimer.current = setTimeout(() => {
+          closeVerify();
+          setPendingEmail(verifyEmail);
+          setCrName("");
+          setCrPw("");
+          setCrPw2("");
+          setCreateMsg(null);
+          onView("create");
+        }, 900);
+      } catch {
+        /* 네트워크 오류는 다음 폴링에서 다시 시도 */
+      }
+    }, 2000);
+
+    return () => {
+      if (pollTimer.current) clearInterval(pollTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verifyEmail, signupId, verified]);
 
   // ---------- 로그인 ----------
   async function submitLogin(e: React.FormEvent<HTMLFormElement>) {
@@ -130,7 +169,7 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
   }
 
   // ---------- 가입 ----------
-  function submitSignup(e: React.FormEvent<HTMLFormElement>) {
+  async function submitSignup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const a = suEmail.trim();
     const b = suEmail2.trim();
@@ -141,26 +180,33 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
     if (!captcha) return setSignupMsg("사람인지 확인해 주세요.");
     if (!agree) return setSignupMsg("약관에 동의해야 계속할 수 있습니다.");
 
+    setSignupMsg("인증 메일을 보내는 중…");
+    const { ok, data } = await postJson("/api/auth/signup", { email: a });
+    if (!ok) {
+      setSignupMsg(data.error || "인증 메일을 보내지 못했습니다.");
+      return;
+    }
+
     setSignupMsg("");
+    setSignupId(data.signupId);
     setVerifyEmail(a);
     setVerified(false);
     setHelpOpen(false);
+    setResendMsg("");
     document.body.style.overflow = "hidden";
   }
 
-  /** 데모용 인증. 실제로는 메일 링크 클릭이 이 자리를 대신한다. */
-  function confirmVerify() {
-    setVerified(true);
-    const email = verifyEmail ?? "";
-    verifyTimer.current = setTimeout(() => {
-      closeVerify();
-      setPendingEmail(email);
-      setCrName("");
-      setCrPw("");
-      setCrPw2("");
-      setCreateMsg(null);
-      onView("create");
-    }, 900);
+  /** 인증 메일 재전송. 같은 이메일로 다시 호출하면 서버가 새 링크로 갱신해 재발송한다. */
+  async function resendVerify() {
+    if (!verifyEmail) return;
+    setResendMsg("재전송 중…");
+    const { ok, data } = await postJson("/api/auth/signup", { email: verifyEmail });
+    if (!ok) {
+      setResendMsg(data.error || "재전송하지 못했습니다.");
+      return;
+    }
+    setSignupId(data.signupId);
+    setResendMsg("다시 보냈습니다. 메일함을 확인해 주세요.");
   }
 
   // ---------- 계정 만들기 ----------
@@ -168,7 +214,7 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
     e.preventDefault();
     const name = crName.trim();
 
-    if (!pendingEmail) {
+    if (!pendingEmail || !signupId) {
       setCreateMsg({ text: "이메일 인증부터 다시 진행해 주세요.", ok: false });
       setTimeout(() => onView("signup"), 900);
       return;
@@ -182,9 +228,9 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
     setCreateBusy(true);
     setCreateMsg({ text: "저장 중…", ok: false });
     try {
-      const { ok, data } = await postJson("/api/signup", {
-        email: pendingEmail,
-        account: name,
+      const { ok, data } = await postJson("/api/auth/complete-signup", {
+        signupId,
+        nickname: name,
         password: crPw,
       });
       if (!ok) {
@@ -193,6 +239,7 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
       }
       // 저장 성공. 완료 화면으로 넘기고 로그인 칸에 계정 이름을 미리 채워 둔다.
       setPendingEmail("");
+      setSignupId(null);
       setDoneName(data.nickname);
       setAccount(data.nickname);
       setLoginMsg(null);
@@ -408,14 +455,13 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
               <li>잠시만 기다려 주세요. 간혹 이메일 서버가 느려져 메일 수신에 다소 시간이 걸릴 수 있습니다.</li>
             </ol>
             <p>
+              <button type="button" className="v-resend" onClick={resendVerify}>인증 메일 다시 보내기</button>
+              {resendMsg && <span className="v-resend-msg"> {resendMsg}</span>}
+            </p>
+            <p>
               이메일 주소를 변경하려면{" "}
               <a href="#signup" onClick={(e) => { e.preventDefault(); closeVerify(); onView("signup"); }}>여기를 클릭</a>하세요.
             </p>
-          </div>
-
-          <div className="v-fake">
-            <p>서버가 없는 데모입니다. 실제 메일은 발송되지 않으니 아래 버튼으로 인증을 대신하세요.</p>
-            <button type="button" onClick={confirmVerify}>인증 메일 링크 클릭하기</button>
           </div>
         </div>
       </div>
