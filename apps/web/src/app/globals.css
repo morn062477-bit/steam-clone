@@ -1,14 +1,14 @@
 
 :root{
   --bg:#1b2838;
-  --bg-dark:#171a21;
+  --bg-dark:#171D25;   /* #global_header 실측 배경 */
   --bg-panel:#16202d;
   --blue:#66c0f4;
   --text:#c7d5e0;
   --text-dim:#8f98a0;
   --green:#a4d007;
   --green-bg:#4c6b22;
-  --nav-h:36px;
+  --nav-h:46px;        /* 내비 바 실측 높이 */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -30,11 +30,11 @@ a{color:var(--text);text-decoration:none}
 /* "특집 및 추천 게임" 줄과 같은 세로선에 맞춘다.
    그 줄(.feat-sec-head)은 .wrap 안에서 좌우 14% 씩 들어가 있으므로
    헤더는 .wrap 폭의 72% (= 100-14-14) 를 쓴다. 92%*0.72=66.24%, 1700*0.72=1224px */
-.topbar .wrap,.storenav .wrap{width:66.24%;max-width:1224px}
+.topbar .wrap,.storenav .wrap{width:66.24%;max-width:1200px}
 
 /* 로그인/가입 계열 화면도 헤더와 같은 폭으로 모은다.
    폼 자체는 원래대로 왼쪽 정렬이다 (로그인 화면의 .login-box 만 가운데). */
-#loginView .wrap,#signupView .wrap,#createView .wrap,#doneView .wrap{width:66.24%;max-width:1224px}
+#loginView .wrap,#signupView .wrap,#createView .wrap,#doneView .wrap{width:66.24%;max-width:1200px}
 img{display:block}
 button{font-family:inherit;cursor:pointer;border:0}
 
@@ -44,27 +44,71 @@ button{font-family:inherit;cursor:pointer;border:0}
 }
 
 /* ---------- 상단 헤더 ---------- */
-.topbar{background:var(--bg-dark);height:104px}
-.topbar .wrap{display:flex;align-items:center;height:104px}
+.topbar{background:var(--bg-dark);height:104px;color:#C6D4DF;font-size:14px}
+.topbar .wrap{display:flex;align-items:flex-start;height:104px}
 /* 로고는 원형 마크 + STEAM® 워드마크가 한 파일에 든 SVG 하나로 끝낸다.
    높이만 잡고 폭은 비율대로 둔다 (293.44 x 89.333). */
-.logo{display:flex;align-items:center;margin-right:56px}
-.logo img{height:44px;width:auto;display:block}
-.logo:hover img{filter:brightness(1.15)}
-.mainnav{display:flex;gap:20px;padding-top:6px}
-.mainnav a{font-size:15px;color:#b8b6b4;text-transform:none}
-.mainnav a:hover{color:#fff}
-.mainnav a.on{color:var(--blue)}
-.topright{margin-left:auto;display:flex;align-items:center;gap:9px;align-self:flex-start;margin-top:6px;font-size:11px}
-.btn-install{
-  background:linear-gradient(to bottom,#799905 5%,#536904 95%);
-  color:#fff;padding:3px 10px;border-radius:2px;display:flex;align-items:center;gap:5px;font-size:11px;
+.logo{
+  display:flex;align-items:flex-start;box-sizing:border-box;
+  width:176px;height:74px;margin:0 40px 0 0;padding:30px 0 0 0;
 }
-.btn-install svg{width:12px;height:12px}
-.btn-install:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%);color:#fff}
-.topright .sep{color:#4c5966}
-.topright a{color:#b8b6b4}
+.logo img{width:144.5px;height:44px;display:block}
+.logo:hover img{filter:brightness(1.15)}
+/* 실측: 항목 41.69 x 72.5, 16px, padding 45px 7px 7px.
+   좌우 7px 패딩이 간격 역할을 하므로 gap 은 두지 않는다. */
+.mainnav{display:flex}
+.mainnav a{
+  display:flex;flex-direction:column;
+  font-size:16px;color:#C6D4DF;padding:45px 7px 7px;
+}
+.mainnav a:hover{color:#fff}
+.mainnav a.on{color:#1A9FFF}
+/* 활성 밑줄: 27.69 x 2.5, #1A9FFF, margin-top 2px. 글자 폭만큼만 그린다 */
+.mainnav a.on::after{
+  content:"";align-self:stretch;height:2.5px;background:#1A9FFF;margin-top:2px;
+}
+/* 실제 Steam 의 #global_action_menu 실측값에 맞춘다.
+   묶음 203.59 x 24, 11px "Motiva Sans", 글자색 #B8B6B4.
+   왼쪽 여백(margin-right)들은 앞서 맞춘 위치 조정값이라 그대로 둔다. */
+.topright{
+  margin-left:auto;margin-right:calc(15px + 2mm);
+  display:flex;align-items:center;align-self:flex-start;margin-top:6px;
+  height:24px;font-size:11px;color:#B8B6B4;
+}
+.topright a{color:#B8B6B4}
 .topright a:hover{color:#fff}
+.topright .sep{color:#4c5966;padding:0 2px}
+
+/* Steam 설치: 98.5 x 24, 배경 #5C7E10(단색), 글자 #E5E4DC, padding 0 9px 0 35px.
+   실제 Steam 은 아이콘을 배경 이미지로 왼쪽 35px 여백에 넣는다. 여기서는
+   인라인 SVG 를 같은 자리에 절대 배치한다. */
+.btn-install{
+  position:relative;display:flex;align-items:center;
+  width:98.5px;height:24px;box-sizing:border-box;
+  background:#5C7E10;color:#E5E4DC;
+  font-size:11px;padding:0 9px 0 35px;border-radius:2px;
+  margin-right:0.5mm;
+}
+.btn-install:hover{background:#6f9614;color:#fff}
+.btn-install svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:14px;height:14px}
+
+/* 로그인: 36.55 x 14, padding 0 4px */
+.top-login,.topuser{height:14px;padding:0 4px;display:flex;align-items:center;margin-right:1mm}
+.topuser{gap:8px}
+.topuser b{color:var(--blue);font-weight:400}
+.topuser[hidden]{display:none}
+
+/* 언어: 42.03 x 14, padding 0 18px 0 5px, margin-right 5px.
+   ▾ 는 오른쪽 18px 여백 안에 그린다. */
+.top-lang{
+  position:relative;height:14px;padding:0 18px 0 5px;margin-right:5px;
+  display:flex;align-items:center;
+}
+.top-lang::after{
+  content:"";position:absolute;right:7px;top:50%;margin-top:-1px;
+  width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:4px solid currentColor;
+}
 
 /* ---------- 상점 내비 ---------- */
 .storenav{
@@ -83,9 +127,16 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* ---------- 상단 드롭다운 (클릭으로 열림) ---------- */
 .navitem{height:100%}
 /* 첫 메뉴는 왼쪽 여백을 빼서 글자가 로고 왼쪽 끝과 같은 선에 오게 한다 */
-.navitem:first-child .item{padding-left:0}
-.navitem .item{background:none}
-.navitem.open .item{color:var(--blue);box-shadow:inset 0 -2px 0 var(--blue)}
+/* 실측: 내비 항목 묶음이 왼쪽에서 16px 들어가 있다 */
+.navitem:first-child{margin-left:16px}
+.navitem .item{position:relative;background:none}
+/* 메뉴를 클릭해 열면 글자 아래 밑줄을 긋는다.
+   메인 내비(상점/커뮤니티/…)의 활성 밑줄과 같은 색·두께로 맞춘다. */
+.navitem.open .item{color:#1A9FFF}
+.navitem.open .item::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:9px;
+  height:2.5px;background:#1A9FFF;
+}
 
 /* 패널은 눌린 버튼이 아니라 내비 바 전체를 기준으로 펼친다.
    그래서 .storenav .wrap 의 position:relative 를 여기서만 끈다.
@@ -98,7 +149,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 }
 .navitem.open .navdrop{display:block}
 /* 헤더/내비와 같은 세로선에 맞춘다. .wrap 과 같은 폭 규칙을 쓴다 */
-.navdrop-in{width:66.24%;max-width:1224px;margin:0 auto;display:flex;gap:34px;padding:20px 0 30px}
+.navdrop-in{width:66.24%;max-width:1200px;margin:0 auto;display:flex;gap:34px;padding:20px 0 30px}
 .navdrop-in.nd-cats{display:block}
 
 .nd-main{flex:1;min-width:0}
@@ -212,10 +263,12 @@ button{font-family:inherit;cursor:pointer;border:0}
 .nd-sp-tiles .wide{grid-column:1 / -1}
 
 /* 검색창. 내비 오른쪽 끝에 붙고 입력칸이 남는 폭을 최대 330px 까지 먹는다 */
-.searchbox{margin-left:auto;display:flex;height:30px;position:relative}
+/* 오른쪽 끝은 "언어" 에 맞춰 두고, 길이는 왼쪽으로만 늘린다.
+   오른쪽에 붙어 있어서(margin-left:auto) 입력칸 폭을 키우면 왼쪽으로 뻗는다 */
+.searchbox{margin-left:auto;margin-right:1.5mm;display:flex;height:34px;position:relative}
 .searchbox input{
   background:#2a2e35;box-shadow:inset 0 0 0 1px #3a4049;
-  border:0;outline:0;color:#dfe9f2;width:400px;padding:0 12px;font-size:13px;
+  border:0;outline:0;color:#dfe9f2;width:446px;padding:0 10px;font-size:13px;
   border-radius:3px 0 0 3px;
 }
 .searchbox input::placeholder{color:#8b9199;font-style:italic}
@@ -225,7 +278,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 .searchbox:focus-within,.searchbox.open{box-shadow:0 0 0 2px #1a9fff;border-radius:3px}
 .searchbox:focus-within input,.searchbox.open input{background:#22262c;color:#fff}
 .searchbox button{
-  background:#1a9fff;width:40px;display:flex;align-items:center;justify-content:center;
+  background:#1A9FFF;width:34px;display:flex;align-items:center;justify-content:center;
   border-radius:0 3px 3px 0;
 }
 .searchbox button:hover{background:#47bfff}
@@ -234,7 +287,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* 검색 드롭다운 (인기 검색어 / 검색 결과)
    입력칸보다 왼쪽으로 더 넓게 펼쳐지고 버튼 오른쪽 끝에 맞춰 정렬한다 */
 .sresults{
-  position:absolute;top:34px;right:0;width:510px;background:#3d4450;
+  position:absolute;top:38px;right:0;width:510px;background:#3d4450;
   box-shadow:0 10px 30px rgba(0,0,0,.6);max-height:460px;overflow-y:auto;
   display:none;z-index:70;padding:10px;
 }
@@ -710,10 +763,6 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cr-submit:disabled{filter:grayscale(.6) brightness(.7);cursor:default}
 .create-msg{margin-top:14px;font-size:13px;color:#e08b6a;min-height:18px;max-width:300px;line-height:1.5}
 .create-msg.ok{color:var(--green)}
-/* 로그인한 사용자 표시 */
-.topuser{display:flex;align-items:center;gap:8px}
-.topuser b{color:var(--blue);font-weight:400}
-.topuser[hidden]{display:none}
 /* ---------- 인증 완료 화면 ---------- */
 #doneView{display:none;position:relative;min-height:640px;overflow:hidden}
 #doneView.on{display:block}

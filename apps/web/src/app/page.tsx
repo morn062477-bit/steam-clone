@@ -518,7 +518,7 @@ export default function Home() {
               Steam 설치
             </a>
             {!user && (
-              <a href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
+              <a className="top-login" href="#login" style={{ visibility: view === "login" ? "hidden" : "visible" }} onClick={(e) => goView("login", e)}>로그인</a>
             )}
             {user && (
               <span className="topuser">
@@ -527,7 +527,8 @@ export default function Home() {
               </span>
             )}
             <span className="sep">|</span>
-            <a href="#">언어 ▾</a>
+            {/* ▾ 는 실제 Steam 처럼 오른쪽 여백(18px) 안에 ::after 로 그린다 */}
+            <a className="top-lang" href="#">언어</a>
           </div>
         </div>
       </header>
