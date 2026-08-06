@@ -452,7 +452,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const searchBoxRef = useRef<HTMLDivElement>(null);
+  const searchBoxRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     fetch("/api/home")
