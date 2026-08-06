@@ -17,6 +17,8 @@
  *   POST /api/cart          장바구니에 추가 { slug } (로그인 필요)
  *   DELETE /api/cart/:slug  장바구니에서 제거 (로그인 필요)
  *   POST /api/cart/merge    로그인 전 로컬 장바구니 병합 { slugs: string[] } (로그인 필요)
+ *   POST /api/checkout/prepare   장바구니로 PENDING 주문 생성, 포트원 결제창에 넘길 값 반환 (로그인 필요)
+ *   POST /api/checkout/complete  { orderId } 포트원 결제 검증 후 주문 확정 + 라이브러리 반영 (로그인 필요)
  *   GET  /api/wishlist          내 찜 목록 (로그인 필요)
  *   POST /api/wishlist          찜 목록에 추가 { slug } (로그인 필요)
  *   DELETE /api/wishlist/:slug  찜 목록에서 제거 (로그인 필요)
@@ -29,6 +31,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import { startSignup, verifyEmail, getSignupStatus, completeSignup, AuthError } from './lib/auth.js';
@@ -425,6 +428,90 @@ async function mergeCart(userId: string, slugs: string[]) {
 }
 
 // ---------------------------------------------------------------
+// /api/checkout — 포트원(PortOne) V2 결제
+// ---------------------------------------------------------------
+
+const PORTONE_API_BASE = 'https://api.portone.io';
+
+/** 장바구니 스냅샷으로 PENDING 주문을 만든다. 결제창에 넘길 paymentId/금액/이름을 함께 돌려준다. */
+async function prepareCheckout(userId: string) {
+  const now = new Date();
+  const items = await prisma.cartItem.findMany({
+    where: { userId },
+    select: { game: { select: cardArgs(now) } },
+  });
+  if (items.length === 0) throw new AuthError(400, '장바구니가 비어 있습니다.');
+
+  const cards = items.map((i) => ({ id: i.game.id, ...toCard(i.game, now) }));
+  const totalKrw = cards.reduce((sum, g) => sum + g.finalKrw, 0);
+  const paymentId = 'pay_' + randomBytes(16).toString('hex');
+  const orderName = cards.length === 1 ? cards[0].name : `${cards[0].name} 외 ${cards.length - 1}종`;
+
+  const order = await prisma.order.create({
+    data: {
+      userId,
+      totalKrw,
+      status: 'PENDING',
+      paymentId,
+      items: {
+        create: cards.map((g) => ({
+          gameId: g.id,
+          priceKrw: g.priceKrw,
+          discountPercent: g.discountPercent,
+          paidKrw: g.finalKrw,
+        })),
+      },
+    },
+  });
+
+  return { orderId: order.id, paymentId, totalKrw, orderName };
+}
+
+/** 포트원 서버에 결제 상태/금액을 조회해 클라이언트가 보고한 값이 아니라 실제 값으로 검증한다. */
+async function fetchPortOnePayment(paymentId: string) {
+  const secret = process.env.PORTONE_API_SECRET;
+  if (!secret) throw new AuthError(500, 'PORTONE_API_SECRET이 설정되어 있지 않습니다.');
+  const res = await fetch(`${PORTONE_API_BASE}/payments/${encodeURIComponent(paymentId)}`, {
+    headers: { Authorization: `PortOne ${secret}` },
+  });
+  if (!res.ok) throw new AuthError(502, '포트원 결제 조회에 실패했습니다.');
+  return res.json() as Promise<{ status: string; amount?: { total?: number } }>;
+}
+
+async function completeCheckout(userId: string, orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { items: true },
+  });
+  if (!order || order.userId !== userId) throw new AuthError(404, '주문을 찾을 수 없습니다.');
+  if (order.status !== 'PENDING') throw new AuthError(409, '이미 처리된 주문입니다.');
+  if (!order.paymentId) throw new AuthError(400, '결제 정보가 없는 주문입니다.');
+
+  const payment = await fetchPortOnePayment(order.paymentId);
+  const paid = payment.status === 'PAID' && payment.amount?.total === order.totalKrw;
+
+  if (!paid) {
+    await prisma.order.update({ where: { id: order.id }, data: { status: 'FAILED' } });
+    throw new AuthError(402, '결제가 확인되지 않았습니다.');
+  }
+
+  const gameIds = order.items.map((i) => i.gameId);
+  await prisma.$transaction([
+    prisma.order.update({ where: { id: order.id }, data: { status: 'PAID' } }),
+    ...gameIds.map((gameId) =>
+      prisma.libraryItem.upsert({
+        where: { userId_gameId: { userId, gameId } },
+        create: { userId, gameId },
+        update: {},
+      }),
+    ),
+    prisma.cartItem.deleteMany({ where: { userId, gameId: { in: gameIds } } }),
+  ]);
+
+  return { orderId: order.id, status: 'PAID' as const };
+}
+
+// ---------------------------------------------------------------
 // /api/wishlist (BE 2 담당) — 로그인한 사용자만. 게스트/병합 없음.
 // ---------------------------------------------------------------
 
@@ -668,6 +755,28 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
       const body = await readJsonBody(req);
       const slugs = Array.isArray(body.slugs) ? body.slugs : [];
       return json(res, await mergeCart(user.id, slugs));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/checkout/prepare' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      return json(res, await prepareCheckout(user.id), 201);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/checkout/complete' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const body = await readJsonBody(req);
+      if (!body.orderId) throw new AuthError(400, 'orderId가 필요합니다.');
+      return json(res, await completeCheckout(user.id, body.orderId));
     } catch (err) {
       if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
       throw err;

@@ -6,8 +6,7 @@
  *   빵부스러기 → 제목 → 상품 목록(썸네일·이름·가격·제거) → 쇼핑/결제 계속하기
  *   → 우측 예상 합계 박스
  *
- * 결제는 이 프로젝트 범위 밖이라 "결제 계속하기" 버튼은 눌러도 아무 일도 안 한다
- * (다른 장식용 버튼들과 같은 패턴 - onClick={(e) => e.preventDefault()}).
+ * 결제는 포트원(PortOne) V2로 연동되어 있다. onCheckout은 page.tsx의 checkout()이다.
  */
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
@@ -21,13 +20,26 @@ export default function CartPage({
   onBack,
   onRemove,
   onOpenGame,
+  onCheckout,
+  checkoutBusy,
+  checkoutError,
+  payMethods,
+  payMethodId,
+  onSelectPayMethod,
 }: {
   cart: any[];
   onBack: () => void;
   onRemove: (slug: string) => void;
   onOpenGame: (slug: string) => void;
+  onCheckout: () => void;
+  checkoutBusy: boolean;
+  checkoutError: string | null;
+  payMethods: { id: string; label: string }[];
+  payMethodId: string;
+  onSelectPayMethod: (id: string) => void;
 }) {
   const total = cart.reduce((sum, g) => sum + (g.finalKrw ?? 0), 0);
+  const checkoutLabel = checkoutBusy ? "처리 중…" : "결제 계속하기";
 
   return (
     <div className="cartpage">
@@ -79,7 +91,14 @@ export default function CartPage({
 
               <div className="cp-actions">
                 <a className="btn-blue-outline" href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>쇼핑 계속하기</a>
-                <a className="btn-blue" href="#" onClick={(e) => e.preventDefault()}>결제 계속하기</a>
+                <a
+                  className="btn-blue"
+                  href="#"
+                  aria-disabled={checkoutBusy}
+                  onClick={(e) => { e.preventDefault(); if (!checkoutBusy) onCheckout(); }}
+                >
+                  {checkoutLabel}
+                </a>
               </div>
             </div>
 
@@ -90,7 +109,27 @@ export default function CartPage({
                   <b>{won(total)}</b>
                 </div>
                 <p className="cp-summary-note">해당되는 지역의 경우 계산 시 판매세가 부과됩니다.</p>
-                <a className="btn-blue cp-checkout" href="#" onClick={(e) => e.preventDefault()}>결제 계속하기</a>
+                <div className="cp-paymethods">
+                  {payMethods.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      className={"cp-paymethod" + (m.id === payMethodId ? " on" : "")}
+                      onClick={() => onSelectPayMethod(m.id)}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+                {checkoutError && <p className="cp-summary-note cp-checkout-error">{checkoutError}</p>}
+                <a
+                  className="btn-blue cp-checkout"
+                  href="#"
+                  aria-disabled={checkoutBusy}
+                  onClick={(e) => { e.preventDefault(); if (!checkoutBusy) onCheckout(); }}
+                >
+                  {checkoutLabel}
+                </a>
               </div>
             </aside>
           </div>
