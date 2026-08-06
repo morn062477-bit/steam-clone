@@ -390,3 +390,134 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .m-body{flex-direction:column}.m-right{flex:none;width:100%}
   .sresults{width:100%;right:auto;left:0}
 }
+/* ---------- 계정 만들기 ---------- */
+#signupView{display:none;position:relative;min-height:760px;overflow:hidden}
+#signupView.on{display:block}
+.signup-bg{
+  position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);
+  grid-auto-rows:230px;gap:10px;transform:rotate(-8deg) scale(1.3);
+}
+.signup-bg span{border-radius:4px;background:#2a3f55;background-size:cover;background-position:center}
+.signup-bg span:nth-child(3n){background-color:#3d4a63}
+.signup-bg span:nth-child(4n){background-color:#4a3b52}
+.signup-bg span:nth-child(5n){background-color:#23415a}
+.signup-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,
+    rgba(23,26,33,.10) 0%,
+    rgba(23,26,33,.55) 10%,
+    rgba(23,26,33,.96) 24%,
+    #171a21 34%);
+}
+.signup-inner{position:relative;z-index:5;padding:70px 0 90px}
+.signup-title{font-size:32px;font-weight:400;color:#fff;margin-bottom:34px}
+.signup-form{max-width:300px}
+.su-label{display:block;font-size:13px;color:var(--text);margin-bottom:6px}
+.su-input{
+  width:100%;background:#32353c;border:0;border-radius:3px;padding:9px 10px;
+  color:#fff;font-size:14px;font-family:inherit;outline:0;margin-bottom:22px;
+}
+.su-input:focus{box-shadow:0 0 0 2px var(--blue)}
+.su-select{appearance:auto;height:34px;padding:0 8px;cursor:pointer}
+
+.su-captcha{
+  display:flex;align-items:center;gap:12px;background:#2b2e35;
+  border:1px solid #3d4147;border-radius:3px;padding:14px 12px;margin-bottom:20px;
+}
+.su-box{
+  width:26px;height:26px;background:#fff;border-radius:2px;flex:0 0 auto;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.su-box::after{content:"";width:0;height:0;color:#1e8a3c;font-size:20px;line-height:1}
+.su-box.on::after{content:"✔";width:auto;height:auto}
+.su-captcha .txt{font-size:14px;color:var(--text);flex:1}
+.su-brand{text-align:center;font-size:10px;color:#7d858f;line-height:1.4}
+.su-brand b{display:block;font-size:11px;color:#9aa3ad;font-weight:400}
+.su-mark{
+  width:22px;height:22px;margin:0 auto 3px;border-radius:3px;
+  background:linear-gradient(135deg,#2596d1,#0a5f8f);
+}
+
+.su-agree{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;margin-bottom:24px;cursor:pointer}
+.su-agree input{width:15px;height:15px;margin-top:2px;flex:0 0 auto;cursor:pointer}
+.su-agree a{color:#fff}
+.su-agree a:hover{color:var(--blue)}
+.su-submit{
+  width:128px;border-radius:3px;color:#fff;font-size:15px;padding:11px;
+  background:linear-gradient(to right,#06bfff,#2d73ff);
+}
+.su-submit:hover{filter:brightness(1.15)}
+.signup-msg{margin-top:12px;font-size:13px;color:#e08b6a;min-height:18px}
+.signup-msg.ok{color:var(--green)}
+
+@media (max-width:980px){
+  .signup-veil{background:rgba(23,26,33,.9)}
+  .signup-form{max-width:100%}
+}
+
+/* ---------- 이메일 인증 모달 ---------- */
+.verify-back{
+  position:fixed;inset:0;background:rgba(6,10,15,.86);z-index:120;
+  display:none;align-items:flex-start;justify-content:center;padding:90px 12px 40px;overflow-y:auto;
+}
+.verify-back.on{display:flex}
+.verify{
+  width:720px;max-width:100%;background:#23262b;border-top:2px solid #4b9fd5;
+  box-shadow:0 14px 50px rgba(0,0,0,.7);padding:26px 30px 30px;
+}
+.verify h3{color:#fff;font-size:22px;font-weight:400;margin-bottom:20px}
+.v-panel{background:#2b2f36;padding:34px 30px 30px;text-align:center}
+.v-msg{color:#dfe5ea;font-size:15px;line-height:1.6;margin-bottom:26px}
+.v-msg b{color:#fff;font-weight:400}
+
+.v-bars{display:flex;align-items:flex-end;justify-content:center;gap:7px;height:66px;margin-bottom:22px}
+.v-bars i{width:15px;background:#66b4e4;display:block;border-radius:1px;animation:vbar 1.1s ease-in-out infinite}
+.v-bars i:nth-child(1){height:44px;animation-delay:0s}
+.v-bars i:nth-child(2){height:66px;animation-delay:.18s}
+.v-bars i:nth-child(3){height:52px;animation-delay:.36s}
+@keyframes vbar{0%,100%{transform:scaleY(.55)}50%{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){.v-bars i{animation:none}}
+
+.v-status{color:#66c0f4;font-size:22px;font-weight:400}
+.v-status.done{color:var(--green)}
+
+.v-ask{text-align:center;color:#c7d5e0;font-size:14px;margin:20px 0 12px}
+.v-toggle{
+  display:block;margin:0 auto;background:#3a3f47;color:#c7d5e0;
+  padding:7px 18px;border-radius:2px;font-size:14px;
+}
+.v-toggle:hover{background:#454b54}
+.v-help{display:none;color:#a8b3bd;font-size:13px;line-height:1.8;margin-top:20px}
+.v-help.on{display:block}
+.v-help ol{margin:10px 0 14px 20px}
+.v-help li{margin-bottom:8px}
+.v-help a{color:var(--blue)}
+.v-fake{
+  margin-top:22px;padding-top:18px;border-top:1px solid #363b42;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.v-fake p{color:#7d868f;font-size:12px;line-height:1.5;flex:1;min-width:200px}
+.v-fake button{
+  background:linear-gradient(to bottom,#799905 5%,#536904 95%);
+  color:#fff;padding:9px 20px;border-radius:2px;font-size:14px;
+}
+.v-fake button:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
+
+/* ---------- 인증 완료 화면 ---------- */
+#doneView{display:none;position:relative;min-height:640px;overflow:hidden}
+#doneView.on{display:block}
+.done-bg{
+  position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);
+  grid-auto-rows:240px;gap:10px;transform:rotate(-8deg) scale(1.3);
+}
+.done-bg span{border-radius:4px;background:#2a3f55;background-size:cover;background-position:center}
+.done-bg span:nth-child(3n){background-color:#3d4a63}
+.done-bg span:nth-child(4n){background-color:#4a3b52}
+.done-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(23,26,33,.12) 0%,rgba(23,26,33,.72) 8%,rgba(23,26,33,.97) 20%,#171a21 30%);
+}
+.done-inner{position:relative;z-index:5;padding:80px 0 120px}
+.done-inner h1{color:#e8eaed;font-size:38px;font-weight:400;margin-bottom:34px}
+.done-inner p{color:#c7d5e0;font-size:15px;margin-bottom:22px}
+.done-inner .note{color:#8f98a0;font-size:14px;margin-bottom:30px}

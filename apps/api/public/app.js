@@ -401,7 +401,11 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 $('#modalBack').addEventListener('click', (e) => { if (e.target.id === 'modalBack') closeModal(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if ($('#verifyBack').classList.contains('on')) closeVerify();
+  else closeModal();
+});
 
 // ===============================================================
 // 검색
@@ -494,37 +498,57 @@ function initCarousel(id, autoMs) {
 // ===============================================================
 // 화면 전환 (상점 <-> 로그인)
 // ===============================================================
-const VIEWS = { store: ['#hero', '#app'], login: ['#loginView'] };
+const VIEWS = { store: 1, login: 1, signup: 1, done: 1 };
+const HASH = { login: '#login', signup: '#signup', done: '#verified' };
+
+function viewFromHash() {
+  if (location.hash === '#login') return 'login';
+  if (location.hash === '#signup') return 'signup';
+  return 'store';
+}
 
 function showView(name) {
   const view = VIEWS[name] ? name : 'store';
   $('#hero').style.display = view === 'store' ? '' : 'none';
   $('#app').style.display = view === 'store' ? '' : 'none';
   $('#loginView').classList.toggle('on', view === 'login');
+  $('#signupView').classList.toggle('on', view === 'signup');
+  $('#doneView').classList.toggle('on', view === 'done');
+  if (view !== 'signup') closeVerify();
 
-  document.querySelectorAll('#mainnav a').forEach((a) => a.classList.toggle('on', a.dataset.view === 'store' && view === 'store'));
+  document.querySelectorAll('#mainnav a').forEach((a) =>
+    a.classList.toggle('on', a.dataset.view === 'store' && view === 'store'));
   $('#topLogin').style.visibility = view === 'login' ? 'hidden' : '';
 
   closeModal();
   $('#sresults').classList.remove('on');
-  if (location.hash !== (view === 'login' ? '#login' : '')) {
-    history.replaceState(null, '', view === 'login' ? '#login' : location.pathname);
-  }
+
+  const want = HASH[view] || location.pathname;
+  if (location.hash !== (HASH[view] || '')) history.replaceState(null, '', want);
+
   window.scrollTo({ top: 0 });
   if (view === 'login') $('#account').focus();
+  if (view === 'signup') $('#suEmail').focus();
 }
 
-/** 로그인 배경 타일. DB 이미지가 있으면 그것으로 채운다. */
-function fillLoginBg() {
-  const pool = HOME
-    ? [...HOME.featured, ...HOME.deals, ...HOME.cheap, ...HOME.tabs.flatMap((t) => t.games)]
-        .map((g) => g.headerImage).filter(Boolean)
-    : [];
-  const box = $('#loginBg');
-  box.innerHTML = Array.from({ length: 40 }, (_, i) =>
+/** 배경 타일에 쓸 이미지 풀. DB가 아직이면 빈 배열. */
+function tilePool() {
+  if (!HOME) return [];
+  return [...HOME.featured, ...HOME.deals, ...HOME.cheap, ...HOME.tabs.flatMap((t) => t.games)]
+    .map((g) => g.headerImage).filter(Boolean);
+}
+
+function fillTiles(sel, count) {
+  const pool = tilePool();
+  $(sel).innerHTML = Array.from({ length: count }, (_, i) =>
     `<span style="${pool.length ? bg(pool[i % pool.length]) : ''}"></span>`).join('');
 }
 
+function fillLoginBg() { fillTiles('#loginBg', 40); }
+function fillSignupBg() { fillTiles('#signupBg', 24); }
+function fillDoneBg() { fillTiles('#doneBg', 24); }
+
+// data-view 를 단 요소는 어디에 있든(렌더로 새로 생긴 것 포함) 화면을 바꾼다.
 document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-view]');
   if (!el) return;
@@ -532,6 +556,12 @@ document.addEventListener('click', (e) => {
   showView(el.dataset.view);
 });
 
+// 주소창에서 직접 #login / #signup 을 치거나 뒤로가기를 눌러도 따라간다.
+window.addEventListener('hashchange', () => showView(viewFromHash()));
+
+// ===============================================================
+// 로그인 / 가입 폼 (화면만 있는 데모. 인증 API 는 아직 없다)
+// ===============================================================
 $('#loginForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const msg = $('#loginMsg');
@@ -546,17 +576,93 @@ $('#loginForm').addEventListener('submit', (e) => {
   msg.textContent = `${id} 님, 화면만 있는 데모입니다. 로그인 API는 아직 없습니다.`;
 });
 
-window.addEventListener('hashchange', () => showView(location.hash === '#login' ? 'login' : 'store'));
+// ---------- 이메일 인증 모달 ----------
+let verifyTimer = null;
+
+function openVerify(email) {
+  $('#vEmail').textContent = email;
+  $('#vEmail2').textContent = email;
+  $('#vStatus').textContent = '인증 대기 중...';
+  $('#vStatus').className = 'v-status';
+  $('#vHelp').classList.remove('on');
+  $('#vToggle').textContent = '펼치기 ⌄';
+  $('#verifyBack').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVerify() {
+  clearTimeout(verifyTimer);
+  $('#verifyBack').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+$('#vToggle').addEventListener('click', () => {
+  const help = $('#vHelp');
+  help.classList.toggle('on');
+  $('#vToggle').textContent = help.classList.contains('on') ? '접기 ⌃' : '펼치기 ⌄';
+});
+
+$('#vChange').addEventListener('click', () => closeVerify());
+
+/** 백엔드 생기면  #vConfirm 자리에 폴링 넣으면 됨 */
+// const poll = setInterval(async () => {
+//   const r = await fetch('/api/signup/status?email=' + encodeURIComponent(email));
+//   const { verified } = await r.json();
+//   if (verified) { clearInterval(poll); /* 완료 처리 */ }
+// }, 3000);
+
+/** 데모용 인증. 실제로는 메일 링크 클릭이 이 자리를 대신한다. */
+$('#vConfirm').addEventListener('click', () => {
+  $('#vStatus').textContent = '인증 완료';
+  $('#vStatus').className = 'v-status done';
+  verifyTimer = setTimeout(() => {
+    closeVerify();
+    showView('done');
+  }, 900);
+});
+
+$('#verifyBack').addEventListener('click', (e) => {
+  if (e.target.id === 'verifyBack') closeVerify();
+});
+
+// ---------- 가입 폼 ----------
+const suCaptcha = $('#suCaptcha');
+suCaptcha.addEventListener('click', () => {
+  suCaptcha.classList.toggle('on');
+  suCaptcha.setAttribute('aria-checked', suCaptcha.classList.contains('on'));
+});
+suCaptcha.addEventListener('keydown', (e) => {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); suCaptcha.click(); }
+});
+
+$('#signupForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const msg = $('#signupMsg');
+  const a = $('#suEmail').value.trim();
+  const b = $('#suEmail2').value.trim();
+  msg.className = 'signup-msg';
+  msg.textContent = '';
+
+  if (!a || !b) { msg.textContent = '이메일 주소를 두 칸 모두 입력하세요.'; return; }
+  if (a !== b) { msg.textContent = '두 이메일 주소가 서로 다릅니다.'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a)) { msg.textContent = '이메일 형식이 올바르지 않습니다.'; return; }
+  if (!suCaptcha.classList.contains('on')) { msg.textContent = '사람인지 확인해 주세요.'; return; }
+  if (!$('#suAgree').checked) { msg.textContent = '약관에 동의해야 계속할 수 있습니다.'; return; }
+
+  openVerify(a);
+});
 
 // ===============================================================
 // 부팅
 // ===============================================================
 fillLoginBg();
-showView(location.hash === '#login' ? 'login' : 'store');
+fillSignupBg();
+fillDoneBg();
+showView(viewFromHash());
 
 fetch('/api/home')
   .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-  .then((data) => { render(data); fillLoginBg(); })
+  .then((data) => { render(data); fillLoginBg(); fillSignupBg(); fillDoneBg(); })
   .catch((err) => {
     $('#app').innerHTML = `<div class="err">DB에서 데이터를 불러오지 못했습니다.<br>${esc(err.message)}<br><br>서버 콘솔을 확인하세요.</div>`;
   });

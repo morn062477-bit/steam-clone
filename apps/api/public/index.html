@@ -118,13 +118,62 @@
       <section class="join">
         <div class="join-left">
           <h2>Steam에 처음 오셨나요?</h2>
-          <a href="#" class="btn-join">가입하기</a>
+          <a href="#signup" class="btn-join" data-view="signup">가입하기</a>
         </div>
         <p class="join-right">
           무료로 쉽게 가입할 수 있습니다. 수천 종류의 게임을 전 세계 새로운 친구들과 함께 즐겨보세요.
           <a href="#" data-view="store">상점 둘러보기</a>
         </p>
       </section>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 계정 만들기 ===== -->
+<section id="signupView">
+  <div class="signup-bg" id="signupBg"></div>
+  <div class="signup-veil"></div>
+
+  <div class="signup-inner">
+    <div class="wrap">
+      <h1 class="signup-title">계정 만들기</h1>
+
+      <form class="signup-form" id="signupForm" autocomplete="off">
+        <label class="su-label" for="suEmail">이메일 주소</label>
+        <input class="su-input" type="email" id="suEmail">
+
+        <label class="su-label" for="suEmail2">이메일 주소 확인</label>
+        <input class="su-input" type="email" id="suEmail2">
+
+        <label class="su-label" for="suCountry">거주 국가</label>
+        <select class="su-input su-select" id="suCountry">
+          <option>대한민국</option>
+          <option>미국</option>
+          <option>일본</option>
+          <option>중국</option>
+          <option>독일</option>
+          <option>영국</option>
+          <option>캐나다</option>
+        </select>
+
+        <div class="su-captcha">
+          <span class="su-box" id="suCaptcha" role="checkbox" aria-checked="false" tabindex="0"></span>
+          <span class="txt">사람입니다</span>
+          <span class="su-brand">
+            <span class="su-mark"></span>
+            <b>hCaptcha</b>
+            개인정보 보호 - 약관
+          </span>
+        </div>
+
+        <label class="su-agree">
+          <input type="checkbox" id="suAgree">
+          <span>본인은 만 13세 이상이며 <a href="#">Steam 이용 약관</a> 및 <a href="#">Valve 개인정보 처리방침</a>에 동의합니다.</span>
+        </label>
+
+        <button class="su-submit" type="submit">계속</button>
+        <div class="signup-msg" id="signupMsg"></div>
+      </form>
     </div>
   </div>
 </section>
@@ -159,6 +208,53 @@
     </div>
   </div>
 </footer>
+
+<!-- ===== 인증 완료 화면 ===== -->
+<section id="doneView">
+  <div class="done-bg" id="doneBg"></div>
+  <div class="done-veil"></div>
+  <div class="done-inner">
+    <div class="wrap">
+      <h1>이메일 인증 완료</h1>
+      <p>이전 창으로 돌아가서 이메일 주소 인증을 완료해 주시기 바랍니다.</p>
+      <p class="note">*이 창을 닫으셔도 됩니다</p>
+      <a class="btn-blue" href="#login" data-view="login">로그인하러 가기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 이메일 인증 모달 ===== -->
+<div class="verify-back" id="verifyBack">
+  <div class="verify">
+    <h3>이메일 주소 인증</h3>
+
+    <div class="v-panel">
+      <p class="v-msg">
+        Steam에서 보내드린 이메일을 <b id="vEmail"></b>에서 확인하시고 계정 설정을 완료하세요.
+      </p>
+      <div class="v-bars" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="v-status" id="vStatus">인증 대기 중...</div>
+    </div>
+
+    <p class="v-ask">이메일을 받지 못하셨나요?</p>
+    <button class="v-toggle" id="vToggle" type="button">펼치기 ⌄</button>
+
+    <div class="v-help" id="vHelp">
+      <p>이메일을 받지 못했다면, 아래의 문제 해결 절차를 따라 주세요.</p>
+      <ol>
+        <li>본인의 이메일 주소가 '<span id="vEmail2"></span>'이 맞는지, 오타가 포함되어 있지는 않은지 확인해 주세요.</li>
+        <li>'steampowered.com'에서 온 이메일이 스팸 또는 휴지통 폴더에 있는지 확인해 주세요.</li>
+        <li>잠시만 기다려 주세요. 간혹 이메일 서버가 느려져 메일 수신에 다소 시간이 걸릴 수 있습니다.</li>
+      </ol>
+      <p>이메일 주소를 변경하려면 <a href="#signup" data-view="signup" id="vChange">여기를 클릭</a>하세요.</p>
+    </div>
+
+    <div class="v-fake">
+      <p>서버가 없는 데모입니다. 실제 메일은 발송되지 않으니 아래 버튼으로 인증을 대신하세요.</p>
+      <button type="button" id="vConfirm">인증 메일 링크 클릭하기</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== 게임 상세 모달 ===== -->
 <div class="modal-back" id="modalBack">
