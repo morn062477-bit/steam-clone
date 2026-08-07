@@ -25,6 +25,15 @@ function bgStyle(url?: string | null) {
   return url ? { backgroundImage: `url('${url}')` } : undefined;
 }
 
+/** 메뉴 옆 화살표. 실제 Steam 도 14px SVG 이고 열리면 180도 돈다. */
+function Caret() {
+  return (
+    <svg className="caret" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <path d="M3.5 5.5L7 9l3.5-3.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function SresRow({ g, onPick }: { g: any; onPick: (slug: string) => void }) {
   return (
     <div className="sres-row" onClick={() => onPick(g.slug)}>
@@ -176,7 +185,7 @@ export default function StoreNav({
         {/* ---------- 검색 ---------- */}
         <div className={cls("search")}>
           <button className="item" type="button" onClick={(e) => toggle("search", e)}>
-            검색 <i className="caret" />
+            검색 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-search">
             <div className="nd-main nd-panel">
@@ -220,7 +229,7 @@ export default function StoreNav({
         {/* ---------- 추천 제품 ---------- */}
         <div className={cls("featured")}>
           <button className="item" type="button" onClick={(e) => toggle("featured", e)}>
-            추천 제품 <i className="caret" />
+            추천 제품 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-featured">
             <div className="nd-main">
@@ -270,7 +279,7 @@ export default function StoreNav({
         {/* ---------- 카테고리 ---------- */}
         <div className={cls("cats")}>
           <button className="item" type="button" onClick={(e) => toggle("cats", e)}>
-            카테고리 <i className="caret" />
+            카테고리 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-cats">
             <div className="nd-label">선호 카테고리</div>
@@ -305,7 +314,7 @@ export default function StoreNav({
         {/* ---------- 하드웨어 ---------- */}
         <div className={cls("hw")}>
           <button className="item" type="button" onClick={(e) => toggle("hw", e)}>
-            하드웨어 <i className="caret" />
+            하드웨어 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-hw">
             <div className="nd-main">
@@ -355,7 +364,7 @@ export default function StoreNav({
         {/* ---------- 플레이 모드 ---------- */}
         <div className={cls("play")}>
           <button className="item" type="button" onClick={(e) => toggle("play", e)}>
-            플레이 모드 <i className="caret" />
+            플레이 모드 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-play">
             <div className="nd-main">
@@ -399,7 +408,7 @@ export default function StoreNav({
         {/* ---------- 특별 섹션 ---------- */}
         <div className={cls("special")}>
           <button className="item" type="button" onClick={(e) => toggle("special", e)}>
-            특별 섹션 <i className="caret" />
+            특별 섹션 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-special">
             <div className="nd-main">
@@ -441,7 +450,7 @@ export default function StoreNav({
         {/* ---------- 좁은 화면에서 접히는 메뉴 ---------- */}
         <div className={cls("more")}>
           <button className="item" type="button" onClick={(e) => toggle("more", e)}>
-            더 보기 <i className="caret" />
+            더 보기 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-fold">
             <div className="nd-links">
@@ -455,7 +464,7 @@ export default function StoreNav({
 
         <div className={cls("all")}>
           <button className="item" type="button" onClick={(e) => toggle("all", e)}>
-            메뉴 <i className="caret" />
+            메뉴 <Caret />
           </button>
           <div className="navdrop"><div className="navdrop-in nd-fold">
             <div className="nd-links">

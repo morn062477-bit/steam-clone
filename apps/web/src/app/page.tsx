@@ -5,6 +5,7 @@ import StoreNav from "@/components/storenav";
 import Auth, { readUser, writeUser, type AuthView, type User } from "@/components/auth";
 import GamePage from "@/components/gamepage";
 import GameHoverCard, { type HoverInfo } from "@/components/gamehovercard";
+import SalePage from "@/components/salepage";
 import CartPage from "@/components/cartpage";
 import WishlistPage from "@/components/wishlistpage";
 
@@ -238,6 +239,34 @@ function Carousel({ slides, autoMs = 0, peek = 0, peekRight = false, arrowInset,
 // ---------------------------------------------------------------
 // 히어로
 // ---------------------------------------------------------------
+/**
+ * 상단 전면 배너(테이크오버).
+ *
+ * 실제 Steam 은 배경 이미지를 페이지 뒤에 깔고, 그 위에 1467x450 링크 영역만
+ * 얹는다(a.home_page_takeover_sizer). 여기서도 같은 구조로 두어 배너 문구가
+ * 이미지 안에 들어간 채로 보이고, 클릭 영역만 따로 관리한다.
+ */
+const TAKEOVER_BG =
+  "https://shared.fastly.steamstatic.com/store_item_assets/steam/clusters/frontpage/ae2e81fa141f42bb9e61c3c9/71904d199e17e504a8bf076e0c64e673447c34a1/page_bg_koreana.jpg?t=1785175462";
+const TAKEOVER_BG_MOBILE =
+  "https://shared.fastly.steamstatic.com/store_item_assets/steam/clusters/frontpage/ae2e81fa141f42bb9e61c3c9/7babd82c14405609c9e75ea71bdc1953c08297c3/page_bg_mobile_koreana.jpg?t=1785175462";
+
+function Takeover({ onOpen }: { onOpen: () => void }) {
+  return (
+    <div className="takeover">
+      <div className="takeover-bg" style={{ backgroundImage: `url('${TAKEOVER_BG}')` }} />
+      <div className="takeover-bg-mobile" style={{ backgroundImage: `url('${TAKEOVER_BG_MOBILE}')` }} />
+      <a
+        className="takeover-sizer"
+        href="#"
+        role="button"
+        aria-label="2026년 Steam 사이버펑크 게임 축제"
+        onClick={(e) => { e.preventDefault(); onOpen(); }}
+      />
+    </div>
+  );
+}
+
 function Hero({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   if (!g) return null;
   const shot = g.screenshots?.[0]?.url || g.headerImage;
@@ -563,7 +592,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category">("store");
+  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale">("store");
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
@@ -597,8 +626,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category"> = {
-      "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
+    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale"> = {
+      "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done", "#sale": "sale",
       "#cart": "cart", "#wishlist": "wishlist",
     };
     function applyHash() {
@@ -790,9 +819,10 @@ export default function Home() {
 
   const VIEW_HASH: Record<string, string> = {
     login: "login", signup: "signup", create: "create", done: "verified", cart: "cart", wishlist: "wishlist",
+    sale: "sale",
   };
 
-  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category", e?: React.MouseEvent) {
+  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale", e?: React.MouseEvent) {
     e?.preventDefault();
     window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
@@ -1032,7 +1062,9 @@ export default function Home() {
 
           {data && (
             <>
-              <Hero g={data.hero} onOpen={openModal} />
+              {/* 상단 히어로는 사이버펑크 전면 배너가 대신한다.
+                  Hero 컴포넌트는 카테고리 페이지에서 계속 쓰므로 남겨 둔다. */}
+              <Takeover onOpen={() => goView("sale")} />
 
               <section className="section">
                 <div className="wrap">
@@ -1216,6 +1248,15 @@ export default function Home() {
             <a className="btn-blue" href="#login" onClick={(e) => goView("login", e)}>로그인</a>
           </div></div>
         )
+      )}
+
+      {view === "sale" && (
+        <SalePage
+          data={data}
+          bg={TAKEOVER_BG}
+          onOpenGame={openModal}
+          onTag={(t) => { goView("store"); searchByTag(t); }}
+        />
       )}
 
       {view === "category" && categorySlug && (
