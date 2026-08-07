@@ -12,6 +12,7 @@
  *   GET /api/game/:slug    게임 상세 (모달용)
  *   GET /api/search?q=     이름 검색
  *   GET /api/category/:slug 카테고리(장르) 전용 페이지
+ *   GET /api/deals          할인 및 이벤트 전용 페이지 (전체 할인 게임)
  *   POST /api/login        로그인 (계정 이름 또는 이메일 + 비밀번호)
  *   POST /api/logout       로그아웃 (세션 폐기)
  *   GET  /api/cart          내 장바구니 (로그인 필요)
@@ -414,6 +415,21 @@ async function buildCategory(slug: string) {
 }
 
 // ---------------------------------------------------------------
+// /api/deals — 할인 및 이벤트 전용 페이지 (홈 화면은 12개로 잘라서 주므로 별도 조회)
+// ---------------------------------------------------------------
+
+async function buildDeals() {
+  const now = new Date();
+  const rows = await prisma.game.findMany({
+    where: { discounts: { some: activeDiscountWhere(now) }, priceKrw: { gt: 0 } },
+    orderBy: { steamReviewTotal: 'desc' },
+    select: cardArgs(now),
+  });
+  const deals = rows.map((g) => toCard(g, now)).sort((a, b) => b.discountPercent - a.discountPercent);
+  return { deals };
+}
+
+// ---------------------------------------------------------------
 // /api/cart (BE 2 담당)
 // ---------------------------------------------------------------
 
@@ -699,6 +715,10 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     const slug = decodeURIComponent(p.slice('/api/category/'.length));
     const result = await buildCategory(slug);
     return result ? json(res, result) : json(res, { error: 'not found' }, 404);
+  }
+
+  if (p === '/api/deals' && req.method === 'GET') {
+    return json(res, await buildDeals());
   }
 
   if (p === '/api/auth/signup' && req.method === 'POST') {
