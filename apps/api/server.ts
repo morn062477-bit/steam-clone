@@ -26,6 +26,7 @@
  *   POST /api/wishlist          찜 목록에 추가 { slug } (로그인 필요)
  *   POST /api/wishlist/reorder  찜 목록 순서 저장 { slugs: string[] } (로그인 필요)
  *   DELETE /api/wishlist/:slug  찜 목록에서 제거 (로그인 필요)
+ *   POST /api/library           무료 게임을 라이브러리에 담기 { slug } (로그인 필요)
  *   POST /api/review            평가 작성/수정 { slug, isRecommended, content } (보유한 게임만)
  *   POST /api/review/:id/vote   평가에 반응 { kind: HELPFUL|NOT_HELPFUL|FUNNY|AWARD } (로그인 필요)
  *                               같은 걸 다시 누르면 취소. 네/아니요는 서로 배타적.
@@ -556,7 +557,12 @@ async function buildPriceSearch(max: number) {
 
 async function buildCategory(slug: string) {
   const now = new Date();
-  const tag = await prisma.tag.findUnique({ where: { slug } });
+  // 장르(GENRE) 태그만 /api/home 으로 slug 를 내려보내고 있어서, 그 밖의 태그는
+  // 화면 쪽이 slug 를 모른다. 그래서 이름으로도 찾을 수 있게 둔다.
+  // ("멀티플레이어" 처럼 내비의 장르 목록에서 바로 넘어오는 경우)
+  const tag =
+    (await prisma.tag.findUnique({ where: { slug } })) ??
+    (await prisma.tag.findFirst({ where: { name: slug } }));
   if (!tag) return null;
 
   const rows = await prisma.game.findMany({
@@ -771,6 +777,29 @@ async function getLibrary(userId: string) {
       purchasedAt: bought?.order.createdAt ?? r.ownedAt,
     };
   });
+}
+
+/**
+ * 무료 게임을 라이브러리에 담는다.
+ * 결제 흐름(checkout)을 거치지 않으므로 유료 게임은 여기로 들어오면 안 된다.
+ * 이미 갖고 있으면 그대로 둔다(upsert).
+ */
+async function claimFreeGame(userId: string, slug: string) {
+  const game = await prisma.game.findUnique({
+    where: { slug },
+    select: { id: true, isFree: true, priceKrw: true },
+  });
+  if (!game) throw new AuthError(404, '게임을 찾을 수 없습니다.');
+  if (!game.isFree && game.priceKrw > 0) {
+    throw new AuthError(403, '무료 게임만 바로 담을 수 있습니다.');
+  }
+
+  await prisma.libraryItem.upsert({
+    where: { userId_gameId: { userId, gameId: game.id } },
+    create: { userId, gameId: game.id },
+    update: {},
+  });
+  return getLibrary(userId);
 }
 
 // ---------------------------------------------------------------
@@ -1113,6 +1142,19 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     try {
       const user = await requireUser(req);
       return json(res, await getLibrary(user.id));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  // 무료 게임을 라이브러리에 담는다. 결제를 거치지 않으므로 무료가 아니면 막는다.
+  if (p === '/api/library' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const body = await readJsonBody(req);
+      if (!body.slug) throw new AuthError(400, 'slug가 필요합니다.');
+      return json(res, await claimFreeGame(user.id, body.slug));
     } catch (err) {
       if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
       throw err;

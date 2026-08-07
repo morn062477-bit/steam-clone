@@ -136,6 +136,18 @@ export default function StoreNav({
   const banner1 = topGames[0];
   const banner2 = data?.deals?.[0] ?? topGames[1];
 
+  /**
+   * 장르/테마 이름을 눌렀을 때 그 카테고리 페이지로 보낸다.
+   *
+   * /api/home 은 GENRE 태그의 slug 만 내려준다. 그래서 그 목록에 있으면 slug 를,
+   * 없으면 이름을 그대로 넘긴다. 서버(buildCategory)가 slug 로 못 찾으면 이름으로
+   * 다시 찾아 주므로 어느 쪽이든 같은 페이지가 열린다.
+   */
+  const goCategory = (name: string) => {
+    const slug = data?.categories?.find((c: any) => c.name === name)?.slug;
+    onOpenCategory(slug ?? name);
+  };
+
   // 전체 장르 및 테마: 화면에 나온 게임들의 태그를 많이 쓰인 순으로
   const genres: string[] = (() => {
     if (!data) return [];
@@ -293,7 +305,7 @@ export default function StoreNav({
             </div>
             <div className="nd-cat-pills">
               {catPills.map((c: any) => (
-                <a key={c.slug} href="#" onClick={pick(() => onTag(c.name))}>{c.name}</a>
+                <a key={c.slug} href="#" onClick={pick(() => goCategory(c.name))}>{c.name}</a>
               ))}
               <a className="nd-allpills" href="#" onClick={(e) => e.preventDefault()}>모든 태그 보기 ›</a>
             </div>
@@ -305,7 +317,7 @@ export default function StoreNav({
             </div>
             <div className={"nd-genres" + (genresOpen ? " open" : "")}>
               {genres.map((n) => (
-                <a key={n} href="#" onClick={pick(() => onTag(n))}>{n}</a>
+                <a key={n} href="#" onClick={pick(() => goCategory(n))}>{n}</a>
               ))}
             </div>
           </div></div>

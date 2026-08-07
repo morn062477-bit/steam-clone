@@ -166,6 +166,27 @@ export default function GamePage({
   const [playtimeFilter, setPlaytimeFilter] = useState<"all" | "0-10" | "10-100" | "100+">("all");
   const [descOpen, setDescOpen] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
+  const [claimBusy, setClaimBusy] = useState(false);
+
+  /** 무료 게임을 라이브러리에 담고, 성공하면 상세를 다시 불러와 보유 상태를 반영한다 */
+  async function claimFree() {
+    setClaimBusy(true);
+    try {
+      const res = await fetch("/api/library", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setVoteError(res.status === 401 ? "로그인 후 이용할 수 있습니다." : body.error ?? "담지 못했습니다.");
+        return;
+      }
+      setG(await (await fetch("/api/game/" + encodeURIComponent(slug))).json());
+    } finally {
+      setClaimBusy(false);
+    }
+  }
 
   // 평가 작성 칸. 보유한 게임에서만 보인다.
   const [reviewText, setReviewText] = useState("");
@@ -376,6 +397,37 @@ export default function GamePage({
           </aside>
         </div>
 
+        {/* ---------- 찜/팔로우 줄 ----------
+            찜 목록에 추가는 원래 구매 박스 안에 있었는데 스팀처럼 이 줄로 옮겼다.
+            팔로우 · 제외 · 공유 · 대기열 보기는 대응하는 데이터가 없어 모양만 있다. */}
+        <div className="gp-actionbar">
+          <div className="gp-actionbar-left">
+            {!!user && onToggleWishlist && (
+              <button
+                type="button"
+                className={"gp-abtn" + (inWishlist ? " on" : "")}
+                onClick={() => onToggleWishlist(slug)}
+              >
+                {inWishlist ? "찜 목록에서 제거" : "찜 목록에 추가"}
+              </button>
+            )}
+            <button type="button" className="gp-abtn">팔로우</button>
+            <div className="gp-abtn-split">
+              <button type="button" className="gp-abtn">제외</button>
+              <button type="button" className="gp-abtn caret" aria-label="제외 옵션">▾</button>
+            </div>
+            <button type="button" className="gp-abtn icon" aria-label="공유">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M8 1.5 4.8 4.7l1 1L7.3 4.2V10h1.4V4.2l1.5 1.5 1-1L8 1.5ZM3 7v6.5h10V7h-1.4v5.1H4.4V7H3Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
+          <button type="button" className="gp-abtn">대기열 보기 &nbsp;⇨</button>
+        </div>
+
         {/* ---------- 이미 보유한 게임: 라이브러리 안내 + 평가 작성 ---------- */}
         {g.owned && (
           <div className="gp-owned">
@@ -470,33 +522,41 @@ export default function GamePage({
                 )}
               </div>
               <div className="gp-buy-foot">
-                {g.discountPercent > 0 ? (
-                  <>
-                    <span className="gp-disc">-{g.discountPercent}%</span>
-                    <span className="gp-prices">
-                      <span className="was">{won(g.priceKrw)}</span>
-                      <span className="now">{won(g.finalKrw)}</span>
-                    </span>
-                  </>
+                {/* 무료 게임은 장바구니를 거치지 않는다. 가격과 두 버튼이 검은 테두리
+                    한 덩어리(.gp-pbg) 안에 들어가고, 글자색은 버튼마다 다르다. */}
+                {g.isFree ? (
+                  <div className="gp-pbg">
+                    <div className="gp-pprice">{priceText(g)}</div>
+                    <button className="gp-pbtn green" type="button"><span>게임 플레이</span></button>
+                    {!g.owned && (
+                      <button className="gp-pbtn blue" type="button" disabled={claimBusy} onClick={claimFree}>
+                        <span>{claimBusy ? "담는 중…" : "라이브러리에 추가"}</span>
+                      </button>
+                    )}
+                  </div>
                 ) : (
-                  <span className="gp-prices"><span className="now">{priceText(g)}</span></span>
+                  <>
+                    {g.discountPercent > 0 ? (
+                      <>
+                        <span className="gp-disc">-{g.discountPercent}%</span>
+                        <span className="gp-prices">
+                          <span className="was">{won(g.priceKrw)}</span>
+                          <span className="now">{won(g.finalKrw)}</span>
+                        </span>
+                      </>
+                    ) : (
+                      <span className="gp-prices"><span className="now">{priceText(g)}</span></span>
+                    )}
+                    <button
+                      className={"gp-cart" + (inCart ? " on" : "")}
+                      type="button"
+                      onClick={() => onToggleCart(slug)}
+                    >
+                      {inCart ? "장바구니에서 제거" : "장바구니에 추가"}
+                    </button>
+                  </>
                 )}
-                <button
-                  className={"gp-cart" + (inCart ? " on" : "")}
-                  type="button"
-                  onClick={() => onToggleCart(slug)}
-                >
-                  {inCart ? "장바구니에서 제거" : "장바구니에 추가"}
-                </button>
-                {!!user && onToggleWishlist && (
-                  <button
-                    className={"gp-wish" + (inWishlist ? " on" : "")}
-                    type="button"
-                    onClick={() => onToggleWishlist(slug)}
-                  >
-                    {inWishlist ? "찜 목록에서 제거" : "찜 목록에 추가"}
-                  </button>
-                )}
+                {/* 찜 목록에 추가는 위쪽 .gp-actionbar 로 옮겼다 */}
               </div>
             </div>
 
