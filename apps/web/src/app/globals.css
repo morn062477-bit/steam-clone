@@ -558,7 +558,18 @@ button{font-family:inherit;cursor:pointer;border:0}
 .queue .q-left{padding:0 34px;z-index:2}
 .queue h4{color:#fff;font-size:24px;font-weight:600;margin-bottom:6px}
 .queue p{color:#cfd6e4;font-size:14px;margin-bottom:12px}
-.btn-blue{background:linear-gradient(to bottom,#47bfff 5%,#1a44c2 95%);color:#fff;padding:7px 20px;border-radius:2px;font-size:14px;display:inline-block}
+/* 스팀 button.DialogButton.Primary 와 같은 방식.
+   그라데이션을 가로로 깔되 배경을 330% 로 늘리고 25% 지점만 보여 준다.
+   그래서 버튼 폭과 상관없이 늘 같은 색 구간이 나온다. */
+.btn-blue{
+  background:linear-gradient(to right,#00adff 0%,#1b5ac2 60%);
+  background-position:25%;
+  background-size:330% 100%;
+  color:#fff;padding:7px 20px;border-radius:2px;font-size:14px;display:inline-block;
+  transition:background-position .2s ease;
+}
+/* 색을 새로 칠하지 않고 배경을 왼쪽으로 옮겨 밝은 하늘색 구간이 드러나게 한다 */
+.btn-blue:hover{background-position:0%}
 .queue .q-right{position:absolute;right:0;top:0;bottom:0;width:520px;display:flex;gap:10px;transform:skewX(-6deg) translateX(30px);opacity:.85}
 .queue .q-right div{flex:1;border-radius:3px}
 
