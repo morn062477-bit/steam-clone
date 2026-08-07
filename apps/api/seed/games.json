@@ -66,7 +66,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4731120/108497274/f1909951e1aa6b868b443c3be6b9e1698f3e2498/1780419413/hls_264_master.m3u8?t=1780423295",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4731120/108497274/f1909951e1aa6b868b443c3be6b9e1698f3e2498/1780419413/hls_264_master.m3u8?t=1780423295",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257335959/66cd42e3c9012a560de269266fc7d3486a9e82e6/movie_600x337.jpg?t=1780423295"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257335959/66cd42e3c9012a560de269266fc7d3486a9e82e6/movie_600x337.jpg?t=1780423295",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4731120/202aa063b04f7f92e258f8c327524576b5166656/library_capsule_2x.jpg?t=1785927747"
   },
   {
     "steamAppId": 4243220,
@@ -141,7 +142,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4243220/871129471/7c2f690450ad16967b33bcbcb0a27c4bb7f70416/1784706076/hls_264_master.m3u8?t=1784706513",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4243220/871129471/7c2f690450ad16967b33bcbcb0a27c4bb7f70416/1784706076/hls_264_master.m3u8?t=1784706513",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257382264/817afb1085391edf259c384d9e55728a25e97991/movie_600x337.jpg?t=1784706513"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257382264/817afb1085391edf259c384d9e55728a25e97991/movie_600x337.jpg?t=1784706513",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4243220/addbcbf1e1ff52e604acf1c46c3cebfb2411c0c6/library_capsule_2x.jpg?t=1785927605"
   },
   {
     "steamAppId": 3718900,
@@ -222,7 +224,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3718900/122257464/a0c565a7bd37ece2c32612ff44db894563c50287/1774000963/hls_264_master.m3u8?t=1774002218",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3718900/122257464/a0c565a7bd37ece2c32612ff44db894563c50287/1774000963/hls_264_master.m3u8?t=1774002218",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257181153/1410439602403fe8e5f1bbe3e245de73929b6433/movie_600x337.jpg?t=1774002218"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257181153/1410439602403fe8e5f1bbe3e245de73929b6433/movie_600x337.jpg?t=1774002218",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3718900/0e2b5359e3cd4e3b045e1d77c2e02addba71bb49/library_capsule_2x.jpg?t=1785924376"
   },
   {
     "steamAppId": 4940750,
@@ -305,7 +308,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4940750/23948573/09c4dcc90be2f60aa95a4dbd8e27ed86b367e0ae/1784858809/hls_264_master.m3u8?t=1784860883",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4940750/23948573/09c4dcc90be2f60aa95a4dbd8e27ed86b367e0ae/1784858809/hls_264_master.m3u8?t=1784860883",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257373293/55303f30a90adc96621d0fd5a47a8dad8faffd1a/movie_600x337.jpg?t=1784860883"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257373293/55303f30a90adc96621d0fd5a47a8dad8faffd1a/movie_600x337.jpg?t=1784860883",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4940750/4436d40920782df6c59b0cbaeb72530c6e5150d7/library_capsule_2x.jpg?t=1785919365"
   },
   {
     "steamAppId": 4962090,
@@ -378,7 +382,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4962090/312516610/3a31d38764e055b692306d799add314d5b94a6e0/1785226376/hls_264_master.m3u8?t=1785227216",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4962090/312516610/3a31d38764e055b692306d799add314d5b94a6e0/1785226376/hls_264_master.m3u8?t=1785227216",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257386618/9f6281acb483582ffa96f74fff770888cd5eec88/movie_600x337.jpg?t=1785227216"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257386618/9f6281acb483582ffa96f74fff770888cd5eec88/movie_600x337.jpg?t=1785227216",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4962090/3aa0fa93a229401e15320f14f48cacc846d46851/library_capsule_2x.jpg?t=1785918903"
   },
   {
     "steamAppId": 4777900,
@@ -468,7 +473,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4777900/780775249/489b7301b8e4bfe36fc7925a88142752f2747c01/1781253964/hls_264_master.m3u8?t=1781579477",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4777900/780775249/489b7301b8e4bfe36fc7925a88142752f2747c01/1781253964/hls_264_master.m3u8?t=1781579477",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257356708/15dd785293147478761add395b8320520583bcdf/movie_600x337.jpg?t=1781579477"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257356708/15dd785293147478761add395b8320520583bcdf/movie_600x337.jpg?t=1781579477",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4777900/5dde444b0e5357dd4493ef5adf8426c0afbc6fee/library_capsule_2x.jpg?t=1785917251"
   },
   {
     "steamAppId": 4952440,
@@ -552,7 +558,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4952440/737925229/2c8ec6942d9f1a1288b2dabff57a752795a5986e/1783854490/hls_264_master.m3u8?t=1784721852",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4952440/737925229/2c8ec6942d9f1a1288b2dabff57a752795a5986e/1783854490/hls_264_master.m3u8?t=1784721852",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257375396/411fe0eeff9de3e6ab5bdac81651f8fcead3dfbf/movie_600x337.jpg?t=1784721852"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257375396/411fe0eeff9de3e6ab5bdac81651f8fcead3dfbf/movie_600x337.jpg?t=1784721852",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4952440/91e1c2486bf77c21a205e690c5305b64877f4b57/library_capsule_2x.jpg?t=1785928614"
   },
   {
     "steamAppId": 4965770,
@@ -640,7 +647,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4965770/2004956692/6560e3e2158e17b1266cc7621eb1fb28b7ddaf3f/1785792491/hls_264_master.m3u8?t=1785792950",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4965770/2004956692/6560e3e2158e17b1266cc7621eb1fb28b7ddaf3f/1785792491/hls_264_master.m3u8?t=1785792950",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257390141/d491557365c5a8b6df0171b65c52b7822d7583ee/movie_600x337.jpg?t=1785792950"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257390141/d491557365c5a8b6df0171b65c52b7822d7583ee/movie_600x337.jpg?t=1785792950",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4965770/08fe46ce09c204159e209cf36b39b459ee790102/library_capsule_2x.jpg?t=1786019021"
   },
   {
     "steamAppId": 3855650,
@@ -722,7 +730,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3855650/603051067/8568e48e76de517ec75717778c55786d8d257d99/1785750069/hls_264_master.m3u8?t=1785751306",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3855650/603051067/8568e48e76de517ec75717778c55786d8d257d99/1785750069/hls_264_master.m3u8?t=1785751306",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257390845/7f4629f7a58c9a5645889ed093e288c8b7137bf5/movie_600x337.jpg?t=1785751306"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257390845/7f4629f7a58c9a5645889ed093e288c8b7137bf5/movie_600x337.jpg?t=1785751306",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3855650/3de29a801299cb92fb13f360e070c460f34f86af/library_capsule_2x.jpg?t=1785914484"
   },
   {
     "steamAppId": 4963500,
@@ -803,7 +812,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4963500/820614730/ae9815ce88708827e4e16c3017caeab7235718d0/1785778690/hls_264_master.m3u8?t=1785778908",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4963500/820614730/ae9815ce88708827e4e16c3017caeab7235718d0/1785778690/hls_264_master.m3u8?t=1785778908",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391137/79b3dbc559e5b2deb4df28b644cb53e1171dcf99/movie_600x337.jpg?t=1785778908"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391137/79b3dbc559e5b2deb4df28b644cb53e1171dcf99/movie_600x337.jpg?t=1785778908",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4963500/3d8ad3bc802bebaaebfd5380ba44f0479a3e5be3/library_capsule_2x.jpg?t=1785913389"
   },
   {
     "steamAppId": 3436280,
@@ -881,7 +891,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3436280/1496408575/541bdeaa552c66e3aa35a038129952d250cd1286/1784014633/hls_264_master.m3u8?t=1784014903",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3436280/1496408575/541bdeaa552c66e3aa35a038129952d250cd1286/1784014633/hls_264_master.m3u8?t=1784014903",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257189063/81ce82792da7833c0ebdbb210ff3ef555095c5bc/movie_600x337.jpg?t=1784014903"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257189063/81ce82792da7833c0ebdbb210ff3ef555095c5bc/movie_600x337.jpg?t=1784014903",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3436280/75327c240b553ac63d34e15f68fd9933b60a1e25/library_capsule_2x.jpg?t=1785981713"
   },
   {
     "steamAppId": 3507880,
@@ -961,7 +972,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3507880/194542966/44b10e89093954c5df1f4244ce026901dbfcecee/1774225607/hls_264_master.m3u8?t=1774233616",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3507880/194542966/44b10e89093954c5df1f4244ce026901dbfcecee/1774225607/hls_264_master.m3u8?t=1774233616",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257307546/918dcf57aa40e3e6ad28e35b19879f45b5efb0d4/movie_600x337.jpg?t=1774233616"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257307546/918dcf57aa40e3e6ad28e35b19879f45b5efb0d4/movie_600x337.jpg?t=1774233616",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3507880/57621857ce788e28365a8fcfd330985394c8903c/library_capsule_2x.jpg?t=1785913762"
   },
   {
     "steamAppId": 4851740,
@@ -1043,7 +1055,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4851740/1002723165/dac3d3694529891f3cae98d38738d860410303e2/1783594445/hls_264_master.m3u8?t=1783654131",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4851740/1002723165/dac3d3694529891f3cae98d38738d860410303e2/1783594445/hls_264_master.m3u8?t=1783654131",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257373553/2615b299272ad1d3ddd9552492e477825624d589/movie_600x337.jpg?t=1783654131"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257373553/2615b299272ad1d3ddd9552492e477825624d589/movie_600x337.jpg?t=1783654131",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4851740/f24c64a3665231cc9e1541f8989c1eb028afb267/library_capsule_2x.jpg?t=1785910534"
   },
   {
     "steamAppId": 4414640,
@@ -1127,7 +1140,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4414640/432926444/59edcc7e4d99a144e8af4ea64653ad3fc81096ee/1780165064/hls_264_master.m3u8?t=1780165854",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4414640/432926444/59edcc7e4d99a144e8af4ea64653ad3fc81096ee/1780165064/hls_264_master.m3u8?t=1780165854",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257310739/cbf7ee41a110a5a03de27671575bb96f62eab156/movie_600x337.jpg?t=1780165854"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257310739/cbf7ee41a110a5a03de27671575bb96f62eab156/movie_600x337.jpg?t=1780165854",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4414640/da0fe6f67a6cb9b92e891e799cfcc4d14875886c/library_capsule_2x.jpg?t=1785909996"
   },
   {
     "steamAppId": 1530370,
@@ -1211,7 +1225,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1530370/359977/c35b63f6a11de7115d9726ab159cabaded04bcdd/1750999538/hls_264_master.m3u8?t=1617929131",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1530370/359977/c35b63f6a11de7115d9726ab159cabaded04bcdd/1750999538/hls_264_master.m3u8?t=1617929131",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256829381/movie.293x165.jpg?t=1617929131"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256829381/movie.293x165.jpg?t=1617929131",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1530370/library_600x900_2x.jpg?t=1785909149"
   },
   {
     "steamAppId": 4751020,
@@ -1299,7 +1314,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4751020/378576652/0176a7a62a0c310451ddf36e244a428033bd71ec/1783079276/hls_264_master.m3u8?t=1784618761",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4751020/378576652/0176a7a62a0c310451ddf36e244a428033bd71ec/1783079276/hls_264_master.m3u8?t=1784618761",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257370332/a421eb358216e590bc2501b08e82be2f26608fa5/movie_600x337.jpg?t=1784618761"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257370332/a421eb358216e590bc2501b08e82be2f26608fa5/movie_600x337.jpg?t=1784618761",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4751020/81d36dd2dd442a3c0af9fe0e23cb4c7fe2d20522/library_capsule_koreana_2x.jpg?t=1785902863"
   },
   {
     "steamAppId": 4919120,
@@ -1379,7 +1395,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4919120/1332319604/73dc79cd0dbaf20b8976025d9198e05bf48ba9fe/1783336801/hls_264_master.m3u8?t=1784284224",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4919120/1332319604/73dc79cd0dbaf20b8976025d9198e05bf48ba9fe/1783336801/hls_264_master.m3u8?t=1784284224",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257371779/0d0ecd95e8be4258659f53c8c0cc506df7aa779a/movie_600x337.jpg?t=1784284224"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257371779/0d0ecd95e8be4258659f53c8c0cc506df7aa779a/movie_600x337.jpg?t=1784284224",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4919120/0e26a4b3fd3d7f7fa8e229679aad8a1df88d6ff5/library_capsule_2x.jpg?t=1785900052"
   },
   {
     "steamAppId": 4035530,
@@ -1452,7 +1469,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4035530/2047012902/fc38de5f4249be57f49007f56cb45d8b84931b4b/1758430277/hls_264_master.m3u8?t=1758721528",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4035530/2047012902/fc38de5f4249be57f49007f56cb45d8b84931b4b/1758430277/hls_264_master.m3u8?t=1758721528",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257203083/3038a200b77cb08d79fd335fe27f2f3e0158ddb2/movie_600x337.jpg?t=1758721528"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257203083/3038a200b77cb08d79fd335fe27f2f3e0158ddb2/movie_600x337.jpg?t=1758721528",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4035530/e075e949f5ea3aea1926917f7511a7e193eba848/library_capsule_2x.jpg?t=1785900035"
   },
   {
     "steamAppId": 2372240,
@@ -1530,7 +1548,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2372240/2066477244/3bb0f81744670eecd64e724515c7fc43c3bf8ae2/1785410969/hls_264_master.m3u8?t=1785684721",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2372240/2066477244/3bb0f81744670eecd64e724515c7fc43c3bf8ae2/1785410969/hls_264_master.m3u8?t=1785684721",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388301/d584f7e3809fdc0b4c430a371081f0b493b4553c/movie_600x337.jpg?t=1785684721"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388301/d584f7e3809fdc0b4c430a371081f0b493b4553c/movie_600x337.jpg?t=1785684721",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2372240/8171211d9be8068fc5e7dee6869c5ecf4d172d2f/library_capsule_2x.jpg?t=1785898806"
   },
   {
     "steamAppId": 5000020,
@@ -1601,7 +1620,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/5000020/556789109/0161db3f0ebef1e8b7ea8ed909ca0b431a2ca98e/1785392009/hls_264_master.m3u8?t=1785907455",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/5000020/556789109/0161db3f0ebef1e8b7ea8ed909ca0b431a2ca98e/1785392009/hls_264_master.m3u8?t=1785907455",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388177/de4bdf683d820524a1620c228a7c2ca04b84247b/movie_600x337.jpg?t=1785907455"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388177/de4bdf683d820524a1620c228a7c2ca04b84247b/movie_600x337.jpg?t=1785907455",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/5000020/37ab1d6da15d219e288b3fedc23c6f9802a937ac/library_capsule_2x.jpg?t=1785907456"
   },
   {
     "steamAppId": 4817240,
@@ -1684,7 +1704,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4817240/1342621804/f672d7c781c051f609db8c223f64bfbaccc951da/1784412104/hls_264_master.m3u8?t=1784415391",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4817240/1342621804/f672d7c781c051f609db8c223f64bfbaccc951da/1784412104/hls_264_master.m3u8?t=1784415391",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257379971/6d6d6dda770c25d28d8ef118c5af28a3d62a7b22/movie_600x337.jpg?t=1784415391"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257379971/6d6d6dda770c25d28d8ef118c5af28a3d62a7b22/movie_600x337.jpg?t=1784415391",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4817240/5ee118d3b9447b10d92af4c077edc1f97adb844d/library_capsule_2x.jpg?t=1786032842"
   },
   {
     "steamAppId": 4918900,
@@ -1765,7 +1786,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4918900/675722502/677936c2fc69bc9da286fd9c81ede5253c794297/1782998515/hls_264_master.m3u8?t=1783469925",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4918900/675722502/677936c2fc69bc9da286fd9c81ede5253c794297/1782998515/hls_264_master.m3u8?t=1783469925",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257369760/82ece6e9a2983b21c5197fca9aaaa6251b14cf2f/movie_600x337.jpg?t=1783469925"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257369760/82ece6e9a2983b21c5197fca9aaaa6251b14cf2f/movie_600x337.jpg?t=1783469925",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4918900/364d2208636f77b551889cf693d6232a8ade539a/library_capsule_2x.jpg?t=1785897977"
   },
   {
     "steamAppId": 4753530,
@@ -1850,7 +1872,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4753530/246318775/0356f5f0bb5a4ff2e2f79e43a51445a8879c9e2b/1783302930/hls_264_master.m3u8?t=1784081266",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4753530/246318775/0356f5f0bb5a4ff2e2f79e43a51445a8879c9e2b/1783302930/hls_264_master.m3u8?t=1784081266",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257364741/6437a61277041a1760ed81fe53434dc86a611042/movie_600x337.jpg?t=1784081266"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257364741/6437a61277041a1760ed81fe53434dc86a611042/movie_600x337.jpg?t=1784081266",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4753530/e116e3af2fb49092b58d17b90a48303de51ce861/library_capsule_2x.jpg?t=1785895762"
   },
   {
     "steamAppId": 4851310,
@@ -1939,7 +1962,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4851310/2120010971/3db3430cea33b8a204fa2061929f9d3e388f85f5/1784706736/hls_264_master.m3u8?t=1784708936",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4851310/2120010971/3db3430cea33b8a204fa2061929f9d3e388f85f5/1784706736/hls_264_master.m3u8?t=1784708936",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257360065/d12ffe4d0c3358d5c3722301daab62bb7c8808c8/movie_600x337.jpg?t=1784708936"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257360065/d12ffe4d0c3358d5c3722301daab62bb7c8808c8/movie_600x337.jpg?t=1784708936",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4851310/6808d5f52055f3986ef555ade8382cedf56a78dc/library_capsule_2x.jpg?t=1785895584"
   },
   {
     "steamAppId": 3659090,
@@ -2030,7 +2054,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3659090/1233976580/e9dd2badf2b98c35aba1b71939c4327153e1c0a1/1785836951/hls_264_master.m3u8?t=1785838840",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3659090/1233976580/e9dd2badf2b98c35aba1b71939c4327153e1c0a1/1785836951/hls_264_master.m3u8?t=1785838840",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257175727/d32d57708526805fd2455125e77d2e3dfa161639/movie_600x337.jpg?t=1785838840"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257175727/d32d57708526805fd2455125e77d2e3dfa161639/movie_600x337.jpg?t=1785838840",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3659090/880fbe0577902b7510d691d229dfaf6827745597/library_capsule_koreana_2x.jpg?t=1785998418"
   },
   {
     "steamAppId": 2660230,
@@ -2116,7 +2141,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2660230/1284430612/66e9c72986f4c42e2d36820b0e34bb5699feae5f/1784980311/hls_264_master.m3u8?t=1784980601",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2660230/1284430612/66e9c72986f4c42e2d36820b0e34bb5699feae5f/1784980311/hls_264_master.m3u8?t=1784980601",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257383322/e164eeb133f857116d23812daafef3a558aa76e3/movie_600x337.jpg?t=1784980601"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257383322/e164eeb133f857116d23812daafef3a558aa76e3/movie_600x337.jpg?t=1784980601",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2660230/library_600x900_2x.jpg?t=1785894948"
   },
   {
     "steamAppId": 4918760,
@@ -2192,7 +2218,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4918760/1212456850/cb08cd8babe6e5e56d2d707e1c5a5e08c39334bf/1785436800/hls_264_master.m3u8?t=1785437445",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4918760/1212456850/cb08cd8babe6e5e56d2d707e1c5a5e08c39334bf/1785436800/hls_264_master.m3u8?t=1785437445",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257379202/6abcfdb34af5e4e67abd0f3ce743f7a1f6b595a9/movie_600x337.jpg?t=1785437445"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257379202/6abcfdb34af5e4e67abd0f3ce743f7a1f6b595a9/movie_600x337.jpg?t=1785437445",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4918760/f232d53e9ae90682f5a31f719f0b6096d6b71ba4/library_capsule_2x.jpg?t=1785893396"
   },
   {
     "steamAppId": 4393720,
@@ -2274,7 +2301,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4393720/1963905985/698673d957e1ceaefae007c7299025136a932b9f/1784400104/hls_264_master.m3u8?t=1784406141",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4393720/1963905985/698673d957e1ceaefae007c7299025136a932b9f/1784400104/hls_264_master.m3u8?t=1784406141",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257379905/4ecf96e209ededa631eaeffe85d87683c7cad918/movie_600x337.jpg?t=1784406141"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257379905/4ecf96e209ededa631eaeffe85d87683c7cad918/movie_600x337.jpg?t=1784406141",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4393720/c2ecac47a14bcad9329e955b63a5b65963c9ab8c/library_capsule_2x.jpg?t=1785889779"
   },
   {
     "steamAppId": 4781430,
@@ -2364,7 +2392,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4781430/1856138165/abc8ec63bb5fa4517df81afffcf1677d52318ad5/1780722774/hls_264_master.m3u8?t=1781130095",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4781430/1856138165/abc8ec63bb5fa4517df81afffcf1677d52318ad5/1780722774/hls_264_master.m3u8?t=1781130095",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257351881/32759b58aac3deda553cbb16ddcc143d9fae361b/movie_600x337.jpg?t=1781130095"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257351881/32759b58aac3deda553cbb16ddcc143d9fae361b/movie_600x337.jpg?t=1781130095",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4781430/a926d769f9b6cfab40ec57479f34fb437dfd1efe/library_capsule_2x.jpg?t=1785888133"
   },
   {
     "steamAppId": 1817070,
@@ -2462,7 +2491,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1817070/486916/0bb5f5f3fb20f7ccdb68e5e11da3f4add90b2033/1750737967/hls_264_master.m3u8?t=1672791111",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1817070/486916/0bb5f5f3fb20f7ccdb68e5e11da3f4add90b2033/1750737967/hls_264_master.m3u8?t=1672791111",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256900407/movie.293x165.jpg?t=1672791111"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256900407/movie.293x165.jpg?t=1672791111",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1817070/library_600x900_2x.jpg?t=1763569047"
   },
   {
     "steamAppId": 1478500,
@@ -2555,7 +2585,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1478500/1636394729/58721fc07fbe0afd2b4058300551d6349e90860e/1780323106/hls_264_master.m3u8?t=1781014289",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1478500/1636394729/58721fc07fbe0afd2b4058300551d6349e90860e/1780323106/hls_264_master.m3u8?t=1781014289",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257347620/00017480c0b3ba702c4589a4527cb1c5d32de365/movie_600x337.jpg?t=1781014289"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257347620/00017480c0b3ba702c4589a4527cb1c5d32de365/movie_600x337.jpg?t=1781014289",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1478500/5ce4747b1a7c3f3431fefd16976ce4316ac3615e/library_capsule_2x.jpg?t=1785911674"
   },
   {
     "steamAppId": 2651280,
@@ -2653,7 +2684,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2651280/820778/e9b06e98d15624caa4e550f4a6e54067e1dcc995/1746999933/hls_264_master.m3u8?t=1738262051",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2651280/820778/e9b06e98d15624caa4e550f4a6e54067e1dcc995/1746999933/hls_264_master.m3u8?t=1738262051",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257093509/58694dc4f1ac70bd9bf267ba8a16f57c3ed41b77/movie_600x337.jpg?t=1738262051"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257093509/58694dc4f1ac70bd9bf267ba8a16f57c3ed41b77/movie_600x337.jpg?t=1738262051",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2651280/6fa28738ef8cde05390d3f0a9b942185b5763cbd/library_600x900_2x.jpg?t=1763569811"
   },
   {
     "steamAppId": 1091500,
@@ -2752,7 +2784,8 @@
     "dlcCount": 3,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1091500/801245/4590b15b6ed3359b36851a0c792d954be5eceb45/1750618010/hls_264_master.m3u8?t=1734434733",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1091500/801245/4590b15b6ed3359b36851a0c792d954be5eceb45/1750618010/hls_264_master.m3u8?t=1734434733",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257082804/98240e9c3532ce4571d03408091e05cd3ad90d1b/movie_600x337.jpg?t=1734434733"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257082804/98240e9c3532ce4571d03408091e05cd3ad90d1b/movie_600x337.jpg?t=1734434733",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/4ece36ca70566542dd2141443d04aa99d1b19202/library_capsule_koreana_2x.jpg?t=1784714077"
   },
   {
     "steamAppId": 1086940,
@@ -2859,7 +2892,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1086940/637951/59ca25b847b0e471638d1e2474acf71b068d57f0/1750615003/hls_264_master.m3u8?t=1702007645",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1086940/637951/59ca25b847b0e471638d1e2474acf71b068d57f0/1750615003/hls_264_master.m3u8?t=1702007645",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256987424/movie.293x165.jpg?t=1702007645"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256987424/movie.293x165.jpg?t=1702007645",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1086940/library_600x900_2x.jpg?t=1777363040"
   },
   {
     "steamAppId": 2436940,
@@ -2949,7 +2983,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2436940/1818105550/0e1b83dac55fd18ce1f873fb2dccc81fda7e3889/1783515034/hls_264_master.m3u8?t=1783515614",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2436940/1818105550/0e1b83dac55fd18ce1f873fb2dccc81fda7e3889/1783515034/hls_264_master.m3u8?t=1783515614",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257372994/239e161e5a40b7e5385fdfe271dd7cc7c31f7966/movie_600x337.jpg?t=1783515614"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257372994/239e161e5a40b7e5385fdfe271dd7cc7c31f7966/movie_600x337.jpg?t=1783515614",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2436940/39159a42dadad75a754ba2321849b74c4e2c0b55/library_capsule_2x.jpg?t=1785481238"
   },
   {
     "steamAppId": 1817190,
@@ -3046,7 +3081,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1817190/511945/f3891bebdfcbeb7ccc52ec29e4aeecf989814aab/1750738104/hls_264_master.m3u8?t=1672784139",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1817190/511945/f3891bebdfcbeb7ccc52ec29e4aeecf989814aab/1750738104/hls_264_master.m3u8?t=1672784139",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256915126/movie.293x165.jpg?t=1672784139"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256915126/movie.293x165.jpg?t=1672784139",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1817190/library_600x900.jpg?t=1763569499"
   },
   {
     "steamAppId": 1368140,
@@ -3138,7 +3174,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1368140/345750284/ff95297f7c598352bc4a405a93057f00e9400db6/1785143304/hls_264_master.m3u8?t=1785510074",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1368140/345750284/ff95297f7c598352bc4a405a93057f00e9400db6/1785143304/hls_264_master.m3u8?t=1785510074",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257385708/7700e091b78165abf89c1e8dd6e1296a3a46fbcc/movie_600x337.jpg?t=1785510074"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257385708/7700e091b78165abf89c1e8dd6e1296a3a46fbcc/movie_600x337.jpg?t=1785510074",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1368140/f64ad8744718b3a51ab2509cc7dc3c61c71e8279/library_capsule_koreana_2x.jpg?t=1785860713"
   },
   {
     "steamAppId": 4108000,
@@ -3221,7 +3258,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4108000/81551079/ae9d6b148d4e75c0e61c5508e99e676852991401/1785412649/hls_264_master.m3u8?t=1785413491",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4108000/81551079/ae9d6b148d4e75c0e61c5508e99e676852991401/1785412649/hls_264_master.m3u8?t=1785413491",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388358/a0fa1d0aac1b8920b2ae74de176bc7ae5ba01eb5/movie_600x337.jpg?t=1785413491"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388358/a0fa1d0aac1b8920b2ae74de176bc7ae5ba01eb5/movie_600x337.jpg?t=1785413491",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4108000/d7697088fbd22ff29e38383923dc7c7053b23fd9/library_capsule_2x.jpg?t=1785909320"
   },
   {
     "steamAppId": 3447070,
@@ -3301,7 +3339,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3447070/1262139543/66035dead38fa97720cabd3105556ab7c014f616/1785911982/hls_264_master.m3u8?t=1785932104",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3447070/1262139543/66035dead38fa97720cabd3105556ab7c014f616/1785911982/hls_264_master.m3u8?t=1785932104",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257392067/06c2c218ea8a871fed19ce2e869410a204e79675/movie_600x337.jpg?t=1785932104"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257392067/06c2c218ea8a871fed19ce2e869410a204e79675/movie_600x337.jpg?t=1785932104",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3447070/d4017a99e97da0e3a531c14c11a076de4053fa89/library_capsule_2x.jpg?t=1785932106"
   },
   {
     "steamAppId": 4943390,
@@ -3375,7 +3414,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4943390/921030331/cbffe2278fc807d46ae575d844dad922ef1b6ed7/1783733108/hls_264_master.m3u8?t=1784098006",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4943390/921030331/cbffe2278fc807d46ae575d844dad922ef1b6ed7/1783733108/hls_264_master.m3u8?t=1784098006",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257374830/59f3475607ffe25ca005eeea61403e9f2e173a7b/movie_600x337.jpg?t=1784098006"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257374830/59f3475607ffe25ca005eeea61403e9f2e173a7b/movie_600x337.jpg?t=1784098006",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4943390/f70c72fa797995d51330ec9d4eff3592517d862b/library_capsule_2x.jpg?t=1785940014"
   },
   {
     "steamAppId": 4958780,
@@ -3452,7 +3492,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4958780/1808741926/b60842dc13264025635403c83ed695ad4dfb6abe/1784940680/hls_264_master.m3u8?t=1784942502",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4958780/1808741926/b60842dc13264025635403c83ed695ad4dfb6abe/1784940680/hls_264_master.m3u8?t=1784942502",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257380026/9ced2fa21539a47fba82281b6304f2b4b29a504e/movie_600x337.jpg?t=1784942502"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257380026/9ced2fa21539a47fba82281b6304f2b4b29a504e/movie_600x337.jpg?t=1784942502",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4958780/456b7214822f19082786a5188b7bc71848ecbd58/library_capsule_koreana_2x.jpg?t=1785931207"
   },
   {
     "steamAppId": 3724710,
@@ -3535,7 +3576,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3724710/425493290/672b53407d13776e928e94d42d320a1ed8d6cd0a/1781171522/hls_264_master.m3u8?t=1781576628",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3724710/425493290/672b53407d13776e928e94d42d320a1ed8d6cd0a/1781171522/hls_264_master.m3u8?t=1781576628",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257144852/a68271fa81491561b46cf47c338a645de35f054a/movie_600x337.jpg?t=1781576628"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257144852/a68271fa81491561b46cf47c338a645de35f054a/movie_600x337.jpg?t=1781576628",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3724710/36fd7b4b2684d74ee1e9fdb9905666ce331eabb2/library_capsule_2x.jpg?t=1785940248"
   },
   {
     "steamAppId": 3962040,
@@ -3623,7 +3665,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3962040/756394196/50ba0bc238d59234b7dc5ce3b16243c208c2b579/1785698078/hls_264_master.m3u8?t=1785701030",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3962040/756394196/50ba0bc238d59234b7dc5ce3b16243c208c2b579/1785698078/hls_264_master.m3u8?t=1785701030",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257390581/e9c179d4acf527e125318c75c640ca2a4b698c01/movie_600x337.jpg?t=1785701030"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257390581/e9c179d4acf527e125318c75c640ca2a4b698c01/movie_600x337.jpg?t=1785701030",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3962040/1cadd0334e670541b63fd136f0074e258d4327bd/library_capsule_2x.jpg?t=1785939102"
   },
   {
     "steamAppId": 3732530,
@@ -3702,7 +3745,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3732530/1517412788/42b2f8b7519357773a2e599c71eb4880c9153e1c/1785404009/hls_264_master.m3u8?t=1785404408",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3732530/1517412788/42b2f8b7519357773a2e599c71eb4880c9153e1c/1785404009/hls_264_master.m3u8?t=1785404408",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388268/06c070bb6e18f45cd19319c6670b2c708e5ecb0d/movie_600x337.jpg?t=1785404408"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388268/06c070bb6e18f45cd19319c6670b2c708e5ecb0d/movie_600x337.jpg?t=1785404408",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3732530/1ff889ccbe3de44d3fb9afd3cda3edeb296b293f/library_capsule_2x.jpg?t=1785934164"
   },
   {
     "steamAppId": 3375490,
@@ -3787,7 +3831,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3375490/428655718/de694a2643a4d91289cac06928c3be1dc3871432/1785938983/hls_264_master.m3u8?t=1785939215",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3375490/428655718/de694a2643a4d91289cac06928c3be1dc3871432/1785938983/hls_264_master.m3u8?t=1785939215",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257392349/a1fa522b9ec6bf1c1c640d2eec31e3ea88a5d431/movie_600x337.jpg?t=1785939215"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257392349/a1fa522b9ec6bf1c1c640d2eec31e3ea88a5d431/movie_600x337.jpg?t=1785939215",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3375490/4b87ddcb5dc2e560e28913b176ee8b3c29312fa7/library_capsule_2x.jpg?t=1785939216"
   },
   {
     "steamAppId": 3417940,
@@ -3876,7 +3921,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3417940/332078628/b4c53649f94407b9853ae33f6b42b86928b76c8a/1784394254/hls_264_master.m3u8?t=1784398929",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3417940/332078628/b4c53649f94407b9853ae33f6b42b86928b76c8a/1784394254/hls_264_master.m3u8?t=1784398929",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257334765/3c4c20925241c4487288c58bbc76e2c5c89c6412/movie_600x337.jpg?t=1784398929"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257334765/3c4c20925241c4487288c58bbc76e2c5c89c6412/movie_600x337.jpg?t=1784398929",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3417940/ee2134f6cfc6905e5fb059df6a2ae7fb76093c0c/library_capsule_2x.jpg?t=1785934980"
   },
   {
     "steamAppId": 4413480,
@@ -3950,7 +3996,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4413480/918880673/5b796c54d3b0db928c556c68acda5f8dfcfaf080/1777014587/hls_264_master.m3u8?t=1777367090",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4413480/918880673/5b796c54d3b0db928c556c68acda5f8dfcfaf080/1777014587/hls_264_master.m3u8?t=1777367090",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257325526/96e04d764781b5585e2b2cc846dbb340adbb10d0/movie_600x337.jpg?t=1777367090"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257325526/96e04d764781b5585e2b2cc846dbb340adbb10d0/movie_600x337.jpg?t=1777367090",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4413480/a226447963e791ffbc86d4377447c18f00c0188c/library_capsule_2x.jpg?t=1785946543"
   },
   {
     "steamAppId": 4604170,
@@ -4043,7 +4090,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4604170/1198290467/f5471b50ee7a6b7cf37e969d58ff6b12de029466/1785783310/hls_264_master.m3u8?t=1785783669",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4604170/1198290467/f5471b50ee7a6b7cf37e969d58ff6b12de029466/1785783310/hls_264_master.m3u8?t=1785783669",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391197/1dfa777496f025c11401f1c56d22710ef72eabd0/movie_600x337.jpg?t=1785783669"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391197/1dfa777496f025c11401f1c56d22710ef72eabd0/movie_600x337.jpg?t=1785783669",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4604170/7c246b3d3b79fa14676d6772e9d439abb6797ef4/library_capsule_2x.jpg?t=1785932602"
   },
   {
     "steamAppId": 247970,
@@ -4147,7 +4195,8 @@
     "dlcCount": 4,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/247970/790361486/df8220d8e47464bff2f967ce17706a78c6c6c306/1785861401/hls_264_master.m3u8?t=1785863267",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/247970/790361486/df8220d8e47464bff2f967ce17706a78c6c6c306/1785861401/hls_264_master.m3u8?t=1785863267",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391726/01d19c36eda87949a0360be69d141073974a8256/movie_600x337.jpg?t=1785863267"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391726/01d19c36eda87949a0360be69d141073974a8256/movie_600x337.jpg?t=1785863267",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/247970/7b507812eebffc51c1d4a98dbcd4eff17b2dc876/library_capsule_2x.jpg?t=1786004002"
   },
   {
     "steamAppId": 4403260,
@@ -4223,7 +4272,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4403260/1917878685/5b813cf4a57b965ccb71b066cda517ef76d837d3/1772541604/hls_264_master.m3u8?t=1772541921",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4403260/1917878685/5b813cf4a57b965ccb71b066cda517ef76d837d3/1772541604/hls_264_master.m3u8?t=1772541921",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257294349/d826f6e9abee1cb9b118345070836d2048c89e98/movie_600x337.jpg?t=1772541921"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257294349/d826f6e9abee1cb9b118345070836d2048c89e98/movie_600x337.jpg?t=1772541921",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4403260/511b9783ea8a821551370bc06ff8feb23c1cfbf0/library_capsule_koreana_2x.jpg?t=1785775551"
   },
   {
     "steamAppId": 3156330,
@@ -4304,7 +4354,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3156330/657259463/83c9411f1acabcc8fe5f3b1567e0cb76d71b1011/1785767110/hls_264_master.m3u8?t=1785768946",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3156330/657259463/83c9411f1acabcc8fe5f3b1567e0cb76d71b1011/1785767110/hls_264_master.m3u8?t=1785768946",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391022/b2a61dac15cd5cc32f02fef5874ecf80f83f0654/movie_600x337.jpg?t=1785768946"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257391022/b2a61dac15cd5cc32f02fef5874ecf80f83f0654/movie_600x337.jpg?t=1785768946",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3156330/c00567123aa378db339ed5388f41eefa42e8df33/library_capsule_koreana_2x.jpg?t=1785949322"
   },
   {
     "steamAppId": 4423700,
@@ -4382,7 +4433,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4423700/1138531072/00c26415862a20b79b94516a74c37dfd4f31eb1c/1785461640/hls_264_master.m3u8?t=1785461976",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/4423700/1138531072/00c26415862a20b79b94516a74c37dfd4f31eb1c/1785461640/hls_264_master.m3u8?t=1785461976",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388826/10cfc8ea082a93d4dc8dd7a1e471f5b37cb935f7/movie_600x337.jpg?t=1785461976"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388826/10cfc8ea082a93d4dc8dd7a1e471f5b37cb935f7/movie_600x337.jpg?t=1785461976",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4423700/1153b35b3ff651d9f1de590eeaba1ec961871b0f/library_capsule_2x.jpg?t=1785553205"
   },
   {
     "steamAppId": 2059170,
@@ -4465,7 +4517,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2059170/1496274446/74808435b92411f7babb037858299fb3a4f46912/1785455460/hls_264_master.m3u8?t=1785513811",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2059170/1496274446/74808435b92411f7babb037858299fb3a4f46912/1785455460/hls_264_master.m3u8?t=1785513811",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388794/a32b357baa082b0c0403b966d927f4bcb3c80774/movie_600x337.jpg?t=1785513811"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257388794/a32b357baa082b0c0403b966d927f4bcb3c80774/movie_600x337.jpg?t=1785513811",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2059170/497600e16ef4afa2f3ef4a03015c85ad923832df/library_capsule_2x.jpg?t=1785584712"
   },
   {
     "steamAppId": 3293260,
@@ -4550,7 +4603,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3293260/1792619032/41bb6568160015569ae1f717ee595f709bf45064/1784935220/hls_264_master.m3u8?t=1784935694",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/3293260/1792619032/41bb6568160015569ae1f717ee595f709bf45064/1784935220/hls_264_master.m3u8?t=1784935694",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257147418/cc39e61581103538dbf95abc5d429d9b8451b14d/movie_600x337.jpg?t=1784935694"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257147418/cc39e61581103538dbf95abc5d429d9b8451b14d/movie_600x337.jpg?t=1784935694",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3293260/76eb0ef178eedcaa50fc82df90eb09e30a647fc7/library_capsule_2x.jpg?t=1785859866"
   },
   {
     "steamAppId": 730,
@@ -4647,7 +4701,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/730/612468/aa5a28c78f12232e6b6839034550c28b162fad3e/1748810724/hls_264_master.m3u8?t=1696005467",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/730/612468/aa5a28c78f12232e6b6839034550c28b162fad3e/1748810724/hls_264_master.m3u8?t=1696005467",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256972298/movie.293x165.jpg?t=1696005467"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256972298/movie.293x165.jpg?t=1696005467",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/library_600x900_2x.jpg?t=1784564069"
   },
   {
     "steamAppId": 570,
@@ -4738,7 +4793,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/570/116737/313addee2092d0bd6f538d164610061ea8bbe79c/1749859757/hls_264_master.m3u8?t=1762820639",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/570/116737/313addee2092d0bd6f538d164610061ea8bbe79c/1749859757/hls_264_master.m3u8?t=1762820639",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256692021/movie.293x165.jpg?t=1762820639"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256692021/movie.293x165.jpg?t=1762820639",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/570/6843027380c3bfd0952449fd9174f492ef2e7b40/library_capsule_2x.jpg?t=1769535998"
   },
   {
     "steamAppId": 440,
@@ -4835,7 +4891,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/440/129304/a9d97ffaf28cac468369400c12abe442a7b688b2/1749861261/hls_264_master.m3u8?t=1682961253",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/440/129304/a9d97ffaf28cac468369400c12abe442a7b688b2/1749861261/hls_264_master.m3u8?t=1682961253",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256698790/movie.293x165.jpg?t=1682961253"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256698790/movie.293x165.jpg?t=1682961253",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/440/library_600x900_2x.jpg?t=1757348372"
   },
   {
     "steamAppId": 578080,
@@ -4924,7 +4981,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/578080/959742883/2bd1c3b49603676e9c92a2b0436b86c6fa159454/1778563032/hls_264_master.m3u8?t=1778634252",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/578080/959742883/2bd1c3b49603676e9c92a2b0436b86c6fa159454/1778563032/hls_264_master.m3u8?t=1778634252",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257335134/63a26faa9a398608e62c74f8b8c80175ec4ea374/movie_600x337.jpg?t=1778634252"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257335134/63a26faa9a398608e62c74f8b8c80175ec4ea374/movie_600x337.jpg?t=1778634252",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/578080/36a1a274b3a7870e475ea1e110e58db8a0803c41/library_600x900_2x.jpg?t=1786063212"
   },
   {
     "steamAppId": 1172470,
@@ -5015,7 +5073,8 @@
     "dlcCount": 0,
     "previewVideoUrl": null,
     "detailVideoUrl": null,
-    "trailerThumb": null
+    "trailerThumb": null,
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1172470/f86ccfa6119d81a3072ab57886dd1843c0306f7a/library_capsule_2x.jpg?t=1786031871"
   },
   {
     "steamAppId": 271590,
@@ -5102,7 +5161,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/271590/844302/de4ad49997171bd3f4d05299cc3e718cfe0307ee/1751269402/hls_264_master.m3u8?t=1741119978",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/271590/844302/de4ad49997171bd3f4d05299cc3e718cfe0307ee/1751269402/hls_264_master.m3u8?t=1741119978",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257109786/974f93db1b97f206de6f21d585524d598cdbe137/movie_600x337.jpg?t=1741119978"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257109786/974f93db1b97f206de6f21d585524d598cdbe137/movie_600x337.jpg?t=1741119978",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg?t=1765387725"
   },
   {
     "steamAppId": 1085660,
@@ -5207,7 +5267,8 @@
     "dlcCount": 12,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1085660/1441433516/2edcb987973c0f13d9f309fc48b60857dd30da2a/1781044170/hls_264_master.m3u8?t=1781045578",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1085660/1441433516/2edcb987973c0f13d9f309fc48b60857dd30da2a/1781044170/hls_264_master.m3u8?t=1781045578",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257354720/67f3add5bf331cc2b95c7b8d72eb37ee329aca05/movie_600x337.jpg?t=1781045578"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257354720/67f3add5bf331cc2b95c7b8d72eb37ee329aca05/movie_600x337.jpg?t=1781045578",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1085660/bbee36041b1838a5356d55f514abfe7526ddf7bf/library_capsule_koreana_2x.jpg?t=1781815889"
   },
   {
     "steamAppId": 292030,
@@ -5318,7 +5379,8 @@
     "dlcCount": 22,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/292030/533363/f3f32404cd2382da7d05b8b64d3e6e261afca6d3/1750502468/hls_264_master.m3u8?t=1674829926",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/292030/533363/f3f32404cd2382da7d05b8b64d3e6e261afca6d3/1750502468/hls_264_master.m3u8?t=1674829926",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256927226/movie.293x165.jpg?t=1674829926"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256927226/movie.293x165.jpg?t=1674829926",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/292030/fe26986a2bd1601004ef0e4e1dfadd02948e3897/library_600x900_2x.jpg?t=1768303991"
   },
   {
     "steamAppId": 1174180,
@@ -5401,7 +5463,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1174180/254610/5fa4feff593bce4b7551cf06b1d08f3c9f4762c6/1750634169/hls_264_master.m3u8?t=1574881436",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1174180/254610/5fa4feff593bce4b7551cf06b1d08f3c9f4762c6/1750634169/hls_264_master.m3u8?t=1574881436",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256768279/movie.293x165.jpg?t=1574881436"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256768279/movie.293x165.jpg?t=1574881436",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg?t=1759502961"
   },
   {
     "steamAppId": 1245620,
@@ -5497,7 +5560,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1245620/468149/7d588828f80907ca97efdcb1e6ef72b4ce2b1d0d/1750650511/hls_264_master.m3u8?t=1654109241",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1245620/468149/7d588828f80907ca97efdcb1e6ef72b4ce2b1d0d/1750650511/hls_264_master.m3u8?t=1654109241",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256889456/movie.293x165.jpg?t=1654109241"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256889456/movie.293x165.jpg?t=1654109241",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg?t=1784684281"
   },
   {
     "steamAppId": 632360,
@@ -5601,7 +5665,8 @@
     "dlcCount": 7,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/632360/83804956/1baf9dbc3089c707258f7084315f4467e7fb3040/1750564385/hls_264_master.m3u8?t=1751308034",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/632360/83804956/1baf9dbc3089c707258f7084315f4467e7fb3040/1750564385/hls_264_master.m3u8?t=1751308034",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257150713/e1151f94452c3bf926dda777a08fc01524b75612/movie_600x337.jpg?t=1751308034"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257150713/e1151f94452c3bf926dda777a08fc01524b75612/movie_600x337.jpg?t=1751308034",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/632360/library_600x900_2x.jpg?t=1783621122"
   },
   {
     "steamAppId": 105600,
@@ -5696,7 +5761,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/105600/1114648825/03d62ed8c2a353ea17f36caf492d053746655032/1769541214/hls_264_master.m3u8?t=1769844434",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/105600/1114648825/03d62ed8c2a353ea17f36caf492d053746655032/1769541214/hls_264_master.m3u8?t=1769844434",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257274214/3400c546ddc61c713c2a2da4df7032f0f264a2a4/movie_600x337.jpg?t=1769844434"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257274214/3400c546ddc61c713c2a2da4df7032f0f264a2a4/movie_600x337.jpg?t=1769844434",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/105600/library_600x900_2x.jpg?t=1769844435"
   },
   {
     "steamAppId": 413150,
@@ -5790,7 +5856,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/413150/336433/0058de516bf7c46986ba1e81172ffd3c2ca6cad7/1750527541/hls_264_master.m3u8?t=1754692862",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/413150/336433/0058de516bf7c46986ba1e81172ffd3c2ca6cad7/1750527541/hls_264_master.m3u8?t=1754692862",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256815967/movie.293x165.jpg?t=1754692862"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256815967/movie.293x165.jpg?t=1754692862",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/413150/library_600x900_2x.jpg?t=1754692865"
   },
   {
     "steamAppId": 322170,
@@ -5871,7 +5938,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/322170/29035/284ed61dccab2abafb237feefd9c67217532899a/1750507867/hls_264_master.m3u8?t=1447366408",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/322170/29035/284ed61dccab2abafb237feefd9c67217532899a/1750507867/hls_264_master.m3u8?t=1447366408",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2036304/movie.293x165.jpg?t=1447366408"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2036304/movie.293x165.jpg?t=1447366408",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/322170/library_600x900_2x.jpg?t=1775300400"
   },
   {
     "steamAppId": 646570,
@@ -5967,7 +6035,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/646570/205320/640196deb3169b2a1667340ab45f229af73caba7/1750566635/hls_264_master.m3u8?t=1548258737",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/646570/205320/640196deb3169b2a1667340ab45f229af73caba7/1750566635/hls_264_master.m3u8?t=1548258737",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256740869/movie.293x165.jpg?t=1548258737"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256740869/movie.293x165.jpg?t=1548258737",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/646570/library_600x900_2x.jpg?t=1774015376"
   },
   {
     "steamAppId": 588650,
@@ -6063,7 +6132,8 @@
     "dlcCount": 8,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/588650/231061/8fe407db503493211097e9898f58ae600559a2a3/1750557235/hls_264_master.m3u8?t=1581426951",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/588650/231061/8fe407db503493211097e9898f58ae600559a2a3/1750557235/hls_264_master.m3u8?t=1581426951",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256755089/movie.293x165.jpg?t=1581426951"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256755089/movie.293x165.jpg?t=1581426951",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/588650/library_600x900_2x.jpg?t=1779086887"
   },
   {
     "steamAppId": 367520,
@@ -6152,7 +6222,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/367520/89922/b71b6a50e9aa2334fddca8fa2197cb26a3640832/1750517691/hls_264_master.m3u8?t=1497589417",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/367520/89922/b71b6a50e9aa2334fddca8fa2197cb26a3640832/1750517691/hls_264_master.m3u8?t=1497589417",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256679401/movie.293x165.jpg?t=1497589417"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256679401/movie.293x165.jpg?t=1497589417",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/367520/1eebc7e077ee345f126df35cd99c124273c4e4e3/library_capsule_2x.jpg?t=1776125684"
   },
   {
     "steamAppId": 268910,
@@ -6246,7 +6317,8 @@
     "dlcCount": 3,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/268910/476013/2be829e20a796ed2e0e707fb1c747e1d15f6fb25/1750499396/hls_264_master.m3u8?t=1656595223",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/268910/476013/2be829e20a796ed2e0e707fb1c747e1d15f6fb25/1750499396/hls_264_master.m3u8?t=1656595223",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256894191/movie.293x165.jpg?t=1656595223"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256894191/movie.293x165.jpg?t=1656595223",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/268910/library_600x900_2x.jpg?t=1709068852"
   },
   {
     "steamAppId": 391540,
@@ -6329,7 +6401,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/391540/41087/3b1b45530651299a05801d7b2bdb0cae8f077bb0/1750524170/hls_264_master.m3u8?t=1447377566",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/391540/41087/3b1b45530651299a05801d7b2bdb0cae8f077bb0/1750524170/hls_264_master.m3u8?t=1447377566",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256655616/movie.293x165.jpg?t=1447377566"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256655616/movie.293x165.jpg?t=1447377566",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/391540/library_600x900_2x.jpg?t=1757349115"
   },
   {
     "steamAppId": 504230,
@@ -6421,7 +6494,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/504230/143846/608cb7d60c10278f3107baf57a528e483a7cbc7b/1750539057/hls_264_master.m3u8?t=1516898311",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/504230/143846/608cb7d60c10278f3107baf57a528e483a7cbc7b/1750539057/hls_264_master.m3u8?t=1516898311",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256706951/movie.293x165.jpg?t=1516898311"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256706951/movie.293x165.jpg?t=1516898311",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/504230/library_600x900_2x.jpg?t=1714089525"
   },
   {
     "steamAppId": 620,
@@ -6531,7 +6605,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/620/3746/0f4bee66d490b637707ac4fca3e850f2cc2d3b2a/1750108721/hls_264_master.m3u8?t=1682715616",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/620/3746/0f4bee66d490b637707ac4fca3e850f2cc2d3b2a/1750108721/hls_264_master.m3u8?t=1682715616",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/5787/movie.293x165.jpg?t=1682715616"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/5787/movie.293x165.jpg?t=1682715616",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/library_600x900_2x.jpg?t=1745363004"
   },
   {
     "steamAppId": 400,
@@ -6627,7 +6702,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/400/336/858d7ae015068388644e14742bd90801fbb8a805/1750108766/hls_264_master.m3u8?t=1682715059",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/400/336/858d7ae015068388644e14742bd90801fbb8a805/1750108766/hls_264_master.m3u8?t=1682715059",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/922/movie.jpg?t=1682715059"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/922/movie.jpg?t=1682715059",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/400/library_600x900_2x.jpg?t=1745368554"
   },
   {
     "steamAppId": 220,
@@ -6728,7 +6804,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/220/786885/faaab313be3601c35e8790f0eb2f6b32e5eda63b/1749861546/hls_264_master.m3u8?t=1732069594",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/220/786885/faaab313be3601c35e8790f0eb2f6b32e5eda63b/1749861546/hls_264_master.m3u8?t=1732069594",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257074217/2a5d40f3f7cd4a644849a7dae7ee9f9d7fb2074d/movie_600x337.jpg?t=1732069594"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257074217/2a5d40f3f7cd4a644849a7dae7ee9f9d7fb2074d/movie_600x337.jpg?t=1732069594",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/220/ac2f074d790656a06ef8305bd54a6f64e9a70082/library_600x900_2x.jpg?t=1745368545"
   },
   {
     "steamAppId": 1145360,
@@ -6814,7 +6891,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1145360/312686/b0312c49135823cc34946e98148abfb8da71f0fb/1750627549/hls_264_master.m3u8?t=1600353465",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1145360/312686/b0312c49135823cc34946e98148abfb8da71f0fb/1750627549/hls_264_master.m3u8?t=1600353465",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256801252/movie.293x165.jpg?t=1600353465"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256801252/movie.293x165.jpg?t=1600353465",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145360/library_600x900_2x.jpg?t=1758127023"
   },
   {
     "steamAppId": 1794680,
@@ -6912,7 +6990,8 @@
     "dlcCount": 9,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1794680/598026/b3a9771de005c30237b53d84932fd2e792f298c0/1750736849/hls_264_master.m3u8?t=1692280956",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1794680/598026/b3a9771de005c30237b53d84932fd2e792f298c0/1750736849/hls_264_master.m3u8?t=1692280956",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256964120/movie.293x165.jpg?t=1692280956"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256964120/movie.293x165.jpg?t=1692280956",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1794680/96947acc36ca29e24084ffb5858062d478c2ce6b/library_capsule_2x.jpg?t=1781096909"
   },
   {
     "steamAppId": 1966720,
@@ -6998,7 +7077,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1966720/593018/d94ebe61f51f602028df99031bafd2ae075b1132/1750743020/hls_264_master.m3u8?t=1690909590",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1966720/593018/d94ebe61f51f602028df99031bafd2ae075b1132/1750743020/hls_264_master.m3u8?t=1690909590",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256961309/movie.293x165.jpg?t=1690909590"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256961309/movie.293x165.jpg?t=1690909590",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/library_600x900_2x.jpg?t=1775380053"
   },
   {
     "steamAppId": 2050650,
@@ -7109,7 +7189,8 @@
     "dlcCount": 27,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2050650/657554/97d0b4657db81563e2410a5302dc59344bb89174/1750745233/hls_264_master.m3u8?t=1707455733",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/2050650/657554/97d0b4657db81563e2410a5302dc59344bb89174/1750745233/hls_264_master.m3u8?t=1707455733",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256998133/movie.293x165.jpg?t=1707455733"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256998133/movie.293x165.jpg?t=1707455733",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2050650/library_600x900_2x.jpg?t=1772502922"
   },
   {
     "steamAppId": 1237970,
@@ -7196,7 +7277,8 @@
     "dlcCount": 5,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1237970/292237/0984f8bd2d62e190c763cef85a909e030afd1b88/1750647686/hls_264_master.m3u8?t=1592506505",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1237970/292237/0984f8bd2d62e190c763cef85a909e030afd1b88/1750647686/hls_264_master.m3u8?t=1592506505",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256789141/movie.293x165.jpg?t=1592506505"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256789141/movie.293x165.jpg?t=1592506505",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1237970/library_600x900_2x.jpg?t=1779987598"
   },
   {
     "steamAppId": 553850,
@@ -7295,7 +7377,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/553850/1282619189/bcb2ef87a4fc81c55e55bd5b088159331a6b5de6/1770740902/hls_264_master.m3u8?t=1770747639",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/553850/1282619189/bcb2ef87a4fc81c55e55bd5b088159331a6b5de6/1770740902/hls_264_master.m3u8?t=1770747639",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257283767/74530448c79959adc9a08e6e2107de2d79591230/movie_600x337.jpg?t=1770747639"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257283767/74530448c79959adc9a08e6e2107de2d79591230/movie_600x337.jpg?t=1770747639",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/553850/6fb2e3f9b31f90069e918abfc8c885348d417590/library_capsule_koreana_2x.jpg?t=1779899567"
   },
   {
     "steamAppId": 236390,
@@ -7434,7 +7517,8 @@
     "dlcCount": 35,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/236390/1521636058/72682bff0f1315da3a0f5bc680f452cf613bd23d/1782232582/hls_264_master.m3u8?t=1782291221",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/236390/1521636058/72682bff0f1315da3a0f5bc680f452cf613bd23d/1782232582/hls_264_master.m3u8?t=1782291221",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257364341/e3d272e1a54573d6e0ed3c2b61d7d2ed595c4a58/movie_600x337.jpg?t=1782291221"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257364341/e3d272e1a54573d6e0ed3c2b61d7d2ed595c4a58/movie_600x337.jpg?t=1782291221",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/236390/a234f9aaf4c08fa1985b43879a53454886425c44/library_capsule_2x.jpg?t=1784211516"
   },
   {
     "steamAppId": 252490,
@@ -7541,7 +7625,8 @@
     "dlcCount": 5,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/252490/102019/c573f5b01317174c7ae20a0abbcc3a39ccad32c2/1750487766/hls_264_master.m3u8?t=1699598112",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/252490/102019/c573f5b01317174c7ae20a0abbcc3a39ccad32c2/1750487766/hls_264_master.m3u8?t=1699598112",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256684736/movie.293x165.jpg?t=1699598112"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256684736/movie.293x165.jpg?t=1699598112",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/252490/library_600x900_2x.jpg?t=1781536981"
   },
   {
     "steamAppId": 304930,
@@ -7645,7 +7730,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/304930/286521003/b2f5135efbc83587c512830b0c089c9b080e0113/1776791203/hls_264_master.m3u8?t=1777564984",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/304930/286521003/b2f5135efbc83587c512830b0c089c9b080e0113/1776791203/hls_264_master.m3u8?t=1777564984",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257323670/26cef6d40f4b7b2da1315291b757000503d12901/movie_600x337.jpg?t=1777564984"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257323670/26cef6d40f4b7b2da1315291b757000503d12901/movie_600x337.jpg?t=1777564984",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304930/dd10c2c5dde22c3044c3cf1dcc17df8739e83dff/library_capsule_2x.jpg?t=1783436894"
   },
   {
     "steamAppId": 381210,
@@ -7779,7 +7865,8 @@
     "dlcCount": 38,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/381210/2023277386/529a037c508a565473e058ae680d112fa643cb90/1778680125/hls_264_master.m3u8?t=1778767162",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/381210/2023277386/529a037c508a565473e058ae680d112fa643cb90/1778680125/hls_264_master.m3u8?t=1778767162",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257336144/a6b5c1f58b14644a0952432bcb64fee417cd73de/movie_600x337.jpg?t=1778767162"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257336144/a6b5c1f58b14644a0952432bcb64fee417cd73de/movie_600x337.jpg?t=1778767162",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/1b6ff94b7c05c205fbcbd2628f862a1469882f23/library_capsule_2x.jpg?t=1784216454"
   },
   {
     "steamAppId": 739630,
@@ -7878,7 +7965,8 @@
     "dlcCount": 0,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/739630/1110188961/d019d6795771dfe079d656ff9d286eb8eddd59e4/1784635068/hls_264_master.m3u8?t=1784637252",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/739630/1110188961/d019d6795771dfe079d656ff9d286eb8eddd59e4/1784635068/hls_264_master.m3u8?t=1784637252",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257381662/d2c6bdf4f9ef5d20a9f17a67da33c2aaf871d0ab/movie_600x337.jpg?t=1784637252"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257381662/d2c6bdf4f9ef5d20a9f17a67da33c2aaf871d0ab/movie_600x337.jpg?t=1784637252",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/739630/0b19136b9e98752001bb4c3ba8936774ac8ac7a7/library_capsule_2x.jpg?t=1785937507"
   },
   {
     "steamAppId": 892970,
@@ -7972,7 +8060,8 @@
     "dlcCount": 1,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/892970/1497098081/82852b46712774fa05d84fbaf0fb0ab9679a07f0/1782129560/hls_264_master.m3u8?t=1782130908",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/892970/1497098081/82852b46712774fa05d84fbaf0fb0ab9679a07f0/1782129560/hls_264_master.m3u8?t=1782130908",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257363622/e979dd1440c9a792e9439d71c4982874abf19a0e/movie_600x337.jpg?t=1782130908"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257363622/e979dd1440c9a792e9439d71c4982874abf19a0e/movie_600x337.jpg?t=1782130908",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/892970/f1e8baf786351dc0f6ebafe4c774f861caf6ca4a/library_capsule_2x.jpg?t=1786012504"
   },
   {
     "steamAppId": 1203220,
@@ -8057,7 +8146,8 @@
     "dlcCount": 4,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1203220/1061764104/4cc3831e4b9a66cfc1eb470d359b15f2ec9fac94/1785317637/hls_264_master.m3u8?t=1785376824",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1203220/1061764104/4cc3831e4b9a66cfc1eb470d359b15f2ec9fac94/1785317637/hls_264_master.m3u8?t=1785376824",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257387539/2bf1c91890ad58e7103c07ba9a1ac5550a9c9d94/movie_600x337.jpg?t=1785376824"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257387539/2bf1c91890ad58e7103c07ba9a1ac5550a9c9d94/movie_600x337.jpg?t=1785376824",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1203220/1367942c587fdfcded20c5114a26c0f2234d73d9/library_capsule_2x.jpg?t=1785376833"
   },
   {
     "steamAppId": 227300,
@@ -8265,7 +8355,8 @@
     "dlcCount": 108,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/227300/455253/f717b44f949ed6c824778b30d516147bdaaad95a/1750482436/hls_264_master.m3u8?t=1683632053",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/227300/455253/f717b44f949ed6c824778b30d516147bdaaad95a/1750482436/hls_264_master.m3u8?t=1683632053",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256882174/movie.293x165.jpg?t=1683632053"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256882174/movie.293x165.jpg?t=1683632053",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/227300/library_600x900_2x.jpg?t=1785394779"
   },
   {
     "steamAppId": 1222670,
@@ -8462,7 +8553,8 @@
     "dlcCount": 113,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1222670/505594/b1b46cf5154636489657aa8e6323e4524b55a510/1750644574/hls_264_master.m3u8?t=1666105085",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1222670/505594/b1b46cf5154636489657aa8e6323e4524b55a510/1750644574/hls_264_master.m3u8?t=1666105085",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256911304/movie.293x165.jpg?t=1666105085"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/256911304/movie.293x165.jpg?t=1666105085",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1222670/library_600x900_2x.jpg?t=1784826109"
   },
   {
     "steamAppId": 1517290,
@@ -8560,7 +8652,8 @@
     "dlcCount": 2,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1517290/661728/e0387a57c721bb94d593c329292abcf228b5e6c6/1750697296/hls_264_master.m3u8?t=1707836479",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1517290/661728/e0387a57c721bb94d593c329292abcf228b5e6c6/1750697296/hls_264_master.m3u8?t=1707836479",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257000580/movie.293x165.jpg?t=1707836479"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257000580/movie.293x165.jpg?t=1707836479",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1517290/e68a8598b5c60d8188968f2da0da941f4834d5b2/library_600x900_2x.jpg?t=1777324359"
   },
   {
     "steamAppId": 1938090,
@@ -8707,6 +8800,7 @@
     "dlcCount": 46,
     "previewVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1938090/1860729599/2942e07a2c9fc6b92fca82c11e2bc6b2ba60e059/1779987850/hls_264_master.m3u8?t=1779989924",
     "detailVideoUrl": "https://video.akamai.steamstatic.com/store_trailers/1938090/1860729599/2942e07a2c9fc6b92fca82c11e2bc6b2ba60e059/1779987850/hls_264_master.m3u8?t=1779989924",
-    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257345140/5a3d0d5979e9c8dd9ddad26ef11c8f2fb6826e9c/movie_600x337.jpg?t=1779989924"
+    "trailerThumb": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/257345140/5a3d0d5979e9c8dd9ddad26ef11c8f2fb6826e9c/movie_600x337.jpg?t=1779989924",
+    "libraryImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1938090/e9efff9c16dd88e2ef320a656f4e9b6a5be22d9e/library_capsule_koreana_2x.jpg?t=1784850874"
   }
 ]

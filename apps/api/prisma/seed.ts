@@ -29,6 +29,8 @@ interface SeedGame {
   headerImage: string;
   capsuleImage: string;
   priceKrw: number;
+  // fetch-library.ts가 덧붙인 600x900 세로 이미지. 구버전 games.json에는 없다
+  libraryImage?: string | null;
   isFree: boolean;
   discountPercent: number;
   releaseDate: string | null;
@@ -117,6 +119,8 @@ async function seedGames(games: SeedGame[]) {
         priceKrw: g.priceKrw,
         previewVideoUrl: g.previewVideoUrl ?? null,
         detailVideoUrl: g.detailVideoUrl ?? null,
+        // 이미 시드된 DB에도 나중에 붙은 세로 이미지가 채워지도록 update에도 넣는다
+        libraryImage: g.libraryImage ?? null,
         ...steamFields(g),
       },
       create: {
@@ -127,6 +131,7 @@ async function seedGames(games: SeedGame[]) {
         description: g.description,
         headerImage: g.headerImage,
         capsuleImage: g.capsuleImage,
+        libraryImage: g.libraryImage ?? null,
         previewVideoUrl: g.previewVideoUrl ?? null,
         detailVideoUrl: g.detailVideoUrl ?? null,
         priceKrw: g.priceKrw,

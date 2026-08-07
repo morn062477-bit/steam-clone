@@ -1375,7 +1375,9 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .salepage{
   position:relative;min-height:100vh;
   background:url('/sale-bg.jpg') no-repeat center top fixed;
-  background-size:cover;
+  /* 가로로 양쪽 3cm 씩 키운다. 가운데 기준이라 6cm 를 더하면 좌우로 3cm 씩 넘친다.
+     세로는 auto 라 비율이 유지되고, 원본이 거의 정사각형이라 화면을 덮고도 남는다. */
+  background-size:calc(100% + 6cm) auto;
 }
 .sp-takeover{
   position:relative;z-index:1;height:620px;
@@ -1413,15 +1415,56 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 }
 
 .sp-body{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:18px 12px 60px;display:flex;flex-direction:column;gap:18px}
-.sp-panel{background:rgba(20,28,38,.85);padding:16px}
+/* 패널 배경은 실제 축제 페이지와 같은 단색 #243044.
+   원본이 같은 색 두 스톱짜리 linear-gradient 라 결과는 단색과 같다. 그대로 옮겨 둔다. */
+.sp-panel{background-image:linear-gradient(0deg,rgb(36,48,68) 0%,rgb(36,48,68) 100%);padding:16px}
 .sp-h2{color:#fff;font-size:17px;font-weight:600;margin-bottom:12px}
 
-/* 맞춤 추천 */
+/* 맞춤 추천. 세로로 긴 카드 3장 + 좌우 화살표 + 아래 위치 막대.
+   화살표는 패널 바깥으로 밀어 배경 위에 뜬다(실제 축제 페이지와 같은 배치). */
+.sp-rec-panel{padding-bottom:22px}
+.sp-rec-wrap{position:relative}
 .sp-rec{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.sp-rec-card{cursor:pointer;background:#16202d}
-.sp-rec-card .art{width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;background-color:#0e1621}
-.sp-rec-info{padding:8px 10px}
-.sp-rec-info .nm{color:#fff;font-size:14px;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 카드는 이미지가 곧 전체. 이름 줄 없이 아래에 가격만 겹친다 */
+.sp-rec-card{position:relative;cursor:pointer;background:#16202d;overflow:hidden}
+/* 상자는 라이브러리 캡슐 비율(600x900). 같은 비율이라 cover 로도 잘리지 않고 꽉 찬다.
+   세로 이미지가 없어 가로 헤더로 대체된 게임만 좌우가 잘린다. */
+.sp-rec-card .art{
+  width:100%;aspect-ratio:600/900;
+  background-size:cover;background-position:center;
+  background-color:#0e1621;
+  transition:transform .25s ease;
+}
+.sp-rec-card:hover .art{transform:scale(1.03)}
+.sp-rec-foot{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:8px;
+  padding:8px;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,0) 100%);
+}
+.sp-plat{display:flex;align-items:center;gap:6px;color:#c7d5e0;font-size:15px;line-height:1}
+
+/* 좌우 화살표 */
+.sp-rec-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  width:34px;height:64px;background:none;color:rgba(255,255,255,.55);
+  font-size:40px;line-height:1;cursor:pointer;
+}
+.sp-rec-arrow:hover{color:#fff}
+.sp-rec-arrow:disabled{opacity:.25;cursor:default}
+.sp-rec-arrow.left{left:-46px}
+.sp-rec-arrow.right{right:-46px}
+
+/* 현재 페이지 위치 막대 */
+.sp-rec-track{position:relative;height:4px;margin-top:14px;background:rgba(255,255,255,.12)}
+.sp-rec-thumb{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.55);transition:left .25s ease}
+
+/* 화살표를 밖에 둘 자리가 없으면 카드 위로 들여놓는다 */
+@media (max-width:1300px){
+  .sp-rec-arrow{background:rgba(0,0,0,.45)}
+  .sp-rec-arrow.left{left:0}
+  .sp-rec-arrow.right{right:0}
+}
 
 /* 가격 */
 .sp-price{display:flex;align-items:stretch;font-size:13px}
@@ -1430,17 +1473,18 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .sp-price .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
 .sp-price .now{color:#c7d5e0}
 
-/* 포인트 상점 배너 */
+/* 포인트 상점 배너. 이미지 한 장이 곧 배너라 패널은 여백만 잡고 그림을 폭에 맞춘다.
+   원본 비율(1100x240)이 유지되도록 height:auto 로 둔다. */
 .sp-points{
-  background:rgba(20,28,38,.9);padding:26px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:26px;display:flex;align-items:center;justify-content:center;
 }
-.sp-points-box{
-  background:#5ce1ff;color:#0d1b26;font-size:22px;font-weight:800;line-height:1.35;padding:16px 24px;
-}
-.sp-points-icon{font-size:44px}
+.sp-points-img{display:block;width:100%;max-width:1100px;height:auto}
 
 /* 인기 게임 */
-.sp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* 인기 게임. 줄마다 칸 수가 다르다(2-3-4-3-2-3-4).
+   칸 수는 컴포넌트가 --cols 로 내려 준다. 좁은 화면에서는 아래 미디어쿼리가 덮어쓴다. */
+.sp-grid{display:flex;flex-direction:column;gap:12px}
+.sp-grid-row{display:grid;grid-template-columns:repeat(var(--cols,4),1fr);gap:12px}
 .sp-cap{cursor:pointer;background:#16202d}
 .sp-cap .art{width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;background-color:#0e1621}
 .sp-more{
@@ -1448,6 +1492,53 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   font-size:14px;padding:8px 22px;border-radius:2px;
 }
 .sp-more:hover{background:#fff}
+
+/* 인기 게임 카드 호버 패널.
+   위쪽은 트레일러(로딩 전에는 스크린샷이 비친다), 아래로 헤더 이미지가 걸치고 정보가 이어진다.
+   격자에 잘리지 않게 fixed 로 띄운다. 별 버튼만 눌리면 되므로 패널은 클릭을 받는다. */
+.shc{
+  position:fixed;z-index:95;cursor:pointer;
+  background:#2a3a4d;box-shadow:0 6px 26px rgba(0,0,0,.7);
+}
+.shc-media{
+  position:relative;width:100%;aspect-ratio:16/9;
+  background-size:cover;background-position:center;background-color:#0e1621;
+}
+.shc-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+
+/* 찜 버튼 */
+.shc-star{
+  position:absolute;top:8px;right:8px;z-index:3;
+  width:30px;height:30px;line-height:1;font-size:17px;
+  background:#1b3c5a;color:#8fb6d6;border:1px solid #4a7ba7;border-radius:2px;
+}
+.shc-star:hover{color:#fff}
+.shc-star.on{background:#2a6496;color:#fff}
+
+/* 가격은 영상 위 오른쪽 아래에 겹친다 */
+.shc-price{
+  position:absolute;right:0;bottom:0;z-index:2;
+  display:flex;align-items:stretch;font-size:13px;
+}
+.shc-price .disc{background:var(--green-bg);color:var(--bg-dark);font-weight:700;padding:6px 8px}
+.shc-price .pb-body{background:rgba(0,0,0,.6);display:flex;align-items:center;gap:8px;padding:6px 10px}
+.shc-price .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
+.shc-price .now{color:#c7d5e0}
+
+.shc-info{padding:0 12px 12px}
+/* 헤더 이미지가 영상 아래쪽에 걸쳐 올라탄다 */
+.shc-cap{
+  width:200px;aspect-ratio:460/215;margin:-46px 0 8px;position:relative;z-index:2;
+  background-size:cover;background-position:center;background-color:#0e1621;
+}
+.shc-name{color:#fff;font-size:17px;font-weight:600;margin-bottom:8px}
+.shc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.shc-tags span{background:#3d4a5c;color:#c7d5e0;font-size:11px;padding:3px 7px;border-radius:2px}
+.shc-review{color:#c7d5e0;font-size:13px;margin-bottom:6px}
+.shc-review.positive{color:#66c0f4}
+.shc-meta{display:flex;align-items:center;gap:10px;color:#8f98a0;font-size:12px}
+.shc-plat{display:flex;align-items:center;gap:5px;font-size:13px;font-style:normal}
+.shc-plat i{font-style:normal}
 
 /* 게임 검색 */
 .sp-search{display:flex;gap:14px;align-items:flex-start}
@@ -1494,7 +1585,8 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 
 @media (max-width:980px){
-  .sp-rec,.sp-grid,.sp-news{grid-template-columns:repeat(2,1fr)}
+  .sp-rec,.sp-news{grid-template-columns:repeat(2,1fr)}
+  .sp-grid-row{--cols:2}
   .sp-search{flex-direction:column}
   .sp-filter{flex:none;width:100%}
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
+import SaleHoverCard, { type SaleHoverInfo } from "@/components/salehovercard";
 
 /**
  * 사이버펑크 게임 축제 이벤트 페이지.
@@ -54,19 +55,45 @@ function Price({ g }: { g: any }) {
 const TABS = ["특집", "게임 검색", "STEAM DECK", "무료 체험판", "출시 예정"] as const;
 type Tab = (typeof TABS)[number];
 
+/** 인기 게임 줄당 칸 수. 이 순서를 끝까지 돌려 쓴다 */
+const GRID_PATTERN = [2, 3, 4, 3, 2, 3, 4];
+
+/**
+ * 목록을 GRID_PATTERN 대로 줄 단위로 자른다.
+ * 마지막 줄이 덜 차도 cols 는 패턴 값 그대로 둔다.
+ * 그래야 남은 카드가 늘어나지 않고 원래 크기로 왼쪽에 붙는다.
+ */
+function rowsByPattern<T>(items: T[]) {
+  const rows: { cols: number; items: T[] }[] = [];
+  let i = 0;
+  while (i < items.length) {
+    const cols = GRID_PATTERN[rows.length % GRID_PATTERN.length];
+    rows.push({ cols, items: items.slice(i, i + cols) });
+    i += cols;
+  }
+  return rows;
+}
+
 export default function SalePage({
   data,
   onOpenGame,
   onTag,
+  wishedSlugs,
+  onWish,
 }: {
   data: any;
   onOpenGame: (slug: string) => void;
   onTag: (tag: string) => void;
+  /** 찜한 게임 slug 집합. 호버 패널의 별 버튼 상태에 쓴다 */
+  wishedSlugs?: Set<string>;
+  onWish?: (slug: string) => void;
 }) {
   const [tab, setTab] = useState<Tab>("특집");
   const [more, setMore] = useState(false);
   const [q, setQ] = useState("");
   const [genre, setGenre] = useState<string | null>(null);
+  const [recPage, setRecPage] = useState(0);
+  const [hover, setHover] = useState<SaleHoverInfo>(null);
 
   /** 화면에 쓸 전체 게임 목록 (중복 제거) */
   const all: any[] = useMemo(() => {
@@ -92,7 +119,13 @@ export default function SalePage({
 
   const discounted = all.filter((g) => g.discountPercent > 0);
   const popular = more ? discounted : discounted.slice(0, 12);
-  const recommend = all.slice(0, 3);
+
+  // 맞춤 추천은 3개씩 넘기는 캐러셀. 화살표로 페이지를 바꾸고 아래 막대가 위치를 보여준다.
+  const REC_PER_PAGE = 3;
+  const recPool = all.slice(0, 24);
+  const recPages = Math.max(1, Math.ceil(recPool.length / REC_PER_PAGE));
+  const page = Math.min(recPage, recPages - 1);
+  const recommend = recPool.slice(page * REC_PER_PAGE, page * REC_PER_PAGE + REC_PER_PAGE);
 
   // 탭별로 목록을 바꾼다
   const byTab = (rows: any[]) => {
@@ -140,38 +173,92 @@ export default function SalePage({
       <div className="sp-body">
         {tab === "특집" && (
           <>
-            {/* 맞춤 추천 */}
-            <section className="sp-panel">
+            {/* 맞춤 추천. 세로 카드 3장을 좌우 화살표로 넘기고, 아래 막대가 현재 위치를 보여준다. */}
+            <section className="sp-panel sp-rec-panel">
               <h2 className="sp-h2">맞춤 추천</h2>
-              <div className="sp-rec">
-                {recommend.map((g) => (
-                  <div key={g.slug} className="sp-rec-card" onClick={() => onOpenGame(g.slug)}>
-                    <div className="art" style={bgStyle(g.headerImage)} />
-                    <div className="sp-rec-info">
-                      <div className="nm">{g.name}</div>
-                      <Price g={g} />
+              <div className="sp-rec-wrap">
+                <button
+                  type="button"
+                  className="sp-rec-arrow left"
+                  aria-label="이전 추천"
+                  disabled={page === 0}
+                  onClick={() => setRecPage((p) => Math.max(0, p - 1))}
+                >
+                  ‹
+                </button>
+
+                <div className="sp-rec">
+                  {recommend.map((g) => (
+                    <div key={g.slug} className="sp-rec-card" onClick={() => onOpenGame(g.slug)}>
+                      {/* 600x900 세로 이미지. 스팀이 안 주는 게임은 가로 헤더로 대체 */}
+                      <div className="art" style={bgStyle(g.libraryImage || g.headerImage)} />
+                      {/* 카드 아래쪽에 겹쳐 놓는 줄. 왼쪽 플랫폼 아이콘, 오른쪽 가격 */}
+                      <div className="sp-rec-foot">
+                        <div className="sp-plat">
+                          {g.platforms?.windows && <span title="Windows">⊞</span>}
+                          {g.platforms?.mac && <span title="macOS"></span>}
+                          {g.platforms?.linux && <span title="Linux">🐧</span>}
+                        </div>
+                        <Price g={g} />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="sp-rec-arrow right"
+                  aria-label="다음 추천"
+                  disabled={page >= recPages - 1}
+                  onClick={() => setRecPage((p) => Math.min(recPages - 1, p + 1))}
+                >
+                  ›
+                </button>
+              </div>
+
+              <div className="sp-rec-track">
+                <div
+                  className="sp-rec-thumb"
+                  style={{ width: `${100 / recPages}%`, left: `${(100 / recPages) * page}%` }}
+                />
               </div>
             </section>
 
-            {/* 포인트 상점 배너 */}
-            <section className="sp-points">
-              <div className="sp-points-box">
-                새로운 포인트 상점 아이템을<br />확인해 보세요
-              </div>
-              <span className="sp-points-icon" aria-hidden="true">🛰️</span>
+            {/* 포인트 상점 배너. 문구/그림이 한 장에 다 들어 있는 PNG 를 그대로 얹는다. */}
+            <section className="sp-panel sp-points">
+              {/* eslint-disable-next-line @next/next/no-img-element -- 정적 PNG 한 장 */}
+              <img
+                className="sp-points-img"
+                src="/sale-points.png"
+                alt="새로운 포인트 상점 아이템을 확인해 보세요"
+                width={1100}
+                height={240}
+              />
             </section>
 
             {/* 인기 게임 */}
             <section className="sp-panel">
               <h2 className="sp-h2">인기 게임</h2>
+              {/* 줄마다 칸 수가 2-3-4-3-2-3-4 로 바뀐다. 칸이 적은 줄일수록 카드가 커진다 */}
               <div className="sp-grid">
-                {popular.map((g) => (
-                  <div key={g.slug} className="sp-cap" onClick={() => onOpenGame(g.slug)}>
-                    <div className="art" style={bgStyle(g.headerImage)} />
-                    <Price g={g} />
+                {rowsByPattern(popular).map((row, i) => (
+                  <div
+                    key={i}
+                    className="sp-grid-row"
+                    style={{ "--cols": row.cols } as CSSProperties}
+                  >
+                    {row.items.map((g) => (
+                      <div
+                        key={g.slug}
+                        className="sp-cap"
+                        onClick={() => onOpenGame(g.slug)}
+                        onMouseEnter={(e) => setHover({ g, rect: e.currentTarget.getBoundingClientRect() })}
+                        onMouseLeave={() => setHover((h) => (h?.g.slug === g.slug ? null : h))}
+                      >
+                        <div className="art" style={bgStyle(g.headerImage)} />
+                        <Price g={g} />
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -258,6 +345,14 @@ export default function SalePage({
           </div>
         </section>
       </div>
+
+      {/* 인기 게임 카드 호버 패널. 격자에 잘리지 않게 페이지 최상단에 하나만 띄운다 */}
+      <SaleHoverCard
+        info={hover}
+        wished={hover ? wishedSlugs?.has(hover.g.slug) : false}
+        onWish={onWish}
+        onOpenGame={onOpenGame}
+      />
     </div>
   );
 }

@@ -39,6 +39,8 @@ export interface SeedGame {
   description: string;
   headerImage: string;
   capsuleImage: string;
+  /** 600x900 세로 이미지. appdetails가 주지 않아 scripts/fetch-library.ts로 따로 채운다 */
+  libraryImage?: string | null;
   priceKrw: number;
   isFree: boolean;
   discountPercent: number;
