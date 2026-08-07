@@ -617,11 +617,42 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 카테고리(장르) 페이지 ---------- */
 .catpage{padding-bottom:60px}
-.catpage .cp-title{margin-top:28px}
-.cat-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.catpage .cp-title{margin-top:28px;text-align:center;font-size:44px;font-weight:700}
+/* 인기 게임 캐러셀: 위 2개는 크게, 아래 3개는 작게. 박스 배경 없이 카드가 페이지
+   위에 바로 떠 있다. 카드는 DealCard(size="sm")를 그대로 쓰고, .art 높이만
+   행마다 다르게 덮어써서 큰 줄/작은 줄을 나눈다(너비는 grid 칼럼 수로 자연히 갈림). */
+.deals-mixed{display:flex;flex-direction:column;gap:15px}
+.dm-lg-row{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.dm-lg-row .deal-sm .art{height:280px}
+.dm-sm-row{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.dm-sm-row .deal-sm .art{height:180px}
+.catpage .cp-rec{margin-top:40px}
+.catpage .cp-rec-card .cp-price{justify-content:space-between}
+.catpage .cp-price-amt{display:flex;align-items:center;gap:8px}
 .cat-tab{background:#1f2b3c;color:#8f98a0;font-size:13px;padding:8px 16px;border-radius:2px}
 .cat-tab:hover{background:#2a3a50;color:#fff}
 .cat-tab.on{background:#1a9fff;color:#fff}
+
+/* 카테고리 페이지 서브탭: 사이버펑크 축제 탭 바(.sp-tabbar)처럼 가운데 정렬 +
+   진한 패널 + 밑줄로 활성 탭을 표시하되, 버튼을 눌러야 펼쳐지는 드롭다운으로 만든다.
+   .price-presets 등 다른 곳의 알약형 .cat-tab 버튼은 그대로 두고 이 안에서만 덮어쓴다. */
+.cat-tabs-drop{position:relative;margin-bottom:24px}
+.cat-tabs-current{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:#16202d;color:#fff;font-size:14px;font-weight:600;padding:14px 12px;
+}
+.cat-tabs-current:hover{background:#1c2a3a}
+.cat-tabs-current .caret{font-size:11px;color:#8f98a0;transition:transform .15s ease}
+.cat-tabs-current .caret.up{transform:rotate(180deg)}
+.cat-tabs{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:15;
+  display:flex;justify-content:center;gap:26px;flex-wrap:wrap;
+  background:#16202d;padding:16px 12px;box-shadow:0 10px 24px rgba(0,0,0,.45);
+}
+.cat-tabs .cat-tab{background:none;color:#c7d5e0;font-size:14px;font-weight:600;padding:4px 2px;position:relative;border-radius:0}
+.cat-tabs .cat-tab:hover{background:none;color:#fff}
+.cat-tabs .cat-tab.on{background:none;color:#fff}
+.cat-tabs .cat-tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:2px;background:#66c0f4}
 
 /* ---------- 가격대별 검색 페이지 ---------- */
 .price-toolbar{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}

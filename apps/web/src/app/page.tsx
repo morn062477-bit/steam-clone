@@ -407,6 +407,8 @@ function CategoryPage({
   const [cat, setCat] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [subTab, setSubTab] = useState<string | null>(null);
+  const [tabsOpen, setTabsOpen] = useState(false);
+  const tabsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setCat(null);
@@ -418,6 +420,23 @@ function CategoryPage({
       .catch((e) => setError(e.message));
   }, [slug]);
 
+  /** 사이버펑크 축제 탭 바처럼, 바깥을 클릭하거나 Esc를 누르면 드롭다운을 닫는다 */
+  useEffect(() => {
+    if (!tabsOpen) return;
+    function onDocClick(e: MouseEvent) {
+      if (tabsRef.current && !tabsRef.current.contains(e.target as Node)) setTabsOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setTabsOpen(false);
+    }
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("click", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [tabsOpen]);
+
   if (error) return <div className="err">카테고리를 불러오지 못했습니다: {error}</div>;
   if (!cat) return <div className="loading">불러오는 중…</div>;
 
@@ -427,6 +446,7 @@ function CategoryPage({
   return (
     <div className="catpage">
       <div className="wrap">
+        <h1 className="cp-title">{cat.name}</h1>
         <Carousel autoMs={7000} slides={cat.hero.map((g: any) => (
           <DealsHeroSlide
             key={g.slug}
@@ -439,20 +459,32 @@ function CategoryPage({
         ))} />
       </div>
       <div className="wrap">
-        <h1 className="cp-title">{cat.name}</h1>
-
-        <div className="cat-tabs">
-          <button type="button" className={"cat-tab" + (!subTab ? " on" : "")} onClick={() => setSubTab(null)}>특집</button>
-          {cat.subTags.map((t: string) => (
-            <button
-              key={t}
-              type="button"
-              className={"cat-tab" + (subTab === t ? " on" : "")}
-              onClick={() => setSubTab(t)}
-            >
-              {t}
-            </button>
-          ))}
+        <div className="cat-tabs-drop" ref={tabsRef}>
+          <button type="button" className="cat-tabs-current" onClick={() => setTabsOpen((v) => !v)}>
+            {subTab ?? "특집"}
+            <span className={"caret" + (tabsOpen ? " up" : "")}>▾</span>
+          </button>
+          {tabsOpen && (
+            <div className="cat-tabs">
+              <button
+                type="button"
+                className={"cat-tab" + (!subTab ? " on" : "")}
+                onClick={() => { setSubTab(null); setTabsOpen(false); }}
+              >
+                특집
+              </button>
+              {cat.subTags.map((t: string) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={"cat-tab" + (subTab === t ? " on" : "")}
+                  onClick={() => { setSubTab(t); setTabsOpen(false); }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <section className="section">
@@ -476,15 +508,77 @@ function CategoryPage({
         <section className="section">
           <div className="sec-head"><h2 className="sec-title">인기 게임</h2></div>
           {filtered.length ? (
-            <div className="cheap">
-              {filtered.slice(0, 10).map((g: any) => (
-                <DealCard key={g.slug} g={g} size="sm" onOpen={onOpenGame} />
-              ))}
+            <div className="cat-popular-carousel">
+              <Carousel
+                autoMs={0}
+                slides={chunk(filtered.slice(0, 10), 5).map((chunkItems: any[], i: number) => (
+                  <div className="deals-mixed" key={i}>
+                    <div className="dm-lg-row">
+                      {chunkItems.slice(0, 2).map((g: any) => (
+                        <DealCard key={g.slug} g={g} size="sm" onOpen={onOpenGame} />
+                      ))}
+                    </div>
+                    <div className="dm-sm-row">
+                      {chunkItems.slice(2, 5).map((g: any) => (
+                        <DealCard key={g.slug} g={g} size="sm" onOpen={onOpenGame} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              />
             </div>
           ) : (
             <div className="cp-empty"><p>해당하는 게임이 없습니다.</p></div>
           )}
         </section>
+
+        {cat.popular.length > 3 && (
+          <section className="cp-rec">
+            <h2 className="cp-h2">맞춤 추천</h2>
+            <div className="cp-rec-grid">
+              {cat.popular.slice(3, 6).map((g: any) => (
+                <div className="cp-rec-card" key={g.slug} onClick={() => onOpenGame(g.slug)}>
+                  <div className="art" style={bgStyle(g.headerImage)} />
+                  <div className="cp-price">
+                    <div className="cp-plat">
+                      {(g.platforms?.windows ?? true) && <i title="Windows">⊞</i>}
+                      {g.platforms?.mac && <i title="macOS"></i>}
+                      {g.platforms?.linux && <i title="Linux">🐧</i>}
+                    </div>
+                    <span className="cp-price-amt">
+                      {g.discountPercent > 0 ? (
+                        <>
+                          <span className="cp-disc">-{g.discountPercent}%</span>
+                          <span className="cp-was">{won(g.priceKrw)}</span>
+                          <span className="cp-now">{won(g.finalKrw)}</span>
+                        </>
+                      ) : (
+                        <span className="cp-now">{g.isFree ? "무료 플레이" : won(g.priceKrw)}</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <div className="queue">
+          <div className="q-left">
+            <h4>맞춤 대기열 둘러보기</h4>
+            <p>
+              {user
+                ? "인기 게임, 신규 출시 게임, 추천 게임을 살펴보세요"
+                : "로그인하여 인기 게임, 신규 출시 게임, 추천 게임 보기"}
+            </p>
+            {!user && (
+              <a className="btn-blue" href="#login" onClick={onLogin}>로그인</a>
+            )}
+          </div>
+          <div className="q-right">
+            {cat.popular.slice(0, 4).map((g: any) => <div key={g.slug} style={bgStyle(g.headerImage)} />)}
+          </div>
+        </div>
       </div>
     </div>
   );
