@@ -55,9 +55,11 @@ button{font-family:inherit;cursor:pointer;border:0}
 }
 
 /* ---------- 상단 헤더 ---------- */
-/* 축제 페이지의 고정 배경(.sp-bg, position:fixed)이 위를 덮지 않도록
-   헤더에도 쌓임 순서를 준다. 상점 내비(z-index:60) 와 같은 층에 둔다. */
-.topbar{background:var(--bg-dark);height:104px;color:#C6D4DF;font-size:14px;position:relative;z-index:60}
+/* 헤더에 쌓임 순서를 준다. 두 가지 이유가 있다.
+   1) 축제 페이지의 고정 배경(position:fixed)이 헤더를 덮지 않게
+   2) 메인 내비 하위 메뉴가 상점 내비(z-index:60) 위로 나오게
+   .storenav 가 DOM 상 뒤에 있어 같은 값이면 그쪽이 위에 그려진다. */
+.topbar{background:var(--bg-dark);height:104px;color:#C6D4DF;font-size:14px;position:relative;z-index:70}
 .topbar .wrap{display:flex;align-items:flex-start;height:104px}
 /* 로고는 원형 마크 + STEAM® 워드마크가 한 파일에 든 SVG 하나로 끝낸다.
    높이만 잡고 폭은 비율대로 둔다 (293.44 x 89.333). */
@@ -1401,4 +1403,114 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .sp-rec,.sp-grid,.sp-news{grid-template-columns:repeat(2,1fr)}
   .sp-search{flex-direction:column}
   .sp-filter{flex:none;width:100%}
+}
+
+/* ---------- 보관함 (프로필 > 게임) ---------- */
+.libpage{background:#1b2838;min-height:70vh;padding-bottom:60px}
+/* 실제 화면 기준: 프로필 바는 약 1170px, 그 아래 내용은 약 940px 폭으로 모은다.
+   .wrap 기본값(최대 1700px)을 그대로 쓰면 양옆으로 너무 벌어진다. */
+/* 프로필 바는 화면 폭을 채우는 띠가 아니라 가운데 놓인 패널이다.
+   바깥은 비우고 안쪽(.lib-profile-in)에 색과 폭을 준다. */
+.lib-profile{background:none;padding:0;color:#FFFFFF;font-size:12px}
+.libpage .wrap{max-width:1467px}
+.lib-profile-in{
+  display:flex;align-items:center;gap:18px;
+  max-width:1170px;height:105px;padding:0 24px;background:#24262E;
+}
+.lib-avatar{
+  width:62px;height:62px;flex:0 0 auto;background:#3d4450;border:1px solid #67c1f5;
+  display:flex;align-items:center;justify-content:center;color:#c7d5e0;font-size:22px;
+}
+.lib-profile h1{color:#fff;font-size:26px;font-weight:400}
+.lib-profile .sep{color:#8f98a0;font-size:18px}
+.lib-profile .cur{color:#c7d5e0;font-size:16px}
+
+.lib-body{max-width:940px;padding-top:22px}
+.lib-tabs{display:flex;gap:26px;margin-bottom:18px;flex-wrap:wrap}
+.lib-tab{background:none;color:#c7d5e0;font-size:13px;padding:4px 2px;position:relative}
+.lib-tab:hover{color:#fff}
+.lib-tab.on{color:#fff}
+.lib-tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:#c7d5e0}
+
+.lib-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.lib-search{position:relative;width:250px}
+.lib-search input{
+  width:100%;background:#2a2e35;border:0;outline:0;color:#dfe9f2;
+  font-size:13px;padding:8px 32px 8px 12px;border-radius:2px;
+}
+.lib-search input::placeholder{color:#8b9199}
+.lib-search svg{position:absolute;right:10px;top:50%;margin-top:-8px;width:16px;height:16px;fill:#8b9199}
+.lib-sort{display:flex;align-items:center;gap:14px;font-size:13px}
+.lib-sort .gear{color:#8f98a0}
+.lib-sort button{background:none;color:#66c0f4;font-size:13px}
+.lib-sort button:hover{color:#fff}
+.lib-sort button.on{color:#fff;text-decoration:underline}
+.lib-sort button.dim{color:#66c0f4}
+
+.lib-remote{
+  display:flex;align-items:center;justify-content:center;gap:20px;position:relative;
+  background:#22303f;color:#c7d5e0;font-size:13px;padding:11px 14px;margin-bottom:14px;
+}
+.lib-remote button{position:absolute;right:14px;background:none;color:#c7d5e0;font-size:13px}
+.lib-remote button:hover{color:#fff}
+
+.lib-row{display:flex;gap:16px;background:#22303f;padding:14px;margin-bottom:10px;position:relative}
+.lib-cap{
+  width:264px;height:124px;flex:0 0 auto;cursor:pointer;
+  background-size:cover;background-position:center;background-color:#0e1621;
+}
+.lib-info{flex:1;min-width:0}
+.lib-name{color:#fff;font-size:19px;margin-bottom:14px;cursor:pointer}
+.lib-name:hover{color:#66c0f4}
+.lib-ach{display:flex;justify-content:space-between;color:#8f98a0;font-size:12px;margin-bottom:5px}
+.lib-ach b{color:#c7d5e0;font-weight:400}
+.lib-bar{height:5px;background:#3d4450;border-radius:3px;overflow:hidden;margin-bottom:16px}
+.lib-bar i{display:block;height:100%;background:#66c0f4}
+.lib-actions{display:flex;gap:10px}
+.lib-act{position:relative}
+/* 라벨과 화살표 사이에 세로 구분선을 둔다 (실제 Steam 과 같은 모양) */
+.lib-act-btn{
+  display:flex;align-items:center;gap:8px;height:28px;padding:0 8px 0 12px;
+  background:#3d4450;color:#c7d5e0;font-size:12px;border-radius:2px;
+}
+.lib-act-btn:hover,.lib-act-btn.on{background:#4c5561;color:#fff}
+.lib-act-div{width:1px;height:16px;background:rgba(255,255,255,.18);display:block}
+.lib-caret{
+  width:14px;height:14px;flex:0 0 auto;
+  transition-property:transform;transition-duration:.2s;transition-timing-function:ease-in-out;
+}
+.lib-act-btn.on .lib-caret{transform:rotate(180deg)}
+
+.lib-act-drop{
+  position:absolute;top:32px;left:0;min-width:180px;background:#3d4450;
+  box-shadow:0 8px 20px rgba(0,0,0,.6);padding:4px 0;z-index:30;
+}
+.lib-act-drop button{
+  display:block;width:100%;background:none;color:#c7d5e0;font-size:13px;
+  text-align:left;padding:9px 16px;white-space:nowrap;
+}
+.lib-act-drop button:hover{background:#55606e;color:#fff}
+
+.lib-side{position:relative;flex:0 0 auto}
+.lib-dots{background:none;color:#8f98a0;font-size:14px;padding:4px 8px;letter-spacing:1px}
+.lib-dots:hover{color:#fff}
+.lib-menu{
+  position:absolute;top:26px;right:0;min-width:210px;background:#3d4450;
+  box-shadow:0 8px 20px rgba(0,0,0,.6);padding:8px;z-index:30;
+}
+.lib-menu-row{display:flex;justify-content:space-between;gap:14px;color:#8f98a0;font-size:12px;padding:5px 6px}
+.lib-menu-row b{color:#c7d5e0;font-weight:400}
+.lib-menu button{
+  display:block;width:100%;background:none;color:#66c0f4;font-size:13px;
+  text-align:left;padding:7px 6px;margin-top:4px;border-top:1px solid #4c5561;
+}
+.lib-menu button:hover{color:#fff}
+
+.lib-none,.lib-empty{color:#8f98a0;font-size:14px;text-align:center;padding:60px 20px}
+
+@media (max-width:820px){
+  .lib-row{flex-direction:column}
+  .lib-cap{width:100%;height:auto;aspect-ratio:460/215}
+  .lib-toolbar{flex-direction:column;align-items:stretch}
+  .lib-search{width:100%}
 }

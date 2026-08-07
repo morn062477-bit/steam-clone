@@ -568,6 +568,37 @@ async function completeCheckout(userId: string, orderId: string) {
 }
 
 // ---------------------------------------------------------------
+// /api/library — 결제로 보유하게 된 게임 목록. 로그인한 사용자만.
+// ---------------------------------------------------------------
+
+async function getLibrary(userId: string) {
+  const now = new Date();
+  const rows = await prisma.libraryItem.findMany({
+    where: { userId },
+    orderBy: { ownedAt: 'desc' },
+    select: { ownedAt: true, game: { select: cardArgs(now) } },
+  });
+
+  // 같은 게임을 얼마에 샀는지는 주문 내역에서 가져온다.
+  const paid = await prisma.orderItem.findMany({
+    where: { order: { userId, status: 'PAID' } },
+    select: { gameId: true, paidKrw: true, order: { select: { createdAt: true } } },
+  });
+  const paidBy = new Map(paid.map((i) => [i.gameId, i]));
+
+  return rows.map((r) => {
+    const card = toCard(r.game, now);
+    const bought = paidBy.get((r.game as any).id);
+    return {
+      ...card,
+      ownedAt: r.ownedAt,
+      paidKrw: bought?.paidKrw ?? null,
+      purchasedAt: bought?.order.createdAt ?? r.ownedAt,
+    };
+  });
+}
+
+// ---------------------------------------------------------------
 // /api/wishlist (BE 2 담당) — 로그인한 사용자만. 게스트/병합 없음.
 // ---------------------------------------------------------------
 
@@ -843,6 +874,16 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
       const body = await readJsonBody(req);
       if (!body.orderId) throw new AuthError(400, 'orderId가 필요합니다.');
       return json(res, await completeCheckout(user.id, body.orderId));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/library' && req.method === 'GET') {
+    try {
+      const user = await requireUser(req);
+      return json(res, await getLibrary(user.id));
     } catch (err) {
       if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
       throw err;

@@ -6,6 +6,7 @@ import Auth, { readUser, writeUser, type AuthView, type User } from "@/component
 import GamePage from "@/components/gamepage";
 import GameHoverCard, { type HoverInfo } from "@/components/gamehovercard";
 import SalePage from "@/components/salepage";
+import LibraryPage from "@/components/librarypage";
 import CartPage from "@/components/cartpage";
 import WishlistPage from "@/components/wishlistpage";
 
@@ -736,7 +737,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals">("store");
+  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals" | "library">("store");
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
@@ -759,7 +760,10 @@ export default function Home() {
   const [recent, setRecent] = useState<string[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  /** 상점 첫 화면 데이터를 새로 받아온다. 첫 진입과 "홈" 클릭에서 같이 쓴다. */
+  function loadHome() {
+    setData(null);
+    setError(null);
     fetch("/api/home")
       .then((r) => {
         if (!r.ok) throw new Error("HTTP " + r.status);
@@ -767,12 +771,27 @@ export default function Home() {
       })
       .then(setData)
       .catch((err) => setError(err.message));
-  }, []);
+  }
 
   useEffect(() => {
-    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals"> = {
+    loadHome();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** 상점 > 홈. 이미 홈이어도 다시 불러와 방금 이동한 것처럼 만든다. */
+  function goHome(e?: React.MouseEvent) {
+    e?.preventDefault();
+    goView("store");
+    setTabIndex(0);
+    setSearchQuery("");
+    setSearchResults(null);
+    loadHome();
+  }
+
+  useEffect(() => {
+    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals" | "library"> = {
       "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
-      "#cart": "cart", "#wishlist": "wishlist", "#sale": "sale", "#deals": "deals",
+      "#cart": "cart", "#wishlist": "wishlist", "#sale": "sale", "#deals": "deals", "#library": "library",
     };
     function applyHash() {
       const h = window.location.hash;
@@ -963,10 +982,10 @@ export default function Home() {
 
   const VIEW_HASH: Record<string, string> = {
     login: "login", signup: "signup", create: "create", done: "verified", cart: "cart", wishlist: "wishlist",
-    sale: "sale", deals: "deals",
+    sale: "sale", deals: "deals", library: "library",
   };
 
-  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals", e?: React.MouseEvent) {
+  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals" | "library", e?: React.MouseEvent) {
     e?.preventDefault();
     window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
@@ -1060,16 +1079,16 @@ export default function Home() {
           }}>
             <span /><span /><span />
           </button>
-          <a className="logo" href="#" onClick={(e) => goView("store", e)}>
+          <a className="logo" href="#" onClick={goHome}>
             {/* eslint-disable-next-line @next/next/no-img-element -- 정적 SVG 한 장이라 최적화 대상이 아니다 */}
             <img src="/logo_steam.svg" alt="STEAM" width={145} height={44} />
           </a>
           <nav className="mainnav">
             {/* 실제 Steam 처럼 hover 로 열린다. 항목마다 하위 메뉴가 붙는다. */}
             <div className="mn-item">
-              <a className={view === "store" ? "on" : ""} href="#" onClick={(e) => goView("store", e)}>상점</a>
+              <a className={view === "store" ? "on" : ""} href="#" onClick={goHome}>상점</a>
               <div className="mn-drop">
-                <a href="#" onClick={(e) => goView("store", e)}>홈</a>
+                <a href="#" onClick={goHome}>홈</a>
                 <a href="#" onClick={(e) => e.preventDefault()}>맞춤 대기열</a>
                 <a href="#" onClick={(e) => user ? goView("wishlist", e) : goView("login", e)}>찜 목록</a>
                 <a href="#" onClick={(e) => e.preventDefault()}>포인트 상점</a>
@@ -1098,7 +1117,7 @@ export default function Home() {
                     <a href="#" onClick={(e) => e.preventDefault()}>활동</a>
                     <a href="#" onClick={(e) => e.preventDefault()}>프로필</a>
                     <a href="#" onClick={(e) => e.preventDefault()}>친구</a>
-                    <a href="#" onClick={(e) => e.preventDefault()}>게임</a>
+                    <a href="#" onClick={(e) => goView("library", e)}>게임</a>
                     <a href="#" onClick={(e) => e.preventDefault()}>그룹</a>
                     <a href="#" onClick={(e) => e.preventDefault()}>콘텐츠</a>
                     <a href="#" onClick={(e) => e.preventDefault()}>배지</a>
@@ -1417,6 +1436,15 @@ export default function Home() {
           wishlist={wishlist}
           onOpenGame={openModal}
           onLogin={(e) => goView("login", e)}
+        />
+      )}
+
+      {view === "library" && (
+        <LibraryPage
+          user={user}
+          wishlistCount={wishlist.length}
+          onOpenGame={openModal}
+          onWishlist={() => goView("wishlist")}
         />
       )}
 
