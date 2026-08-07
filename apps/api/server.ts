@@ -13,6 +13,7 @@
  *   GET /api/search?q=     이름 검색
  *   GET /api/category/:slug 카테고리(장르) 전용 페이지
  *   GET /api/deals          할인 및 이벤트 전용 페이지 (전체 할인 게임)
+ *   GET /api/price-search?max= 가격대별 검색 (최종가 max 이하)
  *   POST /api/login        로그인 (계정 이름 또는 이메일 + 비밀번호)
  *   POST /api/logout       로그아웃 (세션 폐기)
  *   GET  /api/cart          내 장바구니 (로그인 필요)
@@ -23,6 +24,7 @@
  *   POST /api/checkout/complete  { orderId } 포트원 결제 검증 후 주문 확정 + 라이브러리 반영 (로그인 필요)
  *   GET  /api/wishlist          내 찜 목록 (로그인 필요)
  *   POST /api/wishlist          찜 목록에 추가 { slug } (로그인 필요)
+ *   POST /api/wishlist/reorder  찜 목록 순서 저장 { slugs: string[] } (로그인 필요)
  *   DELETE /api/wishlist/:slug  찜 목록에서 제거 (로그인 필요)
  *   POST /api/review/:id/vote   평가에 반응 { kind: HELPFUL|NOT_HELPFUL|FUNNY|AWARD } (로그인 필요)
  *                               같은 걸 다시 누르면 취소. 네/아니요는 서로 배타적.
@@ -485,6 +487,23 @@ async function search(q: string) {
 }
 
 // ---------------------------------------------------------------
+// /api/price-search?max= — 가격대별 검색 (할인 적용 최종가 기준)
+// ---------------------------------------------------------------
+
+async function buildPriceSearch(max: number) {
+  const now = new Date();
+  const rows = await prisma.game.findMany({
+    where: { isFree: false, priceKrw: { gt: 0 } },
+    orderBy: { steamReviewTotal: 'desc' },
+    select: cardArgs(now),
+  });
+  // priceKrw(정가)로 미리 거르면 할인폭이 큰 게임(정가는 높지만 할인가는 낮은)을 놓친다.
+  // 그래서 일단 다 받아와 finalKrw(최종가) 기준으로 거른다.
+  const games = rows.map((g) => toCard(g, now)).filter((g) => g.finalKrw > 0 && g.finalKrw <= max);
+  return { max, games };
+}
+
+// ---------------------------------------------------------------
 // /api/category/:slug — 카테고리(장르) 전용 페이지
 // ---------------------------------------------------------------
 
@@ -715,10 +734,24 @@ async function getWishlist(userId: string) {
   const now = new Date();
   const items = await prisma.wishlistItem.findMany({
     where: { userId },
-    orderBy: { addedAt: 'desc' },
+    orderBy: [{ priority: 'asc' }, { addedAt: 'desc' }],
     select: { addedAt: true, game: { select: cardArgs(now) } },
   });
   return items.map((i) => ({ ...toCard(i.game, now), addedAt: i.addedAt }));
+}
+
+/** 드래그로 바꾼 순서를 저장한다. slugs 배열의 순서대로 priority(0부터)를 매긴다. */
+async function reorderWishlist(userId: string, slugs: string[]) {
+  const games = await prisma.game.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true } });
+  const idBySlug = new Map(games.map((g) => [g.slug, g.id]));
+  await Promise.all(
+    slugs.map((slug, i) => {
+      const gameId = idBySlug.get(slug);
+      if (!gameId) return Promise.resolve();
+      return prisma.wishlistItem.updateMany({ where: { userId, gameId }, data: { priority: i } });
+    }),
+  );
+  return getWishlist(userId);
 }
 
 async function addToWishlist(userId: string, slug: string) {
@@ -880,6 +913,11 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     return json(res, await buildDeals());
   }
 
+  if (p === '/api/price-search' && req.method === 'GET') {
+    const max = Number(url.searchParams.get('max') ?? '10000');
+    return json(res, await buildPriceSearch(Number.isFinite(max) && max > 0 ? max : 10000));
+  }
+
   if (p === '/api/auth/signup' && req.method === 'POST') {
     try {
       const body = await readJsonBody(req);
@@ -1034,6 +1072,18 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
       const body = await readJsonBody(req);
       if (!body.slug) throw new AuthError(400, 'slug가 필요합니다.');
       return json(res, await addToWishlist(user.id, body.slug), 201);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/wishlist/reorder' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const body = await readJsonBody(req);
+      if (!Array.isArray(body.slugs)) throw new AuthError(400, 'slugs 배열이 필요합니다.');
+      return json(res, await reorderWishlist(user.id, body.slugs));
     } catch (err) {
       if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
       throw err;

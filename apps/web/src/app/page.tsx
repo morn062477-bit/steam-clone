@@ -13,6 +13,21 @@ import WishlistPage from "@/components/wishlistpage";
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
 
+/** 화면 전환 단위. 해시(#cart 등)와 1:1 로 대응한다.
+   같은 목록을 세 군데(useState / OF_HASH / goView)에 늘어놓다가 병합 때 어긋나서
+   하나로 모았다. 화면을 추가하면 여기만 고치면 된다. */
+type View =
+  | "store"
+  | AuthView
+  | "game"
+  | "cart"
+  | "wishlist"
+  | "category"
+  | "sale"
+  | "deals"
+  | "library"
+  | "price";
+
 /** 결제창에서 고를 결제수단. 카카오페이는 간편결제(EASY_PAY)라 요청 형태가 카드결제와 다르다. */
 const PAY_METHODS = [
   {
@@ -269,42 +284,6 @@ function Takeover({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function Hero({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
-  if (!g) return null;
-  const shot = g.screenshots?.[0]?.url || g.headerImage;
-  return (
-    <section className="hero">
-      <div className="hero-bg-blur" style={bgStyle(shot)} />
-      <div className="hero-edge-fade" />
-      <div className="hero-bg" style={bgStyle(shot)} />
-      <div className="wrap hero-inner">
-        <div className="hero-cap" style={bgStyle(g.capsuleImage || g.headerImage)} />
-        <div className="hero-txt">
-          <span className="hero-kicker">
-            {g.discountPercent > 0 ? `${g.discountLabel || "할인"} · -${g.discountPercent}%` : "지금 인기"}
-          </span>
-          <h1>{g.name}</h1>
-          <div className="hero-meta">
-            <span>{g.developer}</span>
-            <span>·</span>
-            <span>{ymd(g.releaseDate)}</span>
-            {g.reviewDesc && (
-              <>
-                <span>·</span>
-                <span style={{ color: "var(--blue)" }}>{g.reviewDesc}</span>
-              </>
-            )}
-          </div>
-          <div className="hero-buy">
-            <a className="hero-cta" href="#" onClick={(e) => { e.preventDefault(); onOpen(g.slug); }}>상점 페이지 보기</a>
-            <PriceBar g={g} className="price-tag" />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ---------------------------------------------------------------
 // 카드들
 // ---------------------------------------------------------------
@@ -416,12 +395,14 @@ function CategoryPage({
   wishlist,
   onOpenGame,
   onLogin,
+  onToggleWishlist,
 }: {
   slug: string;
   user: User | null;
   wishlist: any[];
   onOpenGame: (slug: string) => void;
   onLogin: (e: React.MouseEvent) => void;
+  onToggleWishlist: (slug: string) => void;
 }) {
   const [cat, setCat] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -445,8 +426,17 @@ function CategoryPage({
 
   return (
     <div className="catpage">
-      <div className="carousel-bleed">
-        <Carousel autoMs={7000} slides={cat.hero.map((g: any) => <Hero key={g.slug} g={g} onOpen={onOpenGame} />)} />
+      <div className="wrap">
+        <Carousel autoMs={7000} slides={cat.hero.map((g: any) => (
+          <DealsHeroSlide
+            key={g.slug}
+            g={g}
+            onOpen={onOpenGame}
+            user={user}
+            isWishlisted={wishlist.some((w: any) => w.slug === g.slug)}
+            onToggleWishlist={onToggleWishlist}
+          />
+        ))} />
       </div>
       <div className="wrap">
         <h1 className="cp-title">{cat.name}</h1>
@@ -501,19 +491,195 @@ function CategoryPage({
 }
 
 // ---------------------------------------------------------------
+// 가격대별 검색 페이지
+// ---------------------------------------------------------------
+const PRICE_PRESETS = [5000, 10000, 20000, 50000];
+const PRICE_SLIDER_MAX = 60000;
+
+const PRICE_SORTS = [
+  { key: "relevance", label: "연관성" },
+  { key: "priceAsc", label: "가격: 낮은 순" },
+  { key: "priceDesc", label: "가격: 높은 순" },
+  { key: "discount", label: "할인율 높은 순" },
+] as const;
+
+function PriceSearchPage({ max, onOpenGame, onChangeMax }: { max: number; onOpenGame: (slug: string) => void; onChangeMax: (max: number) => void }) {
+  const [slider, setSlider] = useState(max);
+  const [games, setGames] = useState<any[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [q, setQ] = useState("");
+  const [sort, setSort] = useState<(typeof PRICE_SORTS)[number]["key"]>("relevance");
+  const [onlyDiscount, setOnlyDiscount] = useState(false);
+  const [genre, setGenre] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => setSlider(max), [max]);
+
+  useEffect(() => {
+    setGames(null);
+    fetch("/api/price-search?max=" + max)
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((d) => setGames(d.games))
+      .catch((e) => setError(e.message));
+  }, [max]);
+
+  function handleSlide(v: number) {
+    setSlider(v);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => onChangeMax(v), 300);
+  }
+
+  const genreCounts = (() => {
+    const m = new Map<string, number>();
+    for (const g of games ?? []) for (const t of g.genres ?? []) m.set(t, (m.get(t) ?? 0) + 1);
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+  })();
+
+  const shown = (() => {
+    let rows = games ?? [];
+    if (q.trim()) rows = rows.filter((g: any) => g.name.toLowerCase().includes(q.trim().toLowerCase()));
+    if (onlyDiscount) rows = rows.filter((g: any) => g.discountPercent > 0);
+    if (genre) rows = rows.filter((g: any) => (g.genres ?? []).includes(genre));
+    rows = [...rows];
+    if (sort === "priceAsc") rows.sort((a, b) => a.finalKrw - b.finalKrw);
+    else if (sort === "priceDesc") rows.sort((a, b) => b.finalKrw - a.finalKrw);
+    else if (sort === "discount") rows.sort((a, b) => b.discountPercent - a.discountPercent);
+    return rows;
+  })();
+
+  if (error) return <div className="err">가격대별 검색 결과를 불러오지 못했습니다: {error}</div>;
+
+  return (
+    <div className="catpage">
+      <div className="wrap">
+        <h1 className="cp-title">모든 제품</h1>
+
+        {games === null ? (
+          <div className="loading">불러오는 중…</div>
+        ) : (
+          <>
+            <div className="price-toolbar">
+              <input
+                type="text"
+                className="price-search-input"
+                placeholder="검색어 입력"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+              <label className="price-sort">
+                정렬 기준:
+                <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
+                  {PRICE_SORTS.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+                </select>
+              </label>
+            </div>
+
+            <div className="price-body">
+              <div className="price-list">
+                <div className="price-count">검색 결과가 {shown.length}개 있습니다.</div>
+                {shown.length ? (
+                  <div className="rel-list">
+                    {shown.map((g: any) => (
+                      <RelRow key={g.slug} g={g} onOpen={onOpenGame} onHover={() => {}} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="cp-empty"><p>조건에 맞는 게임이 없습니다.</p></div>
+                )}
+              </div>
+
+              <aside className="price-sidebar">
+                <h3 className="price-side-h">가격대</h3>
+                <input
+                  type="range"
+                  min={1000}
+                  max={PRICE_SLIDER_MAX}
+                  step={1000}
+                  value={slider}
+                  onChange={(e) => handleSlide(Number(e.target.value))}
+                  className="price-slider"
+                />
+                <div className="price-slider-val">₩ {slider.toLocaleString("ko-KR")} 미만</div>
+                <div className="price-presets">
+                  {PRICE_PRESETS.map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      className={"cat-tab" + (max === p ? " on" : "")}
+                      onClick={() => onChangeMax(p)}
+                    >
+                      ₩ {p.toLocaleString("ko-KR")} 미만
+                    </button>
+                  ))}
+                </div>
+                <label className="price-check-row">
+                  <input type="checkbox" checked={onlyDiscount} onChange={(e) => setOnlyDiscount(e.target.checked)} />
+                  할인 및 이벤트
+                </label>
+
+                {genreCounts.length > 0 && (
+                  <>
+                    <h3 className="price-side-h">장르</h3>
+                    <div className="price-genre-list">
+                      {genreCounts.map(([name, n]) => (
+                        <button
+                          key={name}
+                          type="button"
+                          className={"price-genre-row" + (genre === name ? " on" : "")}
+                          onClick={() => setGenre(genre === name ? null : name)}
+                        >
+                          <span>{name}</span>
+                          <b>{n}</b>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                <h3 className="price-side-h">언어</h3>
+                <label className="price-lang-row">
+                  <input type="checkbox" checked readOnly />
+                  한국어
+                </label>
+              </aside>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------
 // 할인 및 이벤트 페이지
 // ---------------------------------------------------------------
-function DealsHeroSlide({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
+function DealsHeroSlide({
+  g, onOpen, user, isWishlisted, onToggleWishlist,
+}: {
+  g: any; onOpen: (slug: string) => void; user: User | null; isWishlisted: boolean; onToggleWishlist: (slug: string) => void;
+}) {
   return (
     <div className="deals-hero-slide">
-      <div className="deals-hero-media" onClick={() => onOpen(g.slug)}>
+      <div className="deals-hero-media">
         {g.previewVideoUrl ? (
           <HoverVideo src={g.previewVideoUrl} />
         ) : (
           <div className="deals-hero-img" style={bgStyle(g.headerImage)} />
         )}
       </div>
-      <div className="deals-hero-info" onClick={() => onOpen(g.slug)}>
+      <div className="deals-hero-card">
+        <div className="deals-hero-thumb" onClick={() => onOpen(g.slug)} style={bgStyle(g.capsuleImage || g.headerImage)}>
+          {user && (
+            <button
+              type="button"
+              className={"deals-hero-wish" + (isWishlisted ? " on" : "")}
+              onClick={(e) => { e.stopPropagation(); onToggleWishlist(g.slug); }}
+              aria-label="찜하기"
+            >
+              {isWishlisted ? "★" : "☆"}
+            </button>
+          )}
+        </div>
         <div className="deals-hero-tags">
           {g.tags.slice(0, 5).map((t: string) => <span key={t} className="pill">{t}</span>)}
         </div>
@@ -542,6 +708,7 @@ function DealsPage({
   onOpenGame,
   onOpenCategory,
   onLogin,
+  onToggleWishlist,
 }: {
   categories: any[];
   user: User | null;
@@ -549,6 +716,7 @@ function DealsPage({
   onOpenGame: (slug: string) => void;
   onOpenCategory: (slug: string) => void;
   onLogin: (e: React.MouseEvent) => void;
+  onToggleWishlist: (slug: string) => void;
 }) {
   const [subTab, setSubTab] = useState<string | null>(null);
   const [deals, setDeals] = useState<any[] | null>(null);
@@ -576,8 +744,17 @@ function DealsPage({
 
   return (
     <div className="catpage">
-      <div className="carousel-bleed">
-        <Carousel autoMs={8000} slides={heroGames.map((g: any) => <DealsHeroSlide key={g.slug} g={g} onOpen={onOpenGame} />)} />
+      <div className="wrap">
+        <Carousel autoMs={8000} slides={heroGames.map((g: any) => (
+          <DealsHeroSlide
+            key={g.slug}
+            g={g}
+            onOpen={onOpenGame}
+            user={user}
+            isWishlisted={wishlist.some((w: any) => w.slug === g.slug)}
+            onToggleWishlist={onToggleWishlist}
+          />
+        ))} />
       </div>
       <div className="wrap">
         <h1 className="cp-title">할인 및 이벤트</h1>
@@ -685,8 +862,9 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals" | "library">("store");
+  const [view, setView] = useState<View>("store");
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
+  const [priceMax, setPriceMax] = useState(10000);
   const [user, setUser] = useState<User | null>(null);
   // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
   // user id를 그대로 key로 쓰면 안 됨 - 로그인 순간에도 리마운트되어 메시지가 사라진다).
@@ -743,7 +921,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals" | "library"> = {
+    const OF_HASH: Record<string, View> = {
       "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
       "#cart": "cart", "#wishlist": "wishlist", "#sale": "sale", "#deals": "deals", "#library": "library",
     };
@@ -759,6 +937,13 @@ export default function Home() {
       if (h.startsWith("#category/")) {
         setCategorySlug(decodeURIComponent(h.slice("#category/".length)));
         setView("category");
+        return;
+      }
+      // #price/<max> 는 가격대별 검색 페이지
+      if (h.startsWith("#price/")) {
+        const n = Number(h.slice("#price/".length));
+        setPriceMax(Number.isFinite(n) && n > 0 ? n : 10000);
+        setView("price");
         return;
       }
       setModalSlug(null);
@@ -901,6 +1086,19 @@ export default function Home() {
     if (res.ok) setWishlist(await res.json());
   }
 
+  /** 찜 목록 드래그로 바꾼 순서를 저장한다. 서버 응답이 오기 전에 화면부터 먼저 바꿔서(낙관적 업데이트) 딜레이 없이 반영한다. */
+  async function reorderWishlist(slugs: string[]) {
+    if (!user) return;
+    const bySlug = new Map(wishlist.map((g: any) => [g.slug, g]));
+    setWishlist(slugs.map((s) => bySlug.get(s)).filter(Boolean));
+    const res = await fetch("/api/wishlist/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slugs }),
+    });
+    if (res.ok) setWishlist(await res.json());
+  }
+
   /** 로그인 성공 시: 게스트 카트가 있으면 서버 카트로 병합, 없으면 그냥 서버 카트를 불러온다. 찜 목록도 같이 불러온다. */
   async function handleLogin(u: User) {
     writeUser(u);
@@ -939,7 +1137,7 @@ export default function Home() {
     sale: "sale", deals: "deals", library: "library",
   };
 
-  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals" | "library", e?: React.MouseEvent) {
+  function goView(v: View, e?: React.MouseEvent) {
     e?.preventDefault();
     window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
@@ -966,6 +1164,14 @@ export default function Home() {
     window.location.hash = "category/" + encodeURIComponent(slug);
     setCategorySlug(slug);
     setView("category");
+    window.scrollTo({ top: 0 });
+  }
+
+  /** 가격대별 검색 페이지(#price/<max>)로 이동 */
+  function openPriceSearch(max: number) {
+    window.location.hash = "price/" + max;
+    setPriceMax(max);
+    setView("price");
     window.scrollTo({ top: 0 });
   }
 
@@ -1188,8 +1394,7 @@ export default function Home() {
 
           {data && (
             <>
-              {/* 상단 히어로는 사이버펑크 전면 배너가 대신한다.
-                  Hero 컴포넌트는 카테고리 페이지에서 계속 쓰므로 남겨 둔다. */}
+              {/* 상단 히어로는 사이버펑크 전면 배너가 대신한다. */}
               <Takeover onOpen={() => goView("sale")} />
 
               <section className="section">
@@ -1309,7 +1514,11 @@ export default function Home() {
               <section className="section"><div className="wrap align-feat">
                 <div className="sec-head">
                   <h2 className="sec-title">₩ 10,000 미만</h2>
-                  <div className="headbtns">더 보기: <button className="more-btn">₩ 10,000 미만</button><button className="more-btn">₩ 5,000 미만</button></div>
+                  <div className="headbtns">
+                    더 보기:
+                    <button className="more-btn" onClick={() => openPriceSearch(10000)}>₩ 10,000 미만</button>
+                    <button className="more-btn" onClick={() => openPriceSearch(5000)}>₩ 5,000 미만</button>
+                  </div>
                 </div>
                 <Carousel
                   autoMs={0}
@@ -1365,11 +1574,12 @@ export default function Home() {
           <WishlistPage
             wishlist={wishlist}
             cart={cart}
-            userName={user.nickname}
+            user={user}
             onBack={() => goView("store")}
             onOpenGame={openModal}
             onRemove={removeFromWishlist}
             onAddToCart={addToCart}
+            onReorder={reorderWishlist}
           />
         ) : (
           <div className="cartpage"><div className="wrap cp-empty">
@@ -1398,6 +1608,9 @@ export default function Home() {
           wishlist={wishlist}
           onOpenGame={openModal}
           onLogin={(e) => goView("login", e)}
+          onToggleWishlist={(slug) =>
+            wishlist.some((w: any) => w.slug === slug) ? removeFromWishlist(slug) : addToWishlist(slug)
+          }
         />
       )}
 
@@ -1418,7 +1631,14 @@ export default function Home() {
           onOpenGame={openModal}
           onOpenCategory={openCategory}
           onLogin={(e) => goView("login", e)}
+          onToggleWishlist={(slug) =>
+            wishlist.some((w: any) => w.slug === slug) ? removeFromWishlist(slug) : addToWishlist(slug)
+          }
         />
+      )}
+
+      {view === "price" && (
+        <PriceSearchPage max={priceMax} onOpenGame={openModal} onChangeMax={openPriceSearch} />
       )}
 
       <Auth

@@ -531,7 +531,7 @@ export default function StoreNav({
                     <div className="sres-head sres-head-gap">선호 장르</div>
                     <div className="sres-genres">
                       {favGenres.map((c: any) => (
-                        <div key={c.slug} className="sres-genre" onClick={() => { closeDrop(); onTag(c.name); }}>
+                        <div key={c.slug} className="sres-genre" onClick={() => { closeDrop(); onOpenCategory(c.slug); }}>
                           <div className="veil" style={bgStyle(c.image)} />
                           <b>{c.name}</b>
                         </div>
