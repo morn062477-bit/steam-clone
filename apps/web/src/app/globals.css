@@ -898,6 +898,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cartpage,.wishpage{padding:32px 0 60px}
 .wishpage{background:#191d24}
 .wishpage .wrap{max-width:1300px}
+.cartpage .wrap{max-width:1300px}
 .cp-crumb{color:#7d8b99;font-size:13px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
 .cp-crumb a{color:#67c1f5}
 .cp-crumb a:hover{color:#fff}
@@ -911,7 +912,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 /* 상품 목록. 실제 Steam 처럼 줄 하나하나가 아니라 패널 한 장 안에 줄이 쌓인다 */
 .cp-panel{background:#1f2b3c;padding:16px}
-.cp-row{display:flex;align-items:flex-start;gap:16px;padding:8px 0}
+.cp-row{display:flex;align-items:flex-start;gap:16px;padding:16px 0;background:#00000040}
 .cp-row+.cp-row{border-top:1px solid rgba(255,255,255,.06);margin-top:8px;padding-top:16px}
 .cp-thumb{
   width:231px;aspect-ratio:231/87;flex:0 0 auto;border-radius:2px;
@@ -920,15 +921,13 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cp-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
 .cp-name{color:#fff;font-size:17px;font-weight:400;cursor:pointer}
 .cp-name:hover{color:#67c1f5}
-.cp-plat{display:flex;align-items:center;gap:6px;color:#8f98a0;font-size:14px}
-.cp-plat i{font-style:normal}
 /* 개인 소장용 / 선물용. 지금은 표시만 하고 서버로 보내지 않는다 */
 .cp-gift{
   align-self:flex-start;background:#2a3f55;color:#c7d5e0;border:0;border-radius:2px;
-  font-size:13px;padding:6px 10px;cursor:pointer;
+  font-size:13px;padding:6px 10px;cursor:pointer;margin-top:26px;
 }
 /* 가격과 추가·제거를 오른쪽에 세로로 쌓는다 */
-.cp-rowside{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.cp-rowside{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-right:24px}
 .cp-price{display:flex;align-items:center;gap:8px;font-size:15px}
 .cp-disc{background:#4c6b22;color:#a4d007;font-size:15px;font-weight:600;padding:5px 7px}
 .cp-was{color:#7a8b99;text-decoration:line-through;font-size:13px}
@@ -950,7 +949,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 /* 맞춤 추천 */
 .cp-h2{color:#fff;font-size:17px;font-weight:400;margin-bottom:14px}
-.cp-rec{margin-top:40px}
+.cp-rec{margin-top:80px}
 .cp-rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .cp-rec-card{cursor:pointer;background:#000}
 .cp-rec-card .art{
@@ -959,7 +958,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cp-rec-card .cp-price{justify-content:flex-end;padding:6px 8px;background:#000}
 
 .cp-side{flex:0 0 390px;display:flex;flex-direction:column;gap:18px}
-.cp-summary{background:#1f2b3c;padding:18px}
+.cp-summary{background:#00000040;padding:18px}
 .cp-summary-row{display:flex;justify-content:space-between;align-items:center;color:#c7d5e0;font-size:14px;margin-bottom:8px}
 .cp-summary-row b{color:#fff;font-size:18px;font-weight:400}
 .cp-summary-note{color:#7d8b99;font-size:11px;line-height:1.5;margin-bottom:16px}
@@ -972,6 +971,11 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cp-paymethod.on{background:#1b2838;color:#66c0f4;border-color:#66c0f4}
 .cp-checkout-error{color:#e36f6f}
 .cp-checkout{display:block;text-align:center;width:100%;padding:12px}
+.cp-checkout-btn{
+  background:linear-gradient(to right,#00adff 0%,#1b5ac2 60%);
+  background-position:25%;
+  background-size:330% 100%;
+}
 [aria-disabled="true"].btn-blue,[aria-disabled="true"].cp-checkout{opacity:.6;pointer-events:none}
 
 /* 라이선스 안내. 그림은 cartpage.tsx 의 인라인 SVG(LicenseArt) */
@@ -1077,6 +1081,13 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 @media (max-width:900px){
   .cp-body{flex-direction:column}
   .cp-side{width:100%}
+}
+@media (max-width:560px){
+  /* 좁은 화면에서 cp-thumb(고정 231px) + cp-rowside(고정폭, 안 줄어듦)를 그대로 나란히 두면
+     cp-info가 찌그러지다 못해 cp-rowside 안의 가격/추가/제거가 화면 밖으로 밀려 잘린다.
+     그래서 이 폭 아래에서는 cp-rowside를 새 줄로 내린다. */
+  .cp-row{flex-wrap:wrap}
+  .cp-rowside{flex:1 1 100%;flex-direction:row;align-items:center;justify-content:space-between;margin-top:8px}
 }
 /* ---------- 인증 완료 화면 ---------- */
 #doneView{display:none;position:relative;min-height:640px;overflow:hidden}

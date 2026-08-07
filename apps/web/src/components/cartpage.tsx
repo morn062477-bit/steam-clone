@@ -129,11 +129,6 @@ export default function CartPage({
 
                     <div className="cp-info">
                       <div className="cp-name" onClick={() => onOpenGame(g.slug)}>{g.name}</div>
-                      <div className="cp-plat">
-                        {(g.platforms?.windows ?? true) && <i title="Windows">⊞</i>}
-                        {g.platforms?.mac && <i title="macOS"></i>}
-                        {g.platforms?.linux && <i title="Linux">🐧</i>}
-                      </div>
                       <select
                         className="cp-gift"
                         value={giftFor[g.slug] ?? "self"}
@@ -170,7 +165,7 @@ export default function CartPage({
                 <div className="cp-actions-btns">
                   <a className="btn-grey" href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>쇼핑 계속하기</a>
                   <a
-                    className="btn-blue"
+                    className="btn-blue cp-checkout-btn"
                     href="#"
                     aria-disabled={checkoutBusy}
                     onClick={(e) => { e.preventDefault(); if (!checkoutBusy) onCheckout(); }}
@@ -223,7 +218,7 @@ export default function CartPage({
                 </div>
                 {checkoutError && <p className="cp-summary-note cp-checkout-error">{checkoutError}</p>}
                 <a
-                  className="btn-blue cp-checkout"
+                  className="btn-blue cp-checkout cp-checkout-btn"
                   href="#"
                   aria-disabled={checkoutBusy}
                   onClick={(e) => { e.preventDefault(); if (!checkoutBusy) onCheckout(); }}
