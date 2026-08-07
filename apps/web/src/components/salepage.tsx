@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
  *   → 인기 게임 → 게임 검색(필터 + 목록) → 예정된 이벤트 및 뉴스
  *
  * 별도 API 없이 /api/home 으로 받은 데이터를 그대로 재료로 쓴다.
- * 페이지 배경은 전면 배너와 같은 이미지를 fixed 로 깔아 스크롤해도 남는다.
+ * 페이지 배경은 실제 Steam 축제 페이지와 같은 이미지를 세로 반복으로 깐다(globals.css).
  */
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
@@ -112,9 +112,6 @@ export default function SalePage({
 
   return (
     <div className="salepage">
-      {/* 페이지 배경. 스크롤해도 뒤에 남는다 */}
-      <div className="sp-bg" style={bgStyle(bg)} />
-
       {/* 전면 배너 */}
       <div className="sp-takeover" style={bgStyle(bg)} />
 
