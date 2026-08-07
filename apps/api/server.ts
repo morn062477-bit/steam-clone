@@ -347,8 +347,9 @@ async function buildDetail(slug: string) {
       reqWindows: true,
       steamAppId: true,
       reviewCount: true,
+      // 날짜/플레이시간 필터를 프론트에서 걸려면 5개로는 부족해 넉넉히 받아온다.
       reviews: {
-        take: 5,
+        take: 30,
         orderBy: { helpfulCount: 'desc' },
         select: reviewCardSelect,
       },
@@ -363,6 +364,35 @@ async function buildDetail(slug: string) {
     take: 5,
     select: reviewCardSelect,
   });
+
+  // 비슷한 게임: 같은 장르 태그를 가장 많이 공유하는 다른 게임 순.
+  // DLC 관계 데이터가 없어서(수집한 DLC appid가 우리 DB 게임과 매칭 안 됨) 장르 겹침으로 대신한다.
+  const genreLinks = await prisma.gameTag.findMany({
+    where: { gameId: g.id, tag: { kind: 'GENRE' } },
+    select: { tagId: true },
+  });
+  const genreTagIds = genreLinks.map((t) => t.tagId);
+
+  let similarGames: ReturnType<typeof toCard>[] = [];
+  if (genreTagIds.length) {
+    const overlap = await prisma.gameTag.groupBy({
+      by: ['gameId'],
+      where: { tagId: { in: genreTagIds }, gameId: { not: g.id } },
+      _count: { tagId: true },
+      orderBy: { _count: { tagId: 'desc' } },
+      take: 12,
+    });
+    const orderedIds = overlap.map((o) => o.gameId);
+    if (orderedIds.length) {
+      const rows = await prisma.game.findMany({
+        where: { id: { in: orderedIds } },
+        select: cardArgs(now),
+      });
+      const rank = new Map(orderedIds.map((id, i) => [id, i]));
+      rows.sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0));
+      similarGames = rows.map((r) => toCard(r, now));
+    }
+  }
 
   const card = toCard(g, now);
   return {
@@ -383,6 +413,7 @@ async function buildDetail(slug: string) {
     reviews: g.reviews.map(toReviewDto),
     recentReviews: recentReviews.map(toReviewDto),
     reviewCountLocal: g._count.reviews,
+    similarGames,
   };
 }
 
