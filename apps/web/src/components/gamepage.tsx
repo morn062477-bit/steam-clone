@@ -1,6 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+// 상세 페이지 영상. Steam appdetails가 mp4/webm 대신 HLS(m3u8)만 주기 때문에
+// Safari는 네이티브로, 그 외 브라우저는 hls.js로 재생한다.
+function DetailVideo({ src, poster }: { src: string; poster?: string }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = src;
+      return;
+    }
+
+    let hls: import("hls.js").default | undefined;
+    import("hls.js").then(({ default: Hls }) => {
+      if (!videoRef.current || !Hls.isSupported()) return;
+      hls = new Hls();
+      hls.loadSource(src);
+      hls.attachMedia(videoRef.current);
+    });
+
+    return () => hls?.destroy();
+  }, [src]);
+
+  return (
+    <video
+      ref={videoRef}
+      className="gp-shot-video"
+      poster={poster}
+      controls
+      autoPlay
+      muted
+      loop
+      playsInline
+    />
+  );
+}
 
 /**
  * 게임 상세 페이지. 실제 Steam 상점 페이지 구성을 따른다.
@@ -30,9 +69,10 @@ function priceText(g: any) {
   return won(g.priceKrw);
 }
 
-/** 리뷰 요약 색: 긍정 70% 이상이면 파랑, 아니면 주황 */
-const reviewCls = (pct: number | null) =>
-  "gp-review-sum" + (pct == null ? "" : pct >= 70 ? " positive" : pct >= 40 ? "" : " negative");
+/** 긍정 70% 이상이면 파랑, 40% 미만이면 주황, 그 사이는 중립(회색) */
+const sentimentTone = (pct: number | null) => (pct == null ? "" : pct >= 70 ? " positive" : pct >= 40 ? "" : " negative");
+const reviewCls = (pct: number | null) => "gp-review-sum" + sentimentTone(pct);
+const pillCls = (pct: number | null) => "gp-review-pill" + sentimentTone(pct);
 
 export default function GamePage({
   slug,
@@ -80,7 +120,28 @@ export default function GamePage({
   if (!g) return <div className="loading">불러오는 중…</div>;
 
   const shots: any[] = g.screenshots ?? [];
+  // 영상(있으면)을 맨 앞에 두고 스크린샷을 잇는다. gp-shot/gp-strip/화살표가
+  // 이 하나의 목록만 보고 동작하면 종류 구분 없이 다 같이 움직인다.
+  const media: { type: "video" | "image"; url: string; thumb?: string }[] = [
+    ...(g.detailVideoUrl ? [{ type: "video" as const, url: g.detailVideoUrl }] : []),
+    ...shots.map((s: any) => ({ type: "image" as const, url: s.url, thumb: s.thumb })),
+  ];
+  const current = media[shot];
   const STRIP = 6; // 썸네일 줄에 한 번에 보이는 개수
+  const maxStripFrom = Math.max(0, media.length - STRIP);
+  const canScrollStrip = media.length > STRIP;
+  // 화살표로 넘기면 shot도 같이 순환하며 이동하고, 그 shot이 안 보이면 스트립도 따라 스크롤한다.
+  // 썸네일 직접 클릭은 그냥 setShot만으로 충분하다(이미 화면에 보이는 항목이라).
+  const goShot = (dir: 1 | -1) => {
+    if (!media.length) return;
+    const next = (shot + dir + media.length) % media.length;
+    setShot(next);
+    setStripFrom((from) => {
+      if (next < from) return next;
+      if (next >= from + STRIP) return Math.min(maxStripFrom, next - STRIP + 1);
+      return from;
+    });
+  };
   const platforms = [g.platforms?.windows && "Windows", g.platforms?.mac && "macOS", g.platforms?.linux && "Linux"]
     .filter(Boolean)
     .join(", ");
@@ -89,8 +150,11 @@ export default function GamePage({
   return (
     <div className="gamepage">
       <div className="wrap">
-        {/* ---------- 빵부스러기 ---------- */}
-        <div className="gp-crumb">
+              <div className="gp-title-row">
+          <h1 className="gp-title">{g.name}</h1>
+          <a className="gp-hub" href="#" onClick={(e) => e.preventDefault()}>커뮤니티 허브</a>
+        </div>
+         <div className="gp-crumb">
           <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>모든 게임</a>
           {g.genres?.[0] && (
             <>
@@ -101,26 +165,39 @@ export default function GamePage({
           <span>&gt;</span>
           <span className="cur">{g.name}</span>
         </div>
-
-        <div className="gp-title-row">
-          <h1 className="gp-title">{g.name}</h1>
-          <a className="gp-hub" href="#" onClick={(e) => e.preventDefault()}>커뮤니티 허브</a>
+        <div className="promoBox">
+          <img className="promo" src="https://clan.fastly.steamstatic.com/images/46141020/07c258a25dcf7d2a04fa20da6749d9aa7d6d8d19.jpg" alt="" />
         </div>
+        {/* ---------- 빵부스러기 ---------- */}
 
         {/* ---------- 갤러리 + 요약 ---------- */}
         <div className="gp-top">
           <div className="gp-media">
-            <div className="gp-shot" style={bgStyle(shots[shot]?.url || g.headerImage)} />
+            <div className="gp-shot" style={current?.type === "image" ? bgStyle(current.url || g.headerImage) : bgStyle(g.headerImage)}>
+              {current?.type === "video" && <DetailVideo src={current.url} poster={g.headerImage} />}
+            </div>
             <div className="gp-strip-row">
-              <button className="gp-arrow" onClick={() => setStripFrom((v) => Math.max(0, v - 1))} disabled={stripFrom === 0}>‹</button>
+              <button className="gp-arrow" onClick={() => goShot(-1)} disabled={!canScrollStrip}>‹</button>
               <div className="gp-strip">
-                {shots.slice(stripFrom, stripFrom + STRIP).map((s: any, i: number) => {
+                {media.slice(stripFrom, stripFrom + STRIP).map((m, i) => {
                   const idx = stripFrom + i;
+                  if (m.type === "video") {
+                    return (
+                      <div
+                        key="video"
+                        className={"gp-thumb gp-thumb-video" + (idx === shot ? " on" : "")}
+                        style={bgStyle(g.headerImage)}
+                        onClick={() => setShot(idx)}
+                      >
+                        <span className="gp-play">▶</span>
+                      </div>
+                    );
+                  }
                   return (
                     <div
                       key={idx}
                       className={"gp-thumb" + (idx === shot ? " on" : "")}
-                      style={bgStyle(s.thumb || s.url)}
+                      style={bgStyle(m.thumb || m.url)}
                       onClick={() => setShot(idx)}
                     />
                   );
@@ -128,8 +205,8 @@ export default function GamePage({
               </div>
               <button
                 className="gp-arrow"
-                onClick={() => setStripFrom((v) => Math.min(Math.max(0, shots.length - STRIP), v + 1))}
-                disabled={stripFrom >= shots.length - STRIP}
+                onClick={() => goShot(1)}
+                disabled={!canScrollStrip}
               >
                 ›
               </button>
@@ -237,52 +314,6 @@ export default function GamePage({
                 </div>
               </>
             )}
-
-            {/* ---------- 사용자 평가 ---------- */}
-            <h2 className="gp-h2 gp-reviews-h">{g.name}에 대한 사용자 평가</h2>
-            <div className="gp-review-box">
-              <div className="gp-review-total">
-                <div className="lbl">종합 평가:</div>
-                <div className={reviewCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</div>
-                <div className="cnt">(평가 {(g.reviewTotal ?? 0).toLocaleString("ko-KR")}개)</div>
-              </div>
-              <div className="gp-review-bars">
-                <div><span>한국어 평가:</span><b>{g.reviewCountLocal ?? 0}</b>개</div>
-                <div><span>최근 평가(모든 언어):</span><b>{(g.reviewTotal ?? 0).toLocaleString("ko-KR")}</b></div>
-              </div>
-            </div>
-
-            <h3 className="gp-h3">가장 유용한 평가</h3>
-            {g.reviews?.length ? (
-              g.reviews.map((r: any, i: number) => (
-                <div className="gp-review" key={i}>
-                  <div className="gp-review-user">
-                    <div className="ava" style={bgStyle(r.avatarUrl)} />
-                    <div>
-                      <b>{r.nickname}</b>
-                    </div>
-                  </div>
-                  <div className="gp-review-body">
-                    <div className="gp-review-verdict">
-                      <span className={"thumb" + (r.isRecommended ? "" : " no")}>{r.isRecommended ? "👍" : "👎"}</span>
-                      <div>
-                        <b>{r.isRecommended ? "추천" : "비추천"}</b>
-                        <small>기록상 {r.playtimeHours}시간</small>
-                      </div>
-                    </div>
-                    <div className="gp-review-date">게시 일시: {ymd(r.createdAt)}</div>
-                    <p className="gp-review-text">{r.content}</p>
-                    <div className="gp-review-help">
-                      이 평가가 유용한가요?
-                      <span className="btns"><i>👍 네</i><i>👎 아니요</i><i>유쾌</i></span>
-                    </div>
-                    <div className="gp-review-count">{r.helpfulCount}명이 이 평가가 유용하다고 함</div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="gp-empty">아직 등록된 평가가 없습니다.</div>
-            )}
           </div>
 
           {/* ---------- 우측 정보 ---------- */}
@@ -303,6 +334,87 @@ export default function GamePage({
               <div className="gp-info-line">출시일: {ymd(g.releaseDate)}</div>
             </div>
           </aside>
+        </div>
+
+        {/* ---------- 사용자 평가 (wrap 전체 폭) ---------- */}
+        <h2 className="gp-h2 gp-reviews-h">{g.name}에 대한 사용자 평가</h2>
+        <div className="gp-review-box">
+          <div className="gp-review-total">
+            <div className="lbl">종합 평가:</div>
+            <div className={reviewCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</div>
+            <div className="cnt">(평가 {(g.reviewTotal ?? 0).toLocaleString("ko-KR")}개)</div>
+          </div>
+          <div className="gp-review-bars">
+            <div>
+              <span>전체 평가(모든 언어): <b>{(g.reviewTotal ?? 0).toLocaleString("ko-KR")}</b></span>
+              <span className={pillCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</span>
+            </div>
+            <div>
+              <span>한국어 평가: <b>{(g.reviewCountLocal ?? 0).toLocaleString("ko-KR")}</b>개</span>
+              <span className={pillCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="gp-reviews-cols">
+          <div className="gp-reviews-main">
+            <h3 className="gp-h3">가장 유용한 평가</h3>
+            {g.reviews?.length ? (
+              g.reviews.map((r: any, i: number) => (
+                <div className="gp-review" key={i}>
+                  <div className="gp-review-user">
+                    <div className="ava" style={bgStyle(r.avatarUrl)} />
+                    <div>
+                      <b>{r.nickname}</b>
+                    </div>
+                  </div>
+                  <div className="gp-review-body">
+                    <div className="gp-review-verdict">
+                      <span className={"thumb" + (r.isRecommended ? "" : " no")}>{r.isRecommended ? "👍" : "👎"}</span>
+                      <div>
+                        <b>{r.isRecommended ? "추천" : "비추천"}</b>
+                        <small>기록상 {r.playtimeHours}시간</small>
+                      </div>
+                      <span className="gp-review-star">★</span>
+                    </div>
+                    <div className="gp-review-date">게시 일시: {ymd(r.createdAt)}</div>
+                    <p className="gp-review-text">{r.content}</p>
+                    <div className="gp-review-help">
+                      이 평가가 유용한가요?
+                      <span className="btns"><i>👍 네</i><i>👎 아니요</i><i>유쾌</i><i>🏅 어워드</i></span>
+                    </div>
+                    <div className="gp-review-count">{r.helpfulCount}명이 이 평가가 유용하다고 함</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="gp-empty">아직 등록된 평가가 없습니다.</div>
+            )}
+          </div>
+
+          <div className="gp-reviews-recent">
+            <h3 className="gp-h3">최근 평가</h3>
+            {g.recentReviews?.length ? (
+              <div className="gp-recent-list">
+                {g.recentReviews.map((r: any, i: number) => (
+                  <div className="gp-recent-review" key={i}>
+                    <div className="gp-recent-head">
+                      <div className="ava" style={bgStyle(r.avatarUrl)} />
+                      <div>
+                        <b>{r.nickname}</b>
+                        <small>기록상 {r.playtimeHours}시간</small>
+                      </div>
+                    </div>
+                    <div className="gp-review-date">게시 일시: {ymd(r.createdAt)}</div>
+                    <p className="gp-recent-text">{r.content}</p>
+                    <div className="gp-review-help">이 평가가 유용한가요?</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="gp-empty">최근 평가가 없습니다.</div>
+            )}
+          </div>
         </div>
       </div>
     </div>
