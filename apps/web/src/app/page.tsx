@@ -1566,6 +1566,9 @@ export default function Home() {
           payMethods={PAY_METHODS}
           payMethodId={payMethodId}
           onSelectPayMethod={setPayMethodId}
+          // 장바구니에 이미 담긴 건 빼고 추천한다
+          recommend={(data?.deals ?? []).filter((g: any) => !cart.some((c: any) => c.slug === g.slug))}
+          onWish={user ? addToWishlist : undefined}
         />
       )}
 

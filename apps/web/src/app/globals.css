@@ -908,25 +908,57 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 .cp-body{display:flex;gap:24px;align-items:flex-start}
 .cp-main{flex:1;min-width:0}
-.cp-row{display:flex;align-items:center;gap:14px;background:#1f2b3c;padding:12px;margin-bottom:8px}
-.cp-thumb{width:120px;height:56px;flex:0 0 auto;border-radius:2px;background-size:cover;background-position:center;background-color:#0e1621;cursor:pointer}
-.cp-info{flex:1;min-width:0}
-.cp-name{color:#fff;font-size:15px;margin-bottom:6px;cursor:pointer}
-.cp-name:hover{color:#67c1f5}
-.cp-remove{color:#67c1f5;font-size:12px}
-.cp-remove:hover{color:#fff}
-.cp-price{display:flex;align-items:center;gap:8px;flex:0 0 auto;font-size:14px}
-.cp-disc{background:#4c6b22;color:#a4d007;font-size:14px;font-weight:600;padding:4px 6px}
-.cp-was{color:#7a8b99;text-decoration:line-through;font-size:12px}
-.cp-now{color:#c7d5e0}
 
-.cp-actions{display:flex;justify-content:space-between;gap:12px;margin-top:16px}
+/* 상품 목록. 실제 Steam 처럼 줄 하나하나가 아니라 패널 한 장 안에 줄이 쌓인다 */
+.cp-panel{background:#1f2b3c;padding:16px}
+.cp-row{display:flex;align-items:flex-start;gap:16px;padding:8px 0}
+.cp-row+.cp-row{border-top:1px solid rgba(255,255,255,.06);margin-top:8px;padding-top:16px}
+.cp-thumb{
+  width:231px;aspect-ratio:231/87;flex:0 0 auto;border-radius:2px;
+  background-size:cover;background-position:center;background-color:#0e1621;cursor:pointer;
+}
+.cp-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.cp-name{color:#fff;font-size:17px;font-weight:400;cursor:pointer}
+.cp-name:hover{color:#67c1f5}
+.cp-plat{display:flex;align-items:center;gap:6px;color:#8f98a0;font-size:14px}
+.cp-plat i{font-style:normal}
+/* 개인 소장용 / 선물용. 지금은 표시만 하고 서버로 보내지 않는다 */
+.cp-gift{
+  align-self:flex-start;background:#2a3f55;color:#c7d5e0;border:0;border-radius:2px;
+  font-size:13px;padding:6px 10px;cursor:pointer;
+}
+/* 가격과 추가·제거를 오른쪽에 세로로 쌓는다 */
+.cp-rowside{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.cp-price{display:flex;align-items:center;gap:8px;font-size:15px}
+.cp-disc{background:#4c6b22;color:#a4d007;font-size:15px;font-weight:600;padding:5px 7px}
+.cp-was{color:#7a8b99;text-decoration:line-through;font-size:13px}
+.cp-now{color:#c7d5e0}
+.cp-links{display:flex;align-items:center;gap:6px;color:#5f707f;font-size:12px}
+.cp-links a{color:#7d8b99}
+.cp-links a:hover{color:#fff}
+
+.cp-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.cp-actions-btns{display:flex;gap:10px}
+.btn-grey{background:#3a4048;color:#c7d5e0;padding:10px 20px;border-radius:2px;font-size:14px}
+.btn-grey:hover{background:#4a525c;color:#fff}
+.cp-clear{color:#7d8b99;font-size:12px}
+.cp-clear:hover{color:#fff}
 .btn-blue-outline{
   border:1px solid #4c6b8a;color:#c7d5e0;padding:10px 20px;border-radius:2px;font-size:14px;
 }
 .btn-blue-outline:hover{background:rgba(103,193,245,.1);color:#fff}
 
-.cp-side{flex:0 0 300px}
+/* 맞춤 추천 */
+.cp-h2{color:#fff;font-size:17px;font-weight:400;margin-bottom:14px}
+.cp-rec{margin-top:40px}
+.cp-rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cp-rec-card{cursor:pointer;background:#000}
+.cp-rec-card .art{
+  width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;background-color:#0e1621;
+}
+.cp-rec-card .cp-price{justify-content:flex-end;padding:6px 8px;background:#000}
+
+.cp-side{flex:0 0 390px;display:flex;flex-direction:column;gap:18px}
 .cp-summary{background:#1f2b3c;padding:18px}
 .cp-summary-row{display:flex;justify-content:space-between;align-items:center;color:#c7d5e0;font-size:14px;margin-bottom:8px}
 .cp-summary-row b{color:#fff;font-size:18px;font-weight:400}
@@ -941,6 +973,30 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cp-checkout-error{color:#e36f6f}
 .cp-checkout{display:block;text-align:center;width:100%;padding:12px}
 [aria-disabled="true"].btn-blue,[aria-disabled="true"].cp-checkout{opacity:.6;pointer-events:none}
+
+/* 라이선스 안내. 그림은 cartpage.tsx 의 인라인 SVG(LicenseArt) */
+.cp-license{background:#1f2b3c;padding:18px}
+.cp-art{display:block;width:100%;max-width:300px;margin:0 auto 16px}
+.cp-license p{color:#8f98a0;font-size:13px;line-height:1.6}
+.cp-license p+p{margin-top:12px}
+
+/* 제작자 팔로우 */
+.cp-follow{background:#1f2b3c;padding:18px}
+.cp-follow h3{color:#fff;font-size:15px;font-weight:400;margin-bottom:8px}
+.cp-follow-note{color:#8f98a0;font-size:13px;line-height:1.6;margin-bottom:16px}
+.cp-follow-row{display:flex;gap:12px;align-items:stretch}
+.cp-follow-row+.cp-follow-row{margin-top:12px}
+.cp-follow-logo{
+  width:56px;height:56px;flex:0 0 auto;border-radius:2px;
+  background-size:cover;background-position:center;background-color:#0e1621;
+}
+.cp-follow-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
+.cp-follow-name{color:#c7d5e0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp-follow-btn{
+  align-self:flex-start;background:#2a475e;color:#c7d5e0;
+  font-size:12px;padding:5px 12px;border-radius:2px;cursor:pointer;
+}
+.cp-follow-btn:hover{background:#376a94;color:#fff}
 
 .wish-cart-btn{
   flex:0 0 auto;background:linear-gradient(to bottom,#799905 5%,#536904 95%);
