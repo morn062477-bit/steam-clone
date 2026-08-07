@@ -96,9 +96,15 @@ export default function GamePage({
   onToggleWishlist?: (slug: string) => void;
 }) {
   const [g, setG] = useState<any>(null);
+  const similarRowRef = useRef<HTMLDivElement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [shot, setShot] = useState(0);
   const [stripFrom, setStripFrom] = useState(0);
+  // 평가 유형/날짜 범위/플레이 시간은 가진 데이터로 클라이언트에서 거를 수 있어 실제로 작동한다.
+  // 구매 형식/언어는 DB에 해당 필드가 없어 지금은 비활성 버튼으로만 둔다.
+  const [reviewTypeFilter, setReviewTypeFilter] = useState<"all" | "positive" | "negative">("all");
+  const [dateRangeFilter, setDateRangeFilter] = useState<"all" | "30d" | "90d" | "365d">("all");
+  const [playtimeFilter, setPlaytimeFilter] = useState<"all" | "0-10" | "10-100" | "100+">("all");
   const [descOpen, setDescOpen] = useState(false);
 
   useEffect(() => {
@@ -107,6 +113,9 @@ export default function GamePage({
     setShot(0);
     setStripFrom(0);
     setDescOpen(false);
+    setReviewTypeFilter("all");
+    setDateRangeFilter("all");
+    setPlaytimeFilter("all");
     fetch("/api/game/" + encodeURIComponent(slug))
       .then((r) => {
         if (!r.ok) throw new Error("HTTP " + r.status);
@@ -146,15 +155,26 @@ export default function GamePage({
     .filter(Boolean)
     .join(", ");
   const req = g.reqWindows ?? {};
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const filteredReviews: any[] = (g.reviews ?? []).filter((r: any) => {
+    if (reviewTypeFilter !== "all" && r.isRecommended !== (reviewTypeFilter === "positive")) return false;
+    if (dateRangeFilter !== "all") {
+      const days = { "30d": 30, "90d": 90, "365d": 365 }[dateRangeFilter];
+      if (Date.now() - new Date(r.createdAt).getTime() > days * DAY_MS) return false;
+    }
+    if (playtimeFilter !== "all") {
+      const h = r.playtimeHours;
+      if (playtimeFilter === "0-10" && !(h < 10)) return false;
+      if (playtimeFilter === "10-100" && !(h >= 10 && h < 100)) return false;
+      if (playtimeFilter === "100+" && !(h >= 100)) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="gamepage">
       <div className="wrap">
-              <div className="gp-title-row">
-          <h1 className="gp-title">{g.name}</h1>
-          <a className="gp-hub" href="#" onClick={(e) => e.preventDefault()}>커뮤니티 허브</a>
-        </div>
-         <div className="gp-crumb">
+                 <div className="gp-crumb">
           <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>모든 게임</a>
           {g.genres?.[0] && (
             <>
@@ -165,6 +185,11 @@ export default function GamePage({
           <span>&gt;</span>
           <span className="cur">{g.name}</span>
         </div>
+              <div className="gp-title-row">
+          <h1 className="gp-title">{g.name}</h1>
+          <a className="gp-hub" href="#" onClick={(e) => e.preventDefault()}>커뮤니티 허브</a>
+        </div>
+
         <div className="promoBox">
           <img className="promo" src="https://clan.fastly.steamstatic.com/images/46141020/07c258a25dcf7d2a04fa20da6749d9aa7d6d8d19.jpg" alt="" />
         </div>
@@ -336,31 +361,112 @@ export default function GamePage({
           </aside>
         </div>
 
+        {/* ---------- 비슷한 게임 (같은 장르 태그 겹침 순) ---------- */}
+        {g.similarGames?.length > 0 && (
+          <section className="gp-similar-section">
+            <div className="gp-similar-head">
+              <h2 className="gp-h2">비슷한 게임 더 보기</h2>
+            </div>
+            <div className="gp-similar-wrap">
+              <button
+                className="arrow prev"
+                onClick={() => similarRowRef.current?.scrollBy({ left: -300, behavior: "smooth" })}
+              >
+                ‹
+              </button>
+              <div className="gp-similar-row" ref={similarRowRef}>
+                {g.similarGames.map((sg: any) => (
+                  <div key={sg.slug} className="gp-similar-card" onClick={() => onOpenGame(sg.slug)}>
+                    <div className="art" style={bgStyle(sg.headerImage || sg.capsuleImage)} />
+                    <div className="gp-similar-price">{priceText(sg)}</div>
+                  </div>
+                ))}
+              </div>
+              <button
+                className="arrow next"
+                onClick={() => similarRowRef.current?.scrollBy({ left: 300, behavior: "smooth" })}
+              >
+                ›
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* ---------- 사용자 평가 (wrap 전체 폭) ---------- */}
         <h2 className="gp-h2 gp-reviews-h">{g.name}에 대한 사용자 평가</h2>
         <div className="gp-review-box">
-          <div className="gp-review-total">
-            <div className="lbl">종합 평가:</div>
-            <div className={reviewCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</div>
-            <div className="cnt">(평가 {(g.reviewTotal ?? 0).toLocaleString("ko-KR")}개)</div>
+          <div className="gp-review-summary">
+            <div className="gp-review-total">
+              <div className="lbl">종합 평가:</div>
+              <div className={reviewCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</div>
+              <div className="cnt">(평가 {(g.reviewTotal ?? 0).toLocaleString("ko-KR")}개)</div>
+            </div>
+            <div className="gp-review-bars">
+              <div>
+                <span>전체 평가(모든 언어): <b>{(g.reviewTotal ?? 0).toLocaleString("ko-KR")}</b></span>
+                <span className={pillCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</span>
+              </div>
+              <div>
+                <span>한국어 평가: <b>{(g.reviewCountLocal ?? 0).toLocaleString("ko-KR")}</b>개</span>
+                <span className={pillCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</span>
+              </div>
+            </div>
           </div>
-          <div className="gp-review-bars">
-            <div>
-              <span>전체 평가(모든 언어): <b>{(g.reviewTotal ?? 0).toLocaleString("ko-KR")}</b></span>
-              <span className={pillCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</span>
-            </div>
-            <div>
-              <span>한국어 평가: <b>{(g.reviewCountLocal ?? 0).toLocaleString("ko-KR")}</b>개</span>
-              <span className={pillCls(g.reviewPercent)}>{g.reviewDesc ?? "평가 없음"}</span>
-            </div>
+
+          <div className="gp-review-filters">
+            <select
+              className="gp-filter"
+              value={reviewTypeFilter}
+              onChange={(e) => setReviewTypeFilter(e.target.value as "all" | "positive" | "negative")}
+            >
+              <option value="all">평가 유형: 전체</option>
+              <option value="positive">평가 유형: 추천</option>
+              <option value="negative">평가 유형: 비추천</option>
+            </select>
+            <select className="gp-filter" defaultValue="all">
+              <option value="all">구매 형식: 전체</option>
+              <option value="steam">Steam 구매</option>
+              <option value="key">기타 활성화</option>
+            </select>
+            <select className="gp-filter" defaultValue="all">
+              <option value="all">언어: 내 언어</option>
+              <option value="ko">한국어</option>
+              <option value="en">영어</option>
+              <option value="all-lang">모든 언어</option>
+            </select>
+            <select
+              className="gp-filter"
+              value={dateRangeFilter}
+              onChange={(e) => setDateRangeFilter(e.target.value as "all" | "30d" | "90d" | "365d")}
+            >
+              <option value="all">날짜 범위: 전체</option>
+              <option value="30d">최근 30일</option>
+              <option value="90d">최근 90일</option>
+              <option value="365d">최근 1년</option>
+            </select>
+            <select
+              className="gp-filter"
+              value={playtimeFilter}
+              onChange={(e) => setPlaytimeFilter(e.target.value as "all" | "0-10" | "10-100" | "100+")}
+            >
+              <option value="all">플레이 시간: 전체</option>
+              <option value="0-10">10시간 미만</option>
+              <option value="10-100">10~100시간</option>
+              <option value="100+">100시간 이상</option>
+            </select>
+            <select className="gp-filter" defaultValue="useful">
+              <option value="useful">표시: 유용한 순</option>
+              <option value="recent">최신순</option>
+              <option value="funny">재밌음 순</option>
+            </select>
           </div>
         </div>
 
         <div className="gp-reviews-cols">
           <div className="gp-reviews-main">
             <h3 className="gp-h3">가장 유용한 평가</h3>
-            {g.reviews?.length ? (
-              g.reviews.map((r: any, i: number) => (
+            {filteredReviews.length ? (
+              filteredReviews.map((r: any, i: number) => (
                 <div className="gp-review" key={i}>
                   <div className="gp-review-user">
                     <div className="ava" style={bgStyle(r.avatarUrl)} />

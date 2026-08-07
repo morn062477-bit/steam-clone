@@ -957,8 +957,8 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 .gp-title-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
 .gp-title{color:#fff;font-size:26px;font-weight:400}
-.gp-hub{background:#2a475e;color:#c7d5e0;font-size:13px;padding:7px 14px;border-radius:2px}
-.gp-hub:hover{background:#3d6c8e;color:#fff}
+.gp-hub{background:#2a475e;color:#8fd0f5;font-size:13px;padding:7px 14px;border-radius:2px}
+.gp-hub:hover{background:#4d9fd6;color:#fff}
 
 /* 갤러리 + 요약 */
 .gp-top{display:flex;gap:14px;margin-bottom:16px;background:rgba(0,0,0,.2);border-radius:3px;padding-bottom:12px}
@@ -1051,17 +1051,50 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   font-family:inherit;background:rgba(0,0,0,.2);padding:10px;
 }
 
+/* 비슷한 게임 */
+.gp-similar-section{margin-top:28px;background:rgba(0,0,0,.15);padding:20px;border-radius:3px}
+.gp-similar-head{margin-bottom:14px}
+.gp-similar-wrap{position:relative}
+
+.gp-similar-wrap .arrow.prev{left:-65}
+.gp-similar-wrap .arrow.next{right:-65}
+.gp-similar-row{
+  display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;
+  scroll-snap-type:x proximity;
+}
+.gp-similar-row::-webkit-scrollbar{height:4px}
+.gp-similar-row::-webkit-scrollbar-track{background:rgba(255,255,255,.08);border-radius:2px}
+.gp-similar-row::-webkit-scrollbar-thumb{background:#c7d5e0;border-radius:2px}
+.gp-similar-card{flex:0 0 calc((100% - 36px) / 4);cursor:pointer;scroll-snap-align:start}
+.gp-similar-card .art{
+  height:150px;position:relative;
+  outline:2px solid transparent;transition:outline-color .15s ease;
+}
+.gp-similar-card:hover .art{outline-color:#66c0f4}
+.gp-similar-price{
+  margin:0;padding:6px 10px;background:#0e1621;color:#fff;font-size:15px;
+  font-weight:400;text-align:right;
+}
+
 /* 사용자 평가 */
 .gp-reviews-h{margin-top:28px}
-.gp-review-box{display:flex;gap:20px;align-items:stretch;background:rgba(0,0,0,.15);padding:16px;margin-bottom:6px}
+.gp-review-box{display:flex;flex-direction:column;align-items:center;gap:14px;background:rgba(0,0,0,.15);padding:16px;margin-bottom:6px;border-radius:3px}
+.gp-review-summary{display:flex;gap:20px;align-items:stretch;justify-content:center}
 .gp-review-total{text-align:center;background:rgba(0,0,0,.25);padding:16px 26px;border-radius:3px;min-width:180px;display:flex;flex-direction:column;justify-content:center;gap:4px}
 .gp-review-total .lbl{color:#8f98a0;font-size:12px}
 .gp-review-total .gp-review-sum{font-size:20px;font-weight:700;margin:2px 0}
 .gp-review-total .cnt{color:#8f98a0;font-size:12px}
-.gp-review-bars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;font-size:13px;color:#c7d5e0}
+.gp-review-bars{width:340px;display:flex;flex-direction:column;justify-content:center;gap:8px;font-size:13px;color:#c7d5e0}
 .gp-review-bars > div{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.25);padding:10px 14px;border-radius:3px}
 .gp-review-bars span{color:#c7d5e0}
 .gp-review-bars b{color:#fff;font-weight:600}
+.gp-review-filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.gp-filter{
+  background:#2a3f55;color:#c7d5e0;font-size:12px;padding:6px 12px;border-radius:2px;
+  border:0;font-family:inherit;cursor:pointer;
+}
+.gp-filter:hover:not(:disabled){background:#3d6c8e;color:#fff}
+.gp-filter:disabled{opacity:.5;cursor:default}
 .gp-review-pill{padding:4px 12px;border-radius:3px;font-size:12px;font-weight:600;white-space:nowrap;background:rgba(143,152,160,.15);color:#8f98a0}
 .gp-review-pill.positive{background:rgba(102,192,244,.15);color:#66c0f4}
 .gp-review-pill.negative{background:rgba(163,76,37,.15);color:#a34c25}
