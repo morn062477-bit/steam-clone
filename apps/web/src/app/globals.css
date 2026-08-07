@@ -573,6 +573,71 @@ button{font-family:inherit;cursor:pointer;border:0}
 .queue .q-right{position:absolute;right:0;top:0;bottom:0;width:520px;display:flex;gap:10px;transform:skewX(-6deg) translateX(30px);opacity:.85}
 .queue .q-right div{flex:1;border-radius:3px}
 
+/* 맞춤 추천 카드 묶음 폭. 287.48*4 + 12*3 = 1185.92px.
+   카테고리 페이지의 본문 구획들이 이 폭을 함께 쓴다(.cat-narrow).
+   카드 크기나 개수를 바꾸면 이 값만 고치면 된다. */
+:root{--rc-w:1185.92px}
+
+/* 카테고리 페이지 본문. 특집 탭 · 찜 목록 · 인기 게임 · 맞춤 추천 · 대기열이
+   모두 이 안에 들어가서 맞춤 추천 카드와 좌우 끝이 맞는다.
+   위쪽 히어로 배너는 다른 wrap 이라 넓은 폭 그대로다. */
+.cat-narrow{max-width:var(--rc-w)}
+
+/* ---------- 맞춤 추천 세로 포스터 캐러셀 (components/reccarousel.tsx) ---------- */
+/* 한 화면에 4장. 화살표는 카드 바깥으로 밀어 배경 위에 뜬다. */
+.rc{max-width:var(--rc-w);margin:34px auto}
+.rc-title{color:#fff;font-size:17px;font-weight:400;margin-bottom:14px}
+.rc-wrap{position:relative}
+/* 칸 폭을 그림 폭(287.48px)에 맞춘다. minmax 라 자리가 좁아지면 줄어들기만 하고
+   넓어져도 그 이상 늘어나지는 않는다. 4장 + 간격 3개 = 1185.92px.
+   컨테이너(.wrap)가 그보다 훨씬 넓어서 space-between 이면 양끝으로 벌어진다.
+   center 로 두어 남는 자리를 좌우로 나누고 카드끼리는 gap 만큼만 띄운다. */
+.rc-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,287.48px));gap:12px;
+  justify-content:center;
+}
+
+.rc-card{position:relative;cursor:pointer;background:#000;overflow:hidden;max-width:287.48px}
+/* 그림 287.48 x 344.36. 원본(600x900)보다 가로로 넓은 비율이라
+   cover 로 위아래를 잘라 채운다. 찌그러지지는 않는다. */
+.rc-card .art{
+  width:100%;height:344.36px;
+  background-size:cover;background-position:center;background-color:#0e1621;
+  transition:transform .25s ease;
+}
+.rc-card:hover .art{transform:scale(1.03)}
+/* 가격은 카드 아래 검은 띠에 오른쪽 정렬 */
+.rc-price{
+  display:flex;align-items:center;justify-content:flex-end;gap:8px;
+  padding:8px 10px;background:#000;font-size:14px;
+}
+.rc-price .disc{background:var(--green-bg);color:var(--bg-dark);font-weight:700;padding:3px 6px;border-radius:2px}
+.rc-price .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
+.rc-price .now{color:#c7d5e0}
+
+.rc-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  width:34px;height:70px;background:none;color:rgba(255,255,255,.55);
+  font-size:46px;line-height:1;cursor:pointer;
+}
+.rc-arrow:hover{color:#fff}
+.rc-arrow:disabled{opacity:.25;cursor:default}
+.rc-arrow.left{left:-44px}
+.rc-arrow.right{right:-44px}
+
+.rc-track{position:relative;height:3px;margin-top:16px;background:rgba(255,255,255,.12)}
+.rc-thumb{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.55);transition:left .25s ease}
+
+/* 화살표를 밖에 둘 자리가 없으면 카드 위로 들여놓는다 */
+@media (max-width:1300px){
+  .rc-arrow{background:rgba(0,0,0,.45)}
+  .rc-arrow.left{left:0}
+  .rc-arrow.right{right:0}
+}
+@media (max-width:900px){
+  .rc-grid{grid-template-columns:repeat(2,minmax(0,287.48px));justify-content:center}
+}
+
 /* ---------- 태그 스포트라이트 ---------- */
 .spotlights{display:flex;gap:22px}
 .spot{flex:1}
@@ -616,7 +681,10 @@ button{font-family:inherit;cursor:pointer;border:0}
 .deals-hero-price .now{color:#c7d5e0;font-weight:600}
 
 /* ---------- 카테고리(장르) 페이지 ---------- */
-.catpage{padding-bottom:60px}
+/* 탭 바가 100vw 로 넓어질 때 세로 스크롤바 폭만큼 넘칠 수 있어 가로만 잘라 둔다.
+   clip 은 hidden 과 달리 스크롤 컨테이너를 만들지 않아 안쪽 sticky 가 그대로 동작한다.
+   배경은 body 의 #1b2838 보다 어두운 남색으로 따로 깐다. */
+.catpage{padding-bottom:60px;overflow-x:clip;background:#131c26}
 .catpage .cp-title{margin-top:28px;text-align:center;font-size:44px;font-weight:700}
 /* 인기 게임 캐러셀: 위 2개는 크게, 아래 3개는 작게. 박스 배경 없이 카드가 페이지
    위에 바로 떠 있다. 카드는 DealCard(size="sm")를 그대로 쓰고, .art 높이만
@@ -633,26 +701,46 @@ button{font-family:inherit;cursor:pointer;border:0}
 .cat-tab:hover{background:#2a3a50;color:#fff}
 .cat-tab.on{background:#1a9fff;color:#fff}
 
-/* 카테고리 페이지 서브탭: 사이버펑크 축제 탭 바(.sp-tabbar)처럼 가운데 정렬 +
-   진한 패널 + 밑줄로 활성 탭을 표시하되, 버튼을 눌러야 펼쳐지는 드롭다운으로 만든다.
-   .price-presets 등 다른 곳의 알약형 .cat-tab 버튼은 그대로 두고 이 안에서만 덮어쓴다. */
-.cat-tabs-drop{position:relative;margin-bottom:24px}
-.cat-tabs-current{
-  width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
-  background:#16202d;color:#fff;font-size:14px;font-weight:600;padding:14px 12px;
+/* 카테고리 페이지 서브탭. 축제 페이지 .sp-tabbar-in 과 같은 모양이다.
+   접었다 펴는 드롭다운이 아니라 한 줄로 늘어놓고, 고른 항목만 흰 밑줄이 붙는다.
+   폭은 본문(.cat-narrow)을 그대로 채우므로 아래 구획들과 좌우 끝이 맞는다. */
+/* 스크롤해서 내려가면 상단 내비 바로 아래에 붙어 그대로 따라온다.
+   내비(.storenav)가 z-index:60 이라 그보다 낮게 두어 그 아래로 지나가게 한다.
+
+   바깥은 늘 화면 폭을 차지하되 배경이 없다. 안쪽 패널만 보이므로 평소에는
+   본문 폭 그대로이고, 붙었을 때 화면 끝까지 넓어질 자리가 미리 확보된다.
+   (본문 .cat-narrow 안에 갇혀 있으면 그 폭을 넘어설 수 없다) */
+.cat-tabbar{
+  position:sticky;top:var(--nav-h);z-index:20;margin-bottom:24px;
+  width:100vw;margin-left:calc(50% - 50vw);
 }
-.cat-tabs-current:hover{background:#1c2a3a}
-.cat-tabs-current .caret{font-size:11px;color:#8f98a0;transition:transform .15s ease}
-.cat-tabs-current .caret.up{transform:rotate(180deg)}
-.cat-tabs{
-  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:15;
-  display:flex;justify-content:center;gap:26px;flex-wrap:wrap;
-  background:#16202d;padding:16px 12px;box-shadow:0 10px 24px rgba(0,0,0,.45);
+.cat-tabbar-in{
+  /* 폭을 max-width 가 아니라 width 로 잡아야 .stuck 로 넓어질 때 애니메이션이 먹는다.
+     둘 다 계산된 길이라야 transition 이 중간값을 만들 수 있다. */
+  width:var(--rc-w);max-width:calc(100% - 0.6cm);margin:0 auto;
+  display:flex;justify-content:center;flex-wrap:wrap;gap:26px;padding:26px 12px;
+  /* 붙었을 때 뒤 내용이 비치면 안 되므로 불투명한 어두운 패널 */
+  background:linear-gradient(180deg,#151d26,#0f151c);
+  box-shadow:0 4px 18px rgba(0,0,0,.45);
+  transition:width .25s ease;
 }
-.cat-tabs .cat-tab{background:none;color:#c7d5e0;font-size:14px;font-weight:600;padding:4px 2px;position:relative;border-radius:0}
-.cat-tabs .cat-tab:hover{background:none;color:#fff}
-.cat-tabs .cat-tab.on{background:none;color:#fff}
-.cat-tabs .cat-tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:2px;background:#66c0f4}
+/* 상단에 붙으면 좌우 0.3cm 만 남기고 화면 끝까지 넓어진다.
+   .stuck 은 page.tsx 의 useStuck 훅이 sticky 가 걸린 순간을 재서 붙인다. */
+.cat-tabbar.stuck .cat-tabbar-in{width:calc(100% - 0.6cm)}
+.cat-tabbar-in .cat-tab{
+  background:none;color:#dfe6ee;font-size:14px;font-weight:600;
+  padding:4px 2px;border-radius:0;position:relative;
+}
+.cat-tabbar-in .cat-tab:hover{background:none;color:#fff}
+.cat-tabbar-in .cat-tab.on{background:none;color:#66c0f4}
+.cat-tabbar-in .cat-tab.on::after{
+  content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:#66c0f4;
+}
+
+/* 할인 및 이벤트 페이지의 태그 줄. 알약형 .cat-tab 버튼을 한 줄로 늘어놓는다.
+   한때 카테고리 서브탭 드롭다운 패널로 쓰이면서 position:absolute 가 붙어 있었는데,
+   그 드롭다운이 .cat-tabbar 로 대체돼 쓰는 곳이 여기만 남았다. 원래대로 되돌린다. */
+.cat-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
 
 /* ---------- 가격대별 검색 페이지 ---------- */
 .price-toolbar{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}

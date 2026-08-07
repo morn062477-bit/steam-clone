@@ -8,6 +8,8 @@ import GameHoverCard, { type HoverInfo } from "@/components/gamehovercard";
 import HoverVideo from "@/components/hovervideo";
 import SalePage from "@/components/salepage";
 import LibraryPage from "@/components/librarypage";
+import RecCarousel from "@/components/reccarousel";
+import useStuck from "@/components/usestuck";
 import CartPage from "@/components/cartpage";
 import WishlistPage from "@/components/wishlistpage";
 
@@ -407,8 +409,8 @@ function CategoryPage({
   const [cat, setCat] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [subTab, setSubTab] = useState<string | null>(null);
-  const [tabsOpen, setTabsOpen] = useState(false);
-  const tabsRef = useRef<HTMLDivElement>(null);
+  // 서브탭 바가 상단에 붙으면 .stuck 이 붙어 화면 폭까지 넓어진다
+  const { ref: tabbarRef, stuck: tabbarStuck } = useStuck<HTMLDivElement>();
 
   useEffect(() => {
     setCat(null);
@@ -419,23 +421,6 @@ function CategoryPage({
       .then(setCat)
       .catch((e) => setError(e.message));
   }, [slug]);
-
-  /** 사이버펑크 축제 탭 바처럼, 바깥을 클릭하거나 Esc를 누르면 드롭다운을 닫는다 */
-  useEffect(() => {
-    if (!tabsOpen) return;
-    function onDocClick(e: MouseEvent) {
-      if (tabsRef.current && !tabsRef.current.contains(e.target as Node)) setTabsOpen(false);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setTabsOpen(false);
-    }
-    document.addEventListener("click", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("click", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [tabsOpen]);
 
   if (error) return <div className="err">카테고리를 불러오지 못했습니다: {error}</div>;
   if (!cat) return <div className="loading">불러오는 중…</div>;
@@ -458,33 +443,28 @@ function CategoryPage({
           />
         ))} />
       </div>
-      <div className="wrap">
-        <div className="cat-tabs-drop" ref={tabsRef}>
-          <button type="button" className="cat-tabs-current" onClick={() => setTabsOpen((v) => !v)}>
-            {subTab ?? "특집"}
-            <span className={"caret" + (tabsOpen ? " up" : "")}>▾</span>
-          </button>
-          {tabsOpen && (
-            <div className="cat-tabs">
+      <div className="wrap cat-narrow">
+        {/* 축제 페이지 탭 바(.sp-tabbar-in)와 같은 모양. 접었다 펴지 않고 한 줄로 늘어놓는다 */}
+        <div ref={tabbarRef} className={"cat-tabbar" + (tabbarStuck ? " stuck" : "")}>
+          <div className="cat-tabbar-in">
+            <button
+              type="button"
+              className={"cat-tab" + (!subTab ? " on" : "")}
+              onClick={() => setSubTab(null)}
+            >
+              특집
+            </button>
+            {cat.subTags.map((t: string) => (
               <button
+                key={t}
                 type="button"
-                className={"cat-tab" + (!subTab ? " on" : "")}
-                onClick={() => { setSubTab(null); setTabsOpen(false); }}
+                className={"cat-tab" + (subTab === t ? " on" : "")}
+                onClick={() => setSubTab(t)}
               >
-                특집
+                {t}
               </button>
-              {cat.subTags.map((t: string) => (
-                <button
-                  key={t}
-                  type="button"
-                  className={"cat-tab" + (subTab === t ? " on" : "")}
-                  onClick={() => { setSubTab(t); setTabsOpen(false); }}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
         </div>
 
         <section className="section">
@@ -532,36 +512,8 @@ function CategoryPage({
           )}
         </section>
 
-        {cat.popular.length > 3 && (
-          <section className="cp-rec">
-            <h2 className="cp-h2">맞춤 추천</h2>
-            <div className="cp-rec-grid">
-              {cat.popular.slice(3, 6).map((g: any) => (
-                <div className="cp-rec-card" key={g.slug} onClick={() => onOpenGame(g.slug)}>
-                  <div className="art" style={bgStyle(g.headerImage)} />
-                  <div className="cp-price">
-                    <div className="cp-plat">
-                      {(g.platforms?.windows ?? true) && <i title="Windows">⊞</i>}
-                      {g.platforms?.mac && <i title="macOS"></i>}
-                      {g.platforms?.linux && <i title="Linux">🐧</i>}
-                    </div>
-                    <span className="cp-price-amt">
-                      {g.discountPercent > 0 ? (
-                        <>
-                          <span className="cp-disc">-{g.discountPercent}%</span>
-                          <span className="cp-was">{won(g.priceKrw)}</span>
-                          <span className="cp-now">{won(g.finalKrw)}</span>
-                        </>
-                      ) : (
-                        <span className="cp-now">{g.isFree ? "무료 플레이" : won(g.priceKrw)}</span>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <RecCarousel games={cat.popular} onOpenGame={onOpenGame} />
+
 
         <div className="queue">
           <div className="q-left">

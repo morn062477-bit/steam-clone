@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import SaleHoverCard, { type SaleHoverInfo } from "@/components/salehovercard";
 import HoverVideo from "@/components/hovervideo";
+import useStuck from "@/components/usestuck";
 
 /**
  * 사이버펑크 게임 축제 이벤트 페이지.
@@ -142,31 +143,8 @@ export default function SalePage({
   const recTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [recHovering, setRecHovering] = useState(false);
 
-  /**
-   * 탭 바가 상단에 붙었는지. 붙으면 .stuck 이 붙어 가로로 넓어진다.
-   *
-   * sticky 가 걸린 순간을 CSS 만으로 알아낼 방법이 없어서 스크롤을 본다.
-   * sticky 요소는 붙는 순간부터 rect.top 이 자기 top 값과 같아지므로 그걸로 판단한다.
-   * top 은 var(--nav-h) 라 계산된 값을 읽어 쓴다.
-   */
-  const tabbarRef = useRef<HTMLDivElement | null>(null);
-  const [stuck, setStuck] = useState(false);
-
-  useEffect(() => {
-    const el = tabbarRef.current;
-    if (!el) return;
-    const check = () => {
-      const stickyTop = parseFloat(getComputedStyle(el).top) || 0;
-      setStuck(el.getBoundingClientRect().top <= stickyTop + 0.5);
-    };
-    check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check);
-    return () => {
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
-    };
-  }, []);
+  /** 탭 바가 상단에 붙었는지. 붙으면 .stuck 이 붙어 가로로 넓어진다 */
+  const { ref: tabbarRef, stuck } = useStuck<HTMLDivElement>();
 
   /** 화면에 쓸 전체 게임 목록 (중복 제거) */
   const all: any[] = useMemo(() => {
