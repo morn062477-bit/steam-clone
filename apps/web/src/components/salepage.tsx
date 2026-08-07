@@ -72,7 +72,9 @@ function FeatRecCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) 
       </div>
 
       <div className="feat-sale-panel" onClick={() => onOpen(g.slug)}>
-        <div className="feat-sale-cap" style={bgStyle(g.libraryImage || g.headerImage)}>
+        {/* 상자가 460x215 가로 비율이라 같은 비율인 헤더 이미지를 쓴다.
+            세로 캡슐(600x900)을 넣으면 cover 로 위아래가 크게 잘린다. */}
+        <div className="feat-sale-cap" style={bgStyle(g.headerImage || g.libraryImage)}>
           <button
             type="button"
             className="feat-sale-star1"

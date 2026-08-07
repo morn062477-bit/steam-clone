@@ -514,17 +514,23 @@ button{font-family:inherit;cursor:pointer;border:0}
   flex:0 0 450px;background:var(--bg-panel);padding:14px;display:flex;flex-direction:column;
   min-width:0;cursor:pointer;
 }
+/* 헤더 이미지(460x215)와 같은 비율이라 cover 로도 잘리는 데 없이 꽉 찬다.
+   overflow 는 건드리지 않는다. 자르면 모서리에 걸친 별 버튼까지 같이 잘린다. */
 .feat-sale-cap{
   width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;
   background-color:#0e1621;border-radius:2px;position:relative;margin:0 0 10px -20px;
   z-index:3;box-shadow:0 8px 20px rgba(0,0,0,.5);
 }
+/* position:flex 라는 값은 없어서 무시되고 static 으로 놓였다. 그래서 right/top 이
+   먹지 않아 margin-left:405px 로 밀어 두었는데, 폭이 달라지면 자리가 어긋난다.
+   absolute 로 바꿔 상자 오른쪽 위에 붙이고 z-index 로 그림 위에 올린다. */
 .feat-sale-star1{
-  position:flex;right:8px;top:8px;width:28px;height:28px;background:#66c0f4;margin:0 0 10px 405px;
+  position:absolute;right:8px;top:8px;z-index:4;
+  width:28px;height:28px;background:#66c0f4;
   color:#edf2f5;font-size:25px;line-height:1;border-radius:2px;display:flex;
   align-items:center;justify-content:center;cursor:pointer;
 }
-.feat-sale-star:hover{background:#66c0f4;color:#0e1621}
+.feat-sale-star1:hover{background:#8fd4ff;color:#0e1621}
 .feat-sale-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
 .feat-sale-desc{position:relative;color:#868e96;font-size:13px;line-height:1.6;margin-bottom:10px}
 .feat-sale-foot{margin-top:auto;display:flex;align-items:center;justify-content:flex-end;gap:8px}
@@ -724,9 +730,17 @@ button{font-family:inherit;cursor:pointer;border:0}
   box-shadow:0 4px 18px rgba(0,0,0,.45);
   transition:width .25s ease;
 }
-/* 상단에 붙으면 좌우 0.3cm 만 남기고 화면 끝까지 넓어진다.
+/* 상단에 붙으면 좌우 0.3cm 만 남기고 화면 끝까지 넓어지면서,
+   불투명 패널이 아니라 뒤가 흐리게 비치는 유리처럼 바뀐다.
+   backdrop-filter 가 요소 뒤에 있는 페이지 내용을 흐리므로, 배경 자체는
+   반투명이어야 그 흐린 그림이 드러난다.
    .stuck 은 page.tsx 의 useStuck 훅이 sticky 가 걸린 순간을 재서 붙인다. */
-.cat-tabbar.stuck .cat-tabbar-in{width:calc(100% - 0.6cm)}
+.cat-tabbar.stuck .cat-tabbar-in{
+  width:calc(100% - 0.6cm);
+  background:rgba(19,28,38,.55);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
 .cat-tabbar-in .cat-tab{
   background:none;color:#dfe6ee;font-size:14px;font-weight:600;
   padding:4px 2px;border-radius:0;position:relative;
