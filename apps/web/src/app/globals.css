@@ -279,7 +279,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 카테고리 ---------- */
 .nd-cat-tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
-.nd-cat-tiles .cat{height:96px;border-radius:3px}
+.nd-cat-tiles .cat{height:96px;border-radius:10px}
 .nd-cat-tiles .cat b{font-size:13px;padding:5px 12px}
 .nd-cat-tiles .cat small{display:none}
 .nd-cat-pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -537,20 +537,37 @@ button{font-family:inherit;cursor:pointer;border:0}
 .spot-card:hover .art{transform:scale(1.02)}
 .spot-foot{display:flex;justify-content:flex-end;margin-top:10px}
 
-/* ---------- 할인 및 이벤트 페이지 히어로(예고편 자동재생) ---------- */
-.deals-hero-slide{display:flex;height:460px;background:#0e1621}
-.deals-hero-media{position:relative;flex:1;min-width:0;cursor:pointer;overflow:hidden;background:#000}
+/* ---------- 할인 및 이벤트 / 카테고리 페이지 히어로(예고편 자동재생 + 떠 있는 정보 카드) ---------- */
+.deals-hero-slide{position:relative;height:500px;background:#0e1621;overflow:hidden}
+.deals-hero-media{position:absolute;inset:0;overflow:hidden;background:#000;z-index:1}
 .deals-hero-media .hover-video,.deals-hero-img{width:100%;height:100%;object-fit:cover;background-size:cover;background-position:center}
-.deals-hero-info{
-  flex:0 0 380px;background:#16202d;padding:28px 24px;cursor:pointer;
-  display:flex;flex-direction:column;gap:14px;justify-content:center;
+.deals-hero-card{
+  position:absolute;top:24px;right:32px;bottom:24px;width:400px;z-index:2;
+  background:rgba(22,32,45,.94);border-radius:6px;padding:22px;
+  display:flex;flex-direction:column;gap:12px;overflow:auto;
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
 }
-.deals-hero-tags{display:flex;flex-wrap:wrap;gap:6px}
-.deals-hero-desc{color:#b4c3d0;font-size:13px;line-height:1.6;max-height:90px;overflow:hidden}
-.deals-hero-meta{color:#7d8b99;font-size:12px}
-.deals-hero-price{display:flex;align-items:center;gap:10px;font-size:16px}
-.deals-hero-price .disc{background:var(--green-bg);color:var(--bg-dark);padding:4px 8px;font-size:14px;font-weight:600}
-.deals-hero-price .was{color:#7a8b99;text-decoration:line-through;font-size:13px}
+.deals-hero-thumb{
+  position:relative;flex:0 0 170px;border-radius:4px;overflow:hidden;cursor:pointer;
+  background-size:cover;background-position:center;background-color:#0e1621;
+}
+.deals-hero-wish{
+  position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.92);color:#1b2838;font-size:18px;line-height:1;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.deals-hero-wish:hover{background:#fff}
+.deals-hero-wish.on{background:var(--blue);color:#fff}
+.deals-hero-tags{display:flex;flex-wrap:wrap;gap:7px;flex-shrink:0}
+.deals-hero-tags .pill{font-size:13px;padding:4px 10px}
+.deals-hero-desc{
+  color:#c7d5e0;font-size:15px;line-height:1.7;flex-shrink:0;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.deals-hero-meta{color:#93a3b1;font-size:13px;flex-shrink:0}
+.deals-hero-price{display:flex;align-items:center;gap:10px;font-size:18px;flex-shrink:0}
+.deals-hero-price .disc{background:var(--green-bg);color:var(--bg-dark);padding:5px 9px;font-size:15px;font-weight:600}
+.deals-hero-price .was{color:#7a8b99;text-decoration:line-through;font-size:14px}
 .deals-hero-price .now{color:#c7d5e0;font-weight:600}
 
 /* ---------- 카테고리(장르) 페이지 ---------- */
@@ -560,6 +577,33 @@ button{font-family:inherit;cursor:pointer;border:0}
 .cat-tab{background:#1f2b3c;color:#8f98a0;font-size:13px;padding:8px 16px;border-radius:2px}
 .cat-tab:hover{background:#2a3a50;color:#fff}
 .cat-tab.on{background:#1a9fff;color:#fff}
+
+/* ---------- 가격대별 검색 페이지 ---------- */
+.price-toolbar{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.price-search-input{
+  flex:1;min-width:220px;max-width:420px;background:#1f2b3c;border:0;outline:0;color:#dfe9f2;
+  font-size:13px;padding:10px 12px;border-radius:2px;
+}
+.price-search-input:focus{box-shadow:inset 0 0 0 1px #4a5560}
+.price-sort{display:flex;align-items:center;gap:8px;color:#8f98a0;font-size:13px}
+.price-sort select{background:#1f2b3c;color:#dfe9f2;border:0;outline:0;padding:8px 10px;border-radius:2px;font-size:13px}
+.price-body{display:flex;gap:24px;align-items:flex-start}
+.price-list{flex:1;min-width:0}
+.price-count{color:#8f98a0;font-size:13px;margin-bottom:16px}
+.price-sidebar{flex:0 0 260px;background:#16202d;padding:16px;box-shadow:0 0 12px rgba(0,0,0,.3)}
+.price-side-h{font-size:13px;color:#fff;margin:0 0 10px}
+.price-side-h:not(:first-child){margin-top:24px;padding-top:20px;border-top:1px solid #2a3a4a}
+.price-slider{width:100%;accent-color:#1a9fff;display:block;margin-bottom:8px}
+.price-slider-val{color:#c7d5e0;font-size:13px;margin-bottom:14px}
+.price-presets{display:flex;flex-direction:column;gap:8px}
+.price-presets .cat-tab{text-align:left}
+.price-check-row,.price-lang-row{display:flex;align-items:center;gap:8px;color:#c7d5e0;font-size:13px}
+.price-check-row{margin-top:14px}
+.price-genre-list{display:flex;flex-direction:column;gap:2px}
+.price-genre-row{display:flex;justify-content:space-between;background:none;color:#c7d5e0;font-size:13px;padding:6px 4px;text-align:left}
+.price-genre-row:hover{color:#fff}
+.price-genre-row.on{color:#66c0f4}
+.price-genre-row b{color:#8f98a0;font-weight:400}
 
 /* ---------- 신규 출시 ---------- */
 .tabs{display:flex;gap:26px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px;flex-wrap:wrap}
@@ -588,7 +632,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 카테고리 ---------- */
 .cats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.cat{height:150px;border-radius:3px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+.cat{height:150px;border-radius:14px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
 .cat b{background:rgba(255,255,255,.92);color:#1b2838;font-size:15px;padding:6px 16px;border-radius:2px;position:relative;z-index:2}
 .cat small{position:absolute;bottom:8px;right:10px;z-index:2;color:#dfe8ef;font-size:11px}
 .cat .veil{position:absolute;inset:0}
@@ -846,6 +890,8 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 /* ---------- 장바구니 / 찜 목록 페이지 (store.steampowered.com/cart 구성을 따름) ---------- */
 .cartpage,.wishpage{padding:32px 0 60px}
+.wishpage{background:#191d24}
+.wishpage .wrap{max-width:1300px}
 .cp-crumb{color:#7d8b99;font-size:13px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
 .cp-crumb a{color:#67c1f5}
 .cp-crumb a:hover{color:#fff}
@@ -890,15 +936,74 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cp-checkout{display:block;text-align:center;width:100%;padding:12px}
 [aria-disabled="true"].btn-blue,[aria-disabled="true"].cp-checkout{opacity:.6;pointer-events:none}
 
-/* 찜 목록: 카트와 같은 줄 스타일 + 담기 버튼만 추가 */
-.wish-list{display:flex;flex-direction:column;gap:8px}
-.wish-row{display:flex;align-items:center;gap:14px;background:#1f2b3c;padding:12px}
 .wish-cart-btn{
   flex:0 0 auto;background:linear-gradient(to bottom,#799905 5%,#536904 95%);
-  color:#fff;font-size:13px;padding:9px 16px;border-radius:2px;
+  color:#fff;font-size:13px;padding:9px 16px;border-radius:2px;white-space:nowrap;
 }
 .wish-cart-btn:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
 .wish-cart-btn:disabled{background:#3a4048;color:#8f98a0;cursor:default}
+
+/* ---------- 찜 목록 페이지 (실제 Steam 찜 목록처럼 큰 목록형) ---------- */
+.wl-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.wl-avatar{
+  width:64px;height:64px;flex:0 0 auto;border:2px solid #4c6b8a;border-radius:2px;
+  display:flex;align-items:center;justify-content:center;color:#5d7183;font-size:28px;overflow:hidden;
+}
+.wl-avatar img{width:100%;height:100%;object-fit:cover}
+.wl-header .cp-title{margin-bottom:0}
+
+.wl-toolbar{display:flex;align-items:center;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.wl-search{
+  flex:1;min-width:220px;background:#1f2b3c;border:0;outline:0;color:#dfe9f2;
+  font-size:13px;padding:10px 12px;border-radius:2px;
+}
+.wl-search:focus{box-shadow:inset 0 0 0 1px #4a5560}
+.wl-sort{display:flex;align-items:center;gap:8px;color:#8f98a0;font-size:13px}
+.wl-sort select{background:#1f2b3c;color:#dfe9f2;border:0;outline:0;padding:8px 10px;border-radius:2px;font-size:13px}
+.wl-count{color:#8f98a0;font-size:13px;margin-bottom:14px}
+
+.wl-list{display:flex;flex-direction:column;gap:10px}
+.wl-row{
+  display:flex;align-items:center;gap:16px;padding:14px;
+  color:#9dacbc;
+  background:linear-gradient(340deg, #19293d 10%, #1b354b 50%, #21334a 80%, #1b2c42 95%);
+  border:1px solid rgba(255,255,255,.02);
+  box-shadow:0 0 12px rgba(0,0,0,.2);
+  font-family:Motiva Sans, sans-serif;
+  font-weight:200;
+}
+.wl-row.dragging{opacity:.4}
+.wl-row.drag-over{box-shadow:inset 0 2px 0 var(--blue)}
+.wl-rank{flex:0 0 28px;display:flex;flex-direction:column;align-items:center;gap:6px;color:#5d7183}
+.wl-drag{font-size:14px}
+.wl-rank.draggable{cursor:grab}
+.wl-rank.draggable .wl-drag{color:#8f98a0}
+.wl-row.dragging .wl-rank.draggable{cursor:grabbing}
+.wl-rank b{color:#8f98a0;font-weight:400;font-size:14px}
+.wl-thumb{
+  /* 헤더 이미지 원본 비율(460:215 ≈ 2.14:1)에 맞춰서 cover로 채워도 잘리거나 여백이 남지 않는다 */
+  flex:0 0 270px;width:270px;height:126px;border-radius:2px;background-size:cover;background-position:center;
+  background-color:#0e1621;cursor:pointer;
+}
+.wl-main{flex:1;min-width:0;align-self:stretch;display:flex;flex-direction:column;gap:8px}
+.wl-title{color:#fff;font-size:20px;font-weight:400;cursor:pointer}
+.wl-title:hover{color:#67c1f5}
+.wl-added{flex:0 0 auto;color:#7d8b99;font-size:12px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.wl-remove{color:#67c1f5;font-size:12px}
+.wl-remove:hover{color:#fff}
+.wl-meta{color:#8f98a0;font-size:13px}
+.wl-dot{margin:0 6px}
+.wl-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:auto}
+.wl-tags-label{color:#7d8b99;font-size:12px;margin-right:2px}
+.wl-buy{flex:0 0 auto;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end}
+.wl-buy-row{display:flex;align-items:center;gap:14px}
+.wl-price{display:flex;align-items:center;gap:8px;font-size:14px}
+
+@media (max-width:900px){
+  .wl-row{flex-wrap:wrap}
+  .wl-thumb{flex:1 1 100%;min-height:160px}
+  .wl-buy{flex:1 1 100%;flex-direction:row;justify-content:space-between;align-items:center}
+}
 
 @media (max-width:900px){
   .cp-body{flex-direction:column}
@@ -933,6 +1038,8 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .feat{flex-direction:column}.feat-art{flex:none;width:100%;height:220px}
   .deals,.spotlights,.releases{flex-direction:column}
   .rel-side{flex:none;width:100%}
+  .price-body{flex-direction:column}
+  .price-sidebar{flex:none;width:100%}
   .cats,.cheap{grid-template-columns:repeat(2,1fr)}
   .hero-cap{display:none}
   .hero-txt h1{font-size:30px}
