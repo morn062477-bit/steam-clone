@@ -65,6 +65,33 @@ RDS를 쓰는 경우엔 `.env`의 RDS 줄 주석을 풀고 실제 값을 채운 
 스크립트들은 모두 `apps/api` 기준 상대경로를 쓴다. 직접 실행할 땐 `cd apps/api` 후 `pnpm tsx ...`.
 
 `seed/games.json`은 리포에 포함돼 있으므로 `fetch-steam.ts`를 다시 돌릴 필요는 없다.
+
+## 스키마가 바뀐 커밋을 받았을 때
+
+`prisma/schema.prisma`가 바뀐 브랜치를 pull 했다면 아래를 한 번 돌린다.
+
+```bash
+pnpm --filter api db:push                # 스키마 반영 + Prisma Client 재생성
+```
+
+Prisma Client는 `node_modules`에 생성돼 있고 `pnpm install`이 자동으로 다시 만들어 주지 않는다.
+안 돌리면 새로 생긴 필드를 클라이언트가 몰라서 `/api/home`이 500으로 떨어진다.
+(RDS를 보고 있어 컬럼이 이미 있더라도 Client 재생성이 필요하므로 똑같이 돌리면 된다.)
+
+### 세로 대형 이미지(`Game.libraryImage`)
+
+600x900 라이브러리 캡슐. 축제 페이지 "맞춤 추천" 세로 카드에 쓴다.
+
+`store.steampowered.com/api/appdetails`는 이 이미지를 주지 않고, 자산 경로에 해시가 들어가서
+appid만으로 URL을 조립할 수도 없다. 자산 목록을 통째로 주는 `IStoreBrowseService/GetItems`에서
+따로 받아야 한다.
+
+```bash
+cd apps/api && pnpm tsx scripts/fetch-library.ts   # seed/games.json에 libraryImage 채우기
+```
+
+이미 채워진 `seed/games.json`이 리포에 있으므로 평소엔 돌릴 필요 없다.
+`fetch-steam.ts`로 게임 목록을 새로 긁었을 때만 이어서 실행하면 된다.
 Storefront API는 비공식 API이고 5분당 200요청 제한이 있으니 재수집은 피할 것.
 
 ## API
