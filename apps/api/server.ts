@@ -26,6 +26,7 @@
  *   POST /api/wishlist          찜 목록에 추가 { slug } (로그인 필요)
  *   POST /api/wishlist/reorder  찜 목록 순서 저장 { slugs: string[] } (로그인 필요)
  *   DELETE /api/wishlist/:slug  찜 목록에서 제거 (로그인 필요)
+ *   POST /api/review            평가 작성/수정 { slug, isRecommended, content } (보유한 게임만)
  *   POST /api/review/:id/vote   평가에 반응 { kind: HELPFUL|NOT_HELPFUL|FUNNY|AWARD } (로그인 필요)
  *                               같은 걸 다시 누르면 취소. 네/아니요는 서로 배타적.
  *
@@ -417,6 +418,21 @@ async function buildDetail(slug: string, viewerId?: string | null) {
     select: reviewCardSelect,
   });
 
+  // 보유 여부와 내가 쓴 평가. 로그인 안 했으면 조회하지 않는다.
+  // 상세 화면에서 "이미 라이브러리에 있습니다" 블록과 평가 작성 칸을 그릴지 정하는 데 쓴다.
+  const [ownedRow, myReviewRow] = viewerId
+    ? await Promise.all([
+        prisma.libraryItem.findFirst({
+          where: { userId: viewerId, gameId: g.id },
+          select: { ownedAt: true },
+        }),
+        prisma.review.findFirst({
+          where: { userId: viewerId, gameId: g.id },
+          select: { isRecommended: true, content: true, createdAt: true },
+        }),
+      ])
+    : [null, null];
+
   // 비슷한 게임: 같은 장르 태그를 가장 많이 공유하는 다른 게임 순.
   // DLC 관계 데이터가 없어서(수집한 DLC appid가 우리 DB 게임과 매칭 안 됨) 장르 겹침으로 대신한다.
   const genreLinks = await prisma.gameTag.findMany({
@@ -467,7 +483,38 @@ async function buildDetail(slug: string, viewerId?: string | null) {
     recentReviews: recentReviews.map((r) => toReviewDto(r, viewerId)),
     reviewCountLocal: g._count.reviews,
     similarGames,
+    owned: Boolean(ownedRow),
+    ownedAt: ownedRow?.ownedAt ?? null,
+    myReview: myReviewRow,
   };
+}
+
+// ---------------------------------------------------------------
+// /api/review — 평가 작성. 보유한 게임에만 쓸 수 있고 게임당 한 개다.
+// ---------------------------------------------------------------
+
+async function writeReview(userId: string, slug: string, isRecommended: boolean, content: string) {
+  const game = await prisma.game.findUnique({ where: { slug }, select: { id: true } });
+  if (!game) throw new AuthError(404, '게임을 찾을 수 없습니다.');
+
+  const owned = await prisma.libraryItem.findFirst({
+    where: { userId, gameId: game.id },
+    select: { id: true },
+  });
+  if (!owned) throw new AuthError(403, '보유한 게임에만 평가를 남길 수 있습니다.');
+
+  const text = content.trim();
+  if (!text) throw new AuthError(400, '평가 내용을 입력하세요.');
+
+  // 게임당 평가 1개(@@unique[userId, gameId])라 다시 쓰면 기존 것을 고친다.
+  // playtimeMinutes 는 플레이 시간을 재는 곳이 없어 기존 값을 그대로 두거나 0으로 만든다.
+  const saved = await prisma.review.upsert({
+    where: { userId_gameId: { userId, gameId: game.id } },
+    create: { userId, gameId: game.id, isRecommended, content: text },
+    update: { isRecommended, content: text },
+    select: reviewCardSelect,
+  });
+  return toReviewDto(saved, userId);
 }
 
 // ---------------------------------------------------------------
@@ -881,6 +928,22 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     const viewer = await getSessionUser(prisma, cookies[SESSION_COOKIE]).catch(() => null);
     const game = await buildDetail(slug, viewer?.id ?? null);
     return game ? json(res, game) : json(res, { error: 'not found' }, 404);
+  }
+
+  // 평가 작성. 보유한 게임에만, 게임당 하나. 다시 보내면 기존 평가를 고친다.
+  if (p === '/api/review' && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const body = await readJsonBody(req);
+      if (!body.slug) throw new AuthError(400, 'slug가 필요합니다.');
+      if (typeof body.isRecommended !== 'boolean') {
+        throw new AuthError(400, '추천 여부(isRecommended)를 골라야 합니다.');
+      }
+      return json(res, await writeReview(user.id, body.slug, body.isRecommended, body.content ?? ''));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
   }
 
   // 평가 반응: 네 / 아니요 / 유쾌 / 어워드. 같은 걸 다시 누르면 취소된다.

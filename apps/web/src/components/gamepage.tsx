@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import LibraryFlag from "@/components/libraryflag";
 
 // 상세 페이지 영상. Steam appdetails가 mp4/webm 대신 HLS(m3u8)만 주기 때문에
 // Safari는 네이티브로, 그 외 브라우저는 hls.js로 재생한다.
@@ -165,6 +166,37 @@ export default function GamePage({
   const [playtimeFilter, setPlaytimeFilter] = useState<"all" | "0-10" | "10-100" | "100+">("all");
   const [descOpen, setDescOpen] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
+
+  // 평가 작성 칸. 보유한 게임에서만 보인다.
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRec, setReviewRec] = useState<boolean | null>(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewMsg, setReviewMsg] = useState<string | null>(null);
+
+  /** 평가를 보내고 성공하면 상세를 다시 불러와 목록에 바로 반영한다 */
+  async function submitReview() {
+    if (reviewRec === null) { setReviewMsg("추천 여부를 골라주세요."); return; }
+    if (!reviewText.trim()) { setReviewMsg("평가 내용을 입력하세요."); return; }
+    setReviewBusy(true);
+    setReviewMsg(null);
+    try {
+      const res = await fetch("/api/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, isRecommended: reviewRec, content: reviewText }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setReviewMsg(body.error ?? "평가를 게시하지 못했습니다.");
+        return;
+      }
+      const fresh = await (await fetch("/api/game/" + encodeURIComponent(slug))).json();
+      setG(fresh);
+      setReviewMsg("평가를 게시했습니다.");
+    } finally {
+      setReviewBusy(false);
+    }
+  }
 
   /**
    * 평가에 반응을 남긴다. 서버가 갱신된 평가 하나를 돌려주므로
@@ -344,11 +376,92 @@ export default function GamePage({
           </aside>
         </div>
 
+        {/* ---------- 이미 보유한 게임: 라이브러리 안내 + 평가 작성 ---------- */}
+        {g.owned && (
+          <div className="gp-owned">
+            <div className="gp-owned-banner">
+              <LibraryFlag />
+              <span>{g.name} 제품은 이미 Steam 라이브러리에 있습니다.</span>
+            </div>
+
+            <div className="gp-owned-body">
+              <div className="gp-owned-actions">
+                <button type="button" className="gp-owned-btn">Steam 설치</button>
+                <button type="button" className="gp-owned-btn">지금 실행하기</button>
+                <div className="gp-owned-meta">
+                  <div>보유 시작일: {ymd(g.ownedAt)}</div>
+                  <div className="links">
+                    <a href="#" onClick={(e) => e.preventDefault()}>내 통계 보기</a>
+                    <a href="#" onClick={(e) => e.preventDefault()}>세계 게임플레이 통계 보기</a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="gp-write">
+                <h3 className="gp-write-title">{g.name}에 대한 평가 작성</h3>
+                <p className="gp-write-desc">
+                  이 게임의 좋았던 점 또는 싫었던 점, 그리고 이를 다른 사람들에게 추천하는지 여부에 대해 써주세요.
+                  <br />
+                  정중하게 써주셔야 하며 <b>규칙 및 기준</b>을 지키셔야 합니다.
+                </p>
+
+                <div className="gp-write-cols">
+                  <div className="gp-write-ava">?</div>
+                  <textarea
+                    className="gp-write-text"
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                  />
+
+                  {/* 오른쪽 설정. 스팀 화면을 따라 그리지만 DB 에 해당 필드가 없어
+                      공개 설정·언어·체크박스는 저장되지 않는다. 추천 여부와 본문만 남는다. */}
+                  <div className="gp-write-side">
+                    <label className="row"><span>공개 설정:</span><select defaultValue="public"><option value="public">공개</option><option value="friends">친구만</option><option value="private">비공개</option></select></label>
+                    <label className="row"><span>언어:</span><select defaultValue="ko"><option value="ko">한국어</option><option value="en">영어</option></select></label>
+                    <label className="check"><input type="checkbox" defaultChecked />댓글 허용</label>
+                    <label className="check"><input type="checkbox" />이 평가에 PC 사양 첨부 (?)</label>
+                    <label className="check"><input type="checkbox" />이 제품을 무료로 받았다면 이 확인란을 선택해주세요. (?)</label>
+                    <a className="gp-write-help" href="#" onClick={(e) => e.preventDefault()}>서식 사용법</a>
+                  </div>
+                </div>
+
+                <div className="gp-write-foot">
+                  <span className="q">이 게임을 추천하나요?</span>
+                  <button
+                    type="button"
+                    className={"gp-write-vote" + (reviewRec === true ? " on" : "")}
+                    onClick={() => setReviewRec(true)}
+                  >
+                    <ThumbIcon /> 예
+                  </button>
+                  <button
+                    type="button"
+                    className={"gp-write-vote" + (reviewRec === false ? " on" : "")}
+                    onClick={() => setReviewRec(false)}
+                  >
+                    <ThumbIcon up={false} /> 아니요
+                  </button>
+                  <button
+                    type="button"
+                    className="gp-write-submit"
+                    disabled={reviewBusy}
+                    onClick={submitReview}
+                  >
+                    {reviewBusy ? "게시 중…" : "평가 게시"}
+                  </button>
+                </div>
+                {reviewMsg && <div className="gp-write-msg">{reviewMsg}</div>}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ---------- 구매 ---------- */}
         <div className="gp-body">
           <div className="gp-main">
             <div className="gp-buy">
               <div className="gp-buy-head">
+                {g.owned && <LibraryFlag />}
                 <h2>{g.name} 구매</h2>
                 {g.discountPercent > 0 && (
                   <div className="gp-buy-sub">

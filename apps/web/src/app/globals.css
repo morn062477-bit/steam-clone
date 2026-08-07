@@ -1175,6 +1175,110 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .gp-tag-list a:hover{background:rgba(103,193,245,.4);color:#fff}
 
 /* 본문 + 우측 정보 */
+/* ---------- 이미 보유한 게임 안내 + 평가 작성 ---------- */
+/* gp-top 과 구매 박스(gp-body) 사이에 들어간다. g.owned 일 때만 그린다. */
+/* 폭은 따로 정하지 않는다. 위쪽 .gp-top 과 같은 컨테이너(.gamepage .wrap)를
+   그대로 채우므로 저절로 같은 너비가 된다. 배너와 본문도 이 폭을 함께 쓴다. */
+.gp-owned{margin:18px 0 24px}
+/* 왼쪽은 원래 초록, 오른쪽으로 갈수록 투명해져 페이지 배경이 비친다.
+   아래 .gp-owned-body 도 같은 알파 곡선(1 → 0)을 쓴다. 색만 다르다. */
+.gp-owned-banner{
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(90deg,rgba(106,143,46,1) 0%,rgba(84,118,31,0) 100%);
+  color:#e9f5c9;font-size:15px;padding:10px 14px;
+}
+/* "라이브러리에 있음" 표식. 배너 안과 구매 박스 머리 양쪽에서 같은 모양으로 쓴다.
+   실제 스팀 div.ds_owned_flag.ds_flag 값 그대로:
+   높이 18px, 바탕 #a3cf06, 글자 10px "Motiva Sans" #111111, 안쪽 여백 0 0 0 18px.
+   왼쪽 18px 는 아이콘 자리라 글자가 아니라 여백으로 비워 두고 아이콘을 그 위에 얹는다. */
+.gp-lib-tag{
+  position:relative;display:inline-flex;align-items:center;
+  height:18px;padding:0 0 0 18px;
+  background:#a3cf06;color:#111111;
+  font:10px "Motiva Sans",sans-serif;line-height:1;
+}
+.gp-lib-tag i{
+  position:absolute;left:0;top:0;width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-style:normal;font-size:10px;color:#111111;
+}
+/* 깃발이 상자 왼쪽 경계보다 8px 더 나가서 살짝 걸쳐 보인다.
+   상자마다 안쪽 여백이 달라 들여쓰기 값도 다르다.
+   .gp-owned-banner 는 padding-left 14px, .gp-buy-head 는 16px. */
+.gp-owned-banner .gp-lib-tag{margin-left:-22px}
+.gp-buy-head .gp-lib-tag{margin-left:-24px;margin-bottom:8px}
+/* 초록 배너 아래 패널. 페이지 바탕보다 밝은 청회색이다.
+   폭은 부모(.gp-owned)가 정하므로 여기서는 건드리지 않는다 — 배너와 어긋나지 않게. */
+.gp-owned-body{
+  /* 배너와 같은 알파 곡선(1 → 0). 색만 청회색이다 */
+  background:linear-gradient(90deg,rgba(70,88,106,1) 0%,rgba(70,88,106,0) 100%);
+  padding:18px;
+  font:12px Arial,Helvetica,sans-serif;
+}
+
+.gp-owned-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* Steam 설치 / 지금 실행하기. 검사기 값 그대로:
+   글자 15px Arial 계열 #2b5066, 안쪽 높이 30px, 좌우 여백 15px.
+   폭은 글자 길이에 따라 정해지므로 고정하지 않는다. */
+.gp-owned-btn{
+  height:30px;padding:0 15px;
+  background:linear-gradient(to bottom,#a1cdf4 5%,#79a3c4 95%);
+  color:#2b5066;font:15px Arial,Helvetica,sans-serif;
+  border-radius:2px;cursor:pointer;
+}
+.gp-owned-btn:hover{background:linear-gradient(to bottom,#b9ddff 5%,#8ab5d6 95%);color:#1b3a4d}
+.gp-owned-meta{color:#8f98a0;font-size:13px;line-height:1.6}
+.gp-owned-meta .links{display:flex;gap:14px}
+.gp-owned-meta a{color:#67c1f5;font-size:12px}
+.gp-owned-meta a:hover{color:#fff}
+
+/* 평가 작성 */
+.gp-write{border-top:1px solid rgba(255,255,255,.08);margin-top:18px;padding-top:18px}
+.gp-write-title{color:#67c1f5;font-size:20px;font-weight:400;margin-bottom:8px}
+.gp-write-desc{color:#8f98a0;font-size:13px;line-height:1.7;margin-bottom:16px}
+.gp-write-desc b{color:#c7d5e0;font-weight:400}
+/* 아바타 / 본문 / 설정 3칸. 설정 칸 폭은 스팀과 비슷하게 고정 */
+.gp-write-cols{display:flex;gap:16px;align-items:flex-start}
+.gp-write-ava{
+  width:80px;height:80px;flex:0 0 auto;background:#0e1621;color:#4a5560;
+  display:flex;align-items:center;justify-content:center;font-size:34px;
+}
+.gp-write-text{
+  flex:1;min-width:0;min-height:150px;resize:vertical;
+  background:#16202d;border:1px solid #000;color:#c7d5e0;font-size:14px;line-height:1.6;padding:10px;
+}
+.gp-write-text:focus{outline:0;border-color:#4a7ba7}
+.gp-write-side{
+  flex:0 0 300px;background:#22303f;padding:14px;display:flex;flex-direction:column;gap:10px;
+  color:#c7d5e0;font-size:13px;
+}
+.gp-write-side .row{display:flex;align-items:center;gap:8px}
+.gp-write-side select{background:#2a3f55;color:#c7d5e0;border:0;border-radius:2px;padding:4px 8px;font-size:13px}
+.gp-write-side .check{display:flex;align-items:flex-start;gap:8px;line-height:1.5;cursor:pointer}
+.gp-write-help{color:#67c1f5;font-size:12px;align-self:flex-start}
+.gp-write-help:hover{color:#fff}
+
+.gp-write-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:16px}
+.gp-write-foot .q{color:#8f98a0;font-size:13px;margin-right:auto}
+.gp-write-vote{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#2a475e;color:#67c1f5;font-size:14px;padding:8px 16px;border-radius:2px;cursor:pointer;
+}
+.gp-write-vote:hover{background:#376a94;color:#fff}
+.gp-write-vote.on{background:#1e6a9e;color:#fff}
+.gp-write-vote .gp-vote-icon{width:18px;height:18px}
+.gp-write-submit{
+  background:#3d6c8e;color:#fff;font-size:14px;padding:9px 20px;border-radius:2px;cursor:pointer;
+}
+.gp-write-submit:hover{background:#4d84ab}
+.gp-write-submit:disabled{opacity:.6;cursor:default}
+.gp-write-msg{color:#a4d007;font-size:13px;text-align:right;margin-top:8px}
+
+@media (max-width:1000px){
+  .gp-write-cols{flex-wrap:wrap}
+  .gp-write-side{flex:1 1 100%}
+}
+
 .gp-body{display:flex;gap:14px;align-items:flex-start}
 .gp-main{flex:1;min-width:0}
 .gp-info{flex:0 0 324px;display:flex;flex-direction:column;gap:10px}
