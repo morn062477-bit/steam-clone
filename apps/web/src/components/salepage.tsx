@@ -56,12 +56,10 @@ type Tab = (typeof TABS)[number];
 
 export default function SalePage({
   data,
-  bg,
   onOpenGame,
   onTag,
 }: {
   data: any;
-  bg: string;
   onOpenGame: (slug: string) => void;
   onTag: (tag: string) => void;
 }) {
@@ -112,8 +110,17 @@ export default function SalePage({
 
   return (
     <div className="salepage">
-      {/* 전면 배너 */}
-      <div className="sp-takeover" style={bgStyle(bg)} />
+      {/* 전면 배너. 로고 PNG 가 public/ 에 있으면 그 위에 얹는다. */}
+      <div className="sp-takeover">
+        {/* eslint-disable-next-line @next/next/no-img-element -- 정적 PNG 한 장 */}
+        <img
+          className="sp-logo"
+          src="/sale-logo.png"
+          alt="2026년 Steam 사이버펑크 게임 축제"
+          width={940}
+          height={460}
+        />
+      </div>
 
       {/* 고정 탭 바 */}
       <div className="sp-tabbar">

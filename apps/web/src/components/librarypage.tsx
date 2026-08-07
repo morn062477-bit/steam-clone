@@ -95,7 +95,8 @@ export default function LibraryPage({
       {/* 프로필 바 */}
       <div className="lib-profile">
         <div className="wrap lib-profile-in">
-          <span className="lib-avatar" aria-hidden="true">?</span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- 외부 CDN 이미지 한 장 */}
+          <img className="lib-avatar" src="https://avatars.fastly.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg" alt="" width={62} height={62} />
           <h1>
             {user.nickname} <span className="sep">»</span> <span className="cur">게임</span>
           </h1>

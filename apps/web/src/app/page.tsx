@@ -1175,7 +1175,8 @@ export default function Home() {
                 </button>
                 {/* 계정 이름을 누르면 메뉴가 열린다 */}
                 <button type="button" className="top-name" onClick={() => setUserMenuOpen((v) => !v)}>{user.nickname}</button>
-                <span className="top-avatar" aria-hidden="true">?</span>
+                {/* eslint-disable-next-line @next/next/no-img-element -- 외부 CDN 이미지 한 장 */}
+                <img className="top-avatar" src="https://avatars.fastly.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg" alt="" width={34} height={34} />
 
                 {userMenuOpen && (
                   <div className="user-drop">
@@ -1206,22 +1207,25 @@ export default function Home() {
         </div>
       </header>
 
-      <StoreNav
-        data={data}
-        searchQuery={searchQuery}
-        searchResults={searchResults}
-        onSearchInput={handleSearchInput}
-        onOpenGame={openModal}
-        onTag={searchByTag}
-        onTab={goTab}
-        onCloseResults={() => setSearchResults(null)}
-        wishlistCount={user ? wishlist.length : null}
-        cartCount={cart.length}
-        recentSlugs={recent}
-        onOpenCart={(e) => goView("cart", e)}
-        onOpenWishlist={(e) => goView("wishlist", e)}
-        onOpenCategory={openCategory}
-      />
+      {/* 보관함(프로필 > 게임)에서는 상점 내비를 두지 않는다 */}
+      {view !== "library" && (
+        <StoreNav
+          data={data}
+          searchQuery={searchQuery}
+          searchResults={searchResults}
+          onSearchInput={handleSearchInput}
+          onOpenGame={openModal}
+          onTag={searchByTag}
+          onTab={goTab}
+          onCloseResults={() => setSearchResults(null)}
+          wishlistCount={user ? wishlist.length : null}
+          cartCount={cart.length}
+          recentSlugs={recent}
+          onOpenCart={(e) => goView("cart", e)}
+          onOpenWishlist={(e) => goView("wishlist", e)}
+          onOpenCategory={openCategory}
+        />
+      )}
 
       {view === "store" && (
         <>
@@ -1423,7 +1427,6 @@ export default function Home() {
       {view === "sale" && (
         <SalePage
           data={data}
-          bg={TAKEOVER_BG}
           onOpenGame={openModal}
           onTag={(t) => { goView("store"); searchByTag(t); }}
         />

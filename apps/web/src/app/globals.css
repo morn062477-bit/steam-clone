@@ -1113,10 +1113,8 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .top-name:hover{color:#fff}
 
 .top-avatar{
-  width:34px;height:34px;flex:0 0 auto;padding:1px;box-sizing:border-box;
-  background:#3d4450;border:1px solid #67c1f5;
-  display:flex;align-items:center;justify-content:center;
-  color:#c7d5e0;font-size:13px;
+  width:34px;height:34px;flex:0 0 auto;padding:1px;box-sizing:border-box;display:block;
+  object-fit:cover;background:#3d4450;border:1px solid #67c1f5;
 }
 
 /* ---------- 내비 오른쪽: 찜 목록 / 장바구니 ---------- */
@@ -1281,16 +1279,26 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 /* ---------- 사이버펑크 게임 축제 페이지 ---------- */
 /* 배경은 fixed 로 깔아 스크롤해도 뒤에 남고, 내용은 그 위에 패널로 얹는다 */
-/* 배경은 실제 Steam 축제 페이지(body.sale_page_background)의 값 그대로.
-   2925x509 이미지를 세로로 반복하고 그 아래를 #487fac 로 채운다. */
+/* 배경은 public/sale-bg.jpg. 화면을 빈틈없이 채운다.
+   fixed 로 뷰포트를 기준으로 cover 하므로 좌우/아래에 여백이 생기지 않는다.
+   위쪽 기준(center top)이라 하늘과 스카이라인이 배너 뒤에 오도록 맞춘다.
+   폭에 따라 배경 크기를 바꾸는 규칙은 두지 않는다. cover 가 무시돼 여백이 생긴다. */
 .salepage{
   position:relative;min-height:100vh;
-  background:url('https://clan.fastly.steamstatic.com/images/41316928/a365e33f7d63854a3f6421fbfb932a3ea2b6c1d6.jpg') repeat-y, #487fac;
-  background-position:center top;
+  background:url('/sale-bg.jpg') no-repeat center top fixed;
+  background-size:cover;
 }
 .sp-takeover{
   position:relative;z-index:1;height:620px;
   background-size:cover;background-position:center top;
+  display:flex;align-items:flex-start;justify-content:center;
+}
+/* 축제 로고. public/sale-logo.png 를 넣으면 배너 위에 얹힌다.
+   파일이 없으면 onError 로 스스로 숨어서 배너만 보인다. */
+/* 로고는 원본 크기(940x460) 그대로. 좁은 화면에서만 줄어든다. */
+.sp-logo{
+  width:940px;height:460px;max-width:100%;object-fit:contain;display:block;
+  margin-top:20px;
 }
 
 /* 고정 탭 바. 배너 아래에 붙는 게 아니라 배너 하단에 겹쳐 올라탄다.
@@ -1395,9 +1403,6 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .sp-news-card .ttl{color:#fff;font-size:13px;line-height:1.4;padding:8px 10px 4px}
 .sp-news-card .dt{color:#8f98a0;font-size:12px;padding:0 10px 10px}
 
-@media (max-width:940px){
-  .salepage{background-size:contain;background-position:center 313px}
-}
 
 @media (max-width:980px){
   .sp-rec,.sp-grid,.sp-news{grid-template-columns:repeat(2,1fr)}
@@ -1412,27 +1417,44 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 /* 프로필 바는 화면 폭을 채우는 띠가 아니라 가운데 놓인 패널이다.
    바깥은 비우고 안쪽(.lib-profile-in)에 색과 폭을 준다. */
 .lib-profile{background:none;padding:0;color:#FFFFFF;font-size:12px}
+/* 프로필 패널과 그 아래 내용이 함께 움직이도록 이동량을 한 곳에서 관리한다.
+   기준은 1170px 가운데 정렬(= 50% - 585px)이다. */
+.libpage{--lib-shift:calc(5cm - 100px)}
 .libpage .wrap{max-width:1467px}
 .lib-profile-in{
   display:flex;align-items:center;gap:18px;
-  max-width:1170px;height:105px;padding:0 24px;background:#24262E;
+  height:105px;padding:0 24px;background:#24262E;
+  /* 가운데 정렬(1170px) 위치에서 오른쪽으로 5cm 옮기고 오른쪽 끝을 10cm 줄인다.
+     50% - 585px 이 원래의 왼쪽 시작 지점이다. */
+  max-width:calc(1170px - 10cm);
+  margin-left:calc(50% - 585px + var(--lib-shift));
+  margin-right:0;
 }
+/* Steam 기본 아바타 이미지. 배경/글자 대신 이미지가 채운다 */
 .lib-avatar{
-  width:62px;height:62px;flex:0 0 auto;background:#3d4450;border:1px solid #67c1f5;
-  display:flex;align-items:center;justify-content:center;color:#c7d5e0;font-size:22px;
+  width:62px;height:62px;flex:0 0 auto;display:block;
+  object-fit:cover;background:#24262E;
 }
 .lib-profile h1{color:#fff;font-size:26px;font-weight:400}
 .lib-profile .sep{color:#8f98a0;font-size:18px}
 .lib-profile .cur{color:#c7d5e0;font-size:16px}
 
-.lib-body{max-width:940px;padding-top:22px}
-.lib-tabs{display:flex;gap:26px;margin-bottom:18px;flex-wrap:wrap}
+/* 아래 내용은 프로필 바의 h1(사용자 이름)과 같은 선에서 시작한다.
+   프로필 패널(1170px)의 여백 24 + 아바타 62 + 간격 18 = 104px 지점이다. */
+.lib-body{
+  max-width:1170px;padding:22px 0 0 104px;
+  margin-left:calc(50% - 585px + var(--lib-shift));margin-right:0;
+}
+.lib-tabs{display:flex;gap:26px;margin-bottom:18px;flex-wrap:wrap;width:936px;max-width:100%}
 .lib-tab{background:none;color:#c7d5e0;font-size:13px;padding:4px 2px;position:relative}
 .lib-tab:hover{color:#fff}
 .lib-tab.on{color:#fff}
 .lib-tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;background:#c7d5e0}
 
-.lib-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.lib-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  width:936px;max-width:100%;margin-bottom:12px;
+}
 .lib-search{position:relative;width:250px}
 .lib-search input{
   width:100%;background:#2a2e35;border:0;outline:0;color:#dfe9f2;
@@ -1447,14 +1469,19 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .lib-sort button.on{color:#fff;text-decoration:underline}
 .lib-sort button.dim{color:#66c0f4}
 
+/* 936 x 44 고정. 세로 여백 대신 높이로 잡아야 44px 가 그대로 나온다. */
 .lib-remote{
   display:flex;align-items:center;justify-content:center;gap:20px;position:relative;
-  background:#22303f;color:#c7d5e0;font-size:13px;padding:11px 14px;margin-bottom:14px;
+  width:936px;max-width:100%;height:44px;box-sizing:border-box;
+  background:#22303f;color:#c7d5e0;font-size:13px;padding:0 14px;margin-bottom:14px;
 }
 .lib-remote button{position:absolute;right:14px;background:none;color:#c7d5e0;font-size:13px}
 .lib-remote button:hover{color:#fff}
 
-.lib-row{display:flex;gap:16px;background:#22303f;padding:14px;margin-bottom:10px;position:relative}
+.lib-row{
+  display:flex;gap:16px;width:936px;max-width:100%;box-sizing:border-box;
+  background:#22303f;padding:14px;margin-bottom:10px;position:relative;
+}
 .lib-cap{
   width:264px;height:124px;flex:0 0 auto;cursor:pointer;
   background-size:cover;background-position:center;background-color:#0e1621;
