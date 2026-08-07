@@ -53,6 +53,64 @@ function DetailVideo({ src, poster }: { src: string; poster?: string }) {
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
 
+// ---------------------------------------------------------------
+// 평가 반응 버튼 아이콘. 스팀처럼 20x20 SVG 한 장씩.
+// 색은 currentColor 라 버튼 상태(.on)에 따라 CSS 에서 같이 바뀐다.
+// ---------------------------------------------------------------
+
+/** 엄지. up=false 면 위아래를 뒤집어 그대로 엄지척 반대로 쓴다 */
+function ThumbIcon({ up = true }: { up?: boolean }) {
+  return (
+    <svg className="gp-vote-icon" viewBox="0 0 20 20" aria-hidden="true">
+      <g transform={up ? undefined : "translate(0,20) scale(1,-1)"}>
+        <path d="M2.6 8.6h3.1v8.6H3.6a1 1 0 0 1-1-1V8.6Z" fill="currentColor" />
+        <path
+          d="M7.1 8.4 10.2 2a1.6 1.6 0 0 1 2.9 1.2l-.8 3.4h4.1a1.6 1.6 0 0 1 1.6 2l-1.4 6a2 2 0 0 1-1.9 1.6H7.1V8.4Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+}
+
+/** 유쾌: 웃는 얼굴 */
+function FunnyIcon() {
+  return (
+    <svg className="gp-vote-icon" viewBox="0 0 20 20" aria-hidden="true">
+      <circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="7.2" cy="8" r="1.2" fill="currentColor" />
+      <circle cx="12.8" cy="8" r="1.2" fill="currentColor" />
+      <path
+        d="M6 12.2a4.6 4.6 0 0 0 8 0"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** 어워드: 금색 꽃 모양 훈장 */
+function AwardIcon() {
+  return (
+    <svg className="gp-vote-icon gp-vote-icon-award" viewBox="0 0 20 20" aria-hidden="true">
+      {[0, 72, 144, 216, 288].map((deg) => (
+        <circle key={deg} cx="10" cy="4.6" r="3.6" fill="currentColor" transform={`rotate(${deg} 10 10)`} />
+      ))}
+      <circle cx="10" cy="10" r="3.4" fill="#f7b91b" />
+    </svg>
+  );
+}
+
+/** 반응 종류. 화면 순서 그대로 */
+const VOTE_BUTTONS = [
+  { kind: "HELPFUL", label: "네", icon: <ThumbIcon /> },
+  { kind: "NOT_HELPFUL", label: "아니요", icon: <ThumbIcon up={false} /> },
+  { kind: "FUNNY", label: "유쾌", icon: <FunnyIcon /> },
+  { kind: "AWARD", label: "어워드", icon: <AwardIcon /> },
+] as const;
+
 function ymd(iso: string | null) {
   if (!iso) return "출시일 미정";
   const d = new Date(iso);
@@ -106,6 +164,31 @@ export default function GamePage({
   const [dateRangeFilter, setDateRangeFilter] = useState<"all" | "30d" | "90d" | "365d">("all");
   const [playtimeFilter, setPlaytimeFilter] = useState<"all" | "0-10" | "10-100" | "100+">("all");
   const [descOpen, setDescOpen] = useState(false);
+  const [voteError, setVoteError] = useState<string | null>(null);
+
+  /**
+   * 평가에 반응을 남긴다. 서버가 갱신된 평가 하나를 돌려주므로
+   * reviews / recentReviews 양쪽에서 같은 id 를 갈아끼운다.
+   * 같은 걸 다시 누르면 서버가 알아서 취소하니 여기서 토글을 따로 다루지 않는다.
+   */
+  async function voteReview(reviewId: string, kind: string) {
+    setVoteError(null);
+    const res = await fetch(`/api/review/${encodeURIComponent(reviewId)}/vote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setVoteError(res.status === 401 ? "로그인 후 이용할 수 있습니다." : body.error ?? "반응을 남기지 못했습니다.");
+      return;
+    }
+    const updated = await res.json();
+    const swap = (list: any[]) => list?.map((r: any) => (r.id === updated.id ? updated : r));
+    setG((prev: any) =>
+      prev ? { ...prev, reviews: swap(prev.reviews), recentReviews: swap(prev.recentReviews) } : prev,
+    );
+  }
 
   useEffect(() => {
     setG(null);
@@ -476,7 +559,14 @@ export default function GamePage({
                   </div>
                   <div className="gp-review-body">
                     <div className="gp-review-verdict">
-                      <span className={"thumb" + (r.isRecommended ? "" : " no")}>{r.isRecommended ? "👍" : "👎"}</span>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- 정적 아이콘 40x40 */}
+                      <img
+                        className="gp-verdict-thumb"
+                        src={r.isRecommended ? "/icon_thumbsUp.png" : "/icon_thumbsDown.png"}
+                        alt={r.isRecommended ? "추천" : "비추천"}
+                        width={40}
+                        height={40}
+                      />
                       <div>
                         <b>{r.isRecommended ? "추천" : "비추천"}</b>
                         <small>기록상 {r.playtimeHours}시간</small>
@@ -487,9 +577,26 @@ export default function GamePage({
                     <p className="gp-review-text">{r.content}</p>
                     <div className="gp-review-help">
                       이 평가가 유용한가요?
-                      <span className="btns"><i>👍 네</i><i>👎 아니요</i><i>유쾌</i><i>🏅 어워드</i></span>
+                      <span className="btns">
+                        {VOTE_BUTTONS.map((b) => (
+                          <button
+                            key={b.kind}
+                            type="button"
+                            className={"gp-vote" + (r.myVotes?.includes(b.kind) ? " on" : "")}
+                            aria-pressed={r.myVotes?.includes(b.kind) ?? false}
+                            onClick={() => voteReview(r.id, b.kind)}
+                          >
+                            {b.icon}
+                            {b.label}
+                          </button>
+                        ))}
+                      </span>
                     </div>
-                    <div className="gp-review-count">{r.helpfulCount}명이 이 평가가 유용하다고 함</div>
+                    {voteError && <div className="gp-vote-error">{voteError}</div>}
+                    <div className="gp-review-count">
+                      {r.helpfulCount > 0 && <div>{r.helpfulCount}명이 이 평가가 유용하다고 함</div>}
+                      {r.funnyCount > 0 && <div>{r.funnyCount}명이 이 평가가 재미있다고 함</div>}
+                    </div>
                   </div>
                 </div>
               ))

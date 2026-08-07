@@ -24,6 +24,8 @@
  *   GET  /api/wishlist          내 찜 목록 (로그인 필요)
  *   POST /api/wishlist          찜 목록에 추가 { slug } (로그인 필요)
  *   DELETE /api/wishlist/:slug  찜 목록에서 제거 (로그인 필요)
+ *   POST /api/review/:id/vote   평가에 반응 { kind: HELPFUL|NOT_HELPFUL|FUNNY|AWARD } (로그인 필요)
+ *                               같은 걸 다시 누르면 취소. 네/아니요는 서로 배타적.
  *
  * 가격 규칙(schema.prisma 주석과 동일)
  *   - 할인가는 저장하지 않는다. 활성 Discount.percent로 서버에서만 계산한다.
@@ -310,27 +312,75 @@ async function buildHome() {
 // ---------------------------------------------------------------
 
 const reviewCardSelect = {
+  id: true,
   isRecommended: true,
   content: true,
   playtimeMinutes: true,
   helpfulCount: true,
   createdAt: true,
   user: { select: { nickname: true, avatarUrl: true } },
+  votes: { select: { kind: true, userId: true } },
 } as const;
 
-function toReviewDto(r: any) {
+/**
+ * @param viewerId 로그인한 사용자. 내가 어떤 반응을 눌러 뒀는지(myVotes) 채우는 데만 쓴다.
+ *
+ * helpfulCount 는 시드로 들어온 값이라 실제 투표와 별개다.
+ * 화면에 보이는 수는 "시드값 + 실제 HELPFUL 투표 수"로 합쳐서 준다.
+ * 유쾌(FUNNY)는 시드에 없어서 투표 수만 센다.
+ */
+function toReviewDto(r: any, viewerId?: string | null) {
+  const votes = r.votes ?? [];
+  const count = (kind: string) => votes.filter((v: any) => v.kind === kind).length;
+
   return {
+    id: r.id,
     nickname: r.user.nickname,
     avatarUrl: r.user.avatarUrl,
     isRecommended: r.isRecommended,
     content: r.content,
     playtimeHours: Math.round(r.playtimeMinutes / 60),
-    helpfulCount: r.helpfulCount,
+    helpfulCount: (r.helpfulCount ?? 0) + count('HELPFUL'),
+    funnyCount: count('FUNNY'),
+    awardCount: count('AWARD'),
+    myVotes: viewerId ? votes.filter((v: any) => v.userId === viewerId).map((v: any) => v.kind) : [],
     createdAt: r.createdAt,
   };
 }
 
-async function buildDetail(slug: string) {
+/**
+ * 평가에 반응을 남긴다. 이미 같은 걸 눌렀으면 취소(토글)한다.
+ * 네/아니요는 서로 배타적이라 한쪽을 켜면 반대쪽은 지운다.
+ */
+const REVIEW_VOTE_KINDS = ['HELPFUL', 'NOT_HELPFUL', 'FUNNY', 'AWARD'] as const;
+type ReviewVoteKindStr = (typeof REVIEW_VOTE_KINDS)[number];
+
+async function voteReview(userId: string, reviewId: string, kind: ReviewVoteKindStr) {
+  const review = await prisma.review.findUnique({ where: { id: reviewId }, select: { id: true } });
+  if (!review) throw new AuthError(404, '평가를 찾을 수 없습니다.');
+
+  const mine = await prisma.reviewVote.findFirst({ where: { userId, reviewId, kind } });
+  if (mine) {
+    await prisma.reviewVote.delete({ where: { id: mine.id } });
+  } else {
+    // 네 ↔ 아니요는 하나만 남긴다
+    const opposite =
+      kind === 'HELPFUL' ? 'NOT_HELPFUL' : kind === 'NOT_HELPFUL' ? 'HELPFUL' : null;
+    if (opposite) {
+      await prisma.reviewVote.deleteMany({ where: { userId, reviewId, kind: opposite as any } });
+    }
+    await prisma.reviewVote.create({ data: { userId, reviewId, kind: kind as any } });
+  }
+
+  const updated = await prisma.review.findUnique({
+    where: { id: reviewId },
+    select: reviewCardSelect,
+  });
+  return toReviewDto(updated, userId);
+}
+
+/** @param viewerId 로그인한 사용자. 평가마다 내가 누른 반응(myVotes)을 채우는 데 쓴다 */
+async function buildDetail(slug: string, viewerId?: string | null) {
   const now = new Date();
   const g = await prisma.game.findUnique({
     where: { slug },
@@ -410,8 +460,9 @@ async function buildDetail(slug: string) {
     reqWindows: g.reqWindows,
     steamAppId: g.steamAppId,
     dlcCount: g._count.dlcs,
-    reviews: g.reviews.map(toReviewDto),
-    recentReviews: recentReviews.map(toReviewDto),
+    // map 에 함수만 넘기면 두 번째 인자로 인덱스가 들어가므로 명시적으로 감싼다
+    reviews: g.reviews.map((r) => toReviewDto(r, viewerId)),
+    recentReviews: recentReviews.map((r) => toReviewDto(r, viewerId)),
     reviewCountLocal: g._count.reviews,
     similarGames,
   };
@@ -792,8 +843,27 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
 
   if (p.startsWith('/api/game/')) {
     const slug = decodeURIComponent(p.slice('/api/game/'.length));
-    const game = await buildDetail(slug);
+    // 로그인 안 했어도 상세는 보여야 하므로 세션이 없으면 그냥 null 로 둔다
+    const cookies = parseCookies(req.headers.cookie);
+    const viewer = await getSessionUser(prisma, cookies[SESSION_COOKIE]).catch(() => null);
+    const game = await buildDetail(slug, viewer?.id ?? null);
     return game ? json(res, game) : json(res, { error: 'not found' }, 404);
+  }
+
+  // 평가 반응: 네 / 아니요 / 유쾌 / 어워드. 같은 걸 다시 누르면 취소된다.
+  if (p.startsWith('/api/review/') && p.endsWith('/vote') && req.method === 'POST') {
+    try {
+      const user = await requireUser(req);
+      const reviewId = decodeURIComponent(p.slice('/api/review/'.length, -'/vote'.length));
+      const body = await readJsonBody(req);
+      if (!REVIEW_VOTE_KINDS.includes(body.kind)) {
+        throw new AuthError(400, `kind 는 ${REVIEW_VOTE_KINDS.join(', ')} 중 하나여야 합니다.`);
+      }
+      return json(res, await voteReview(user.id, reviewId, body.kind));
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
   }
 
   if (p === '/api/search') {

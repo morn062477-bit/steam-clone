@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import SaleHoverCard, { type SaleHoverInfo } from "@/components/salehovercard";
 
 /**
@@ -95,6 +95,32 @@ export default function SalePage({
   const [recPage, setRecPage] = useState(0);
   const [hover, setHover] = useState<SaleHoverInfo>(null);
 
+  /**
+   * 탭 바가 상단에 붙었는지. 붙으면 .stuck 이 붙어 가로로 넓어진다.
+   *
+   * sticky 가 걸린 순간을 CSS 만으로 알아낼 방법이 없어서 스크롤을 본다.
+   * sticky 요소는 붙는 순간부터 rect.top 이 자기 top 값과 같아지므로 그걸로 판단한다.
+   * top 은 var(--nav-h) 라 계산된 값을 읽어 쓴다.
+   */
+  const tabbarRef = useRef<HTMLDivElement | null>(null);
+  const [stuck, setStuck] = useState(false);
+
+  useEffect(() => {
+    const el = tabbarRef.current;
+    if (!el) return;
+    const check = () => {
+      const stickyTop = parseFloat(getComputedStyle(el).top) || 0;
+      setStuck(el.getBoundingClientRect().top <= stickyTop + 0.5);
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
+
   /** 화면에 쓸 전체 게임 목록 (중복 제거) */
   const all: any[] = useMemo(() => {
     if (!data) return [];
@@ -155,8 +181,8 @@ export default function SalePage({
         />
       </div>
 
-      {/* 고정 탭 바 */}
-      <div className="sp-tabbar">
+      {/* 고정 탭 바. 상단에 붙으면 .stuck 이 붙어 가로로 넓어진다 */}
+      <div ref={tabbarRef} className={"sp-tabbar" + (stuck ? " stuck" : "")}>
         <div className="sp-tabbar-in">
           {TABS.map((t) => (
             <button key={t} type="button" className={"sp-tab" + (t === tab ? " on" : "")} onClick={() => setTab(t)}>

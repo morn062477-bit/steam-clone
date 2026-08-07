@@ -180,6 +180,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   reviews       Review[]
+  reviewVotes   ReviewVote[]
   cartItems     CartItem[]
   wishlistItems WishlistItem[]
   orders        Order[]
@@ -229,8 +230,35 @@ model Review {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
+  votes ReviewVote[]
+
   @@unique([userId, gameId]) // 한 게임당 리뷰 1개
   @@index([gameId, createdAt])
+}
+
+// 평가에 다는 반응. 스팀의 "이 평가가 유용한가요? 네 / 아니요 / 유쾌 / 어워드".
+// 종류마다 한 줄이라 유용함과 유쾌함을 동시에 누를 수 있다.
+// 다만 네(HELPFUL)와 아니요(NOT_HELPFUL)는 서로 배타적이라, 한쪽을 누르면
+// 반대쪽을 지운다. 이 규칙은 DB 제약이 아니라 서버(voteReview)에서 지킨다.
+enum ReviewVoteKind {
+  HELPFUL     // 네
+  NOT_HELPFUL // 아니요
+  FUNNY       // 유쾌
+  AWARD       // 어워드
+}
+
+model ReviewVote {
+  id        String         @id @default(cuid())
+  userId    String
+  reviewId  String
+  kind      ReviewVoteKind
+  createdAt DateTime       @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId, kind]) // 같은 종류는 한 번만
+  @@index([reviewId, kind])
 }
 
 model CartItem {
