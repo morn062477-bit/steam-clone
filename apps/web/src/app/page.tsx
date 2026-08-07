@@ -295,7 +295,7 @@ function Hero({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
           </div>
           <div className="hero-buy">
             <a className="hero-cta" href="#" onClick={(e) => { e.preventDefault(); onOpen(g.slug); }}>상점 페이지 보기</a>
-            <span className="price-tag">{priceText(g)}</span>
+            <PriceBar g={g} className="price-tag" />
           </div>
         </div>
       </div>
@@ -407,7 +407,7 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
           </div>
         </div>
         <div className="feat-meta">
-          <span className="price-tag">{priceText(g)}</span>
+          <PriceBar g={g} className="price-tag" />
         </div>
       </div>
     </div>
@@ -520,8 +520,8 @@ function CategoryPage({
           <div className="sec-head"><h2 className="sec-title">찜 목록에 있는 게임</h2></div>
           {user ? (
             wishInCat.length ? (
-              <div className="spot-body">
-                {wishInCat.slice(0, 4).map((g: any) => <SpotCard key={g.slug} g={g} onOpen={onOpenGame} />)}
+              <div className="cheap">
+                {wishInCat.slice(0, 5).map((g: any) => <DealCard key={g.slug} g={g} size="sm" onOpen={onOpenGame} />)}
               </div>
             ) : (
               <div className="cp-empty"><p>이 카테고리에서 찜한 게임이 없습니다.</p></div>
@@ -545,6 +545,150 @@ function CategoryPage({
           ) : (
             <div className="cp-empty"><p>해당하는 게임이 없습니다.</p></div>
           )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------
+// 할인 및 이벤트 페이지
+// ---------------------------------------------------------------
+function DealsHeroSlide({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
+  return (
+    <div className="deals-hero-slide">
+      <div className="deals-hero-media" onClick={() => onOpen(g.slug)}>
+        {g.previewVideoUrl ? (
+          <HoverVideo src={g.previewVideoUrl} />
+        ) : (
+          <div className="deals-hero-img" style={bgStyle(g.headerImage)} />
+        )}
+      </div>
+      <div className="deals-hero-info" onClick={() => onOpen(g.slug)}>
+        <div className="deals-hero-tags">
+          {g.tags.slice(0, 5).map((t: string) => <span key={t} className="pill">{t}</span>)}
+        </div>
+        <p className="deals-hero-desc">{g.shortDesc}</p>
+        <div className="deals-hero-meta">출시일: {ymd(g.releaseDate)}</div>
+        <div className="deals-hero-price">
+          {g.discountPercent > 0 ? (
+            <>
+              <span className="disc">-{g.discountPercent}%</span>
+              <span className="was">{won(g.priceKrw)}</span>
+              <span className="now">{won(g.finalKrw)}</span>
+            </>
+          ) : (
+            <span className="now">{priceText(g)}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DealsPage({
+  categories,
+  user,
+  wishlist,
+  onOpenGame,
+  onOpenCategory,
+  onLogin,
+}: {
+  categories: any[];
+  user: User | null;
+  wishlist: any[];
+  onOpenGame: (slug: string) => void;
+  onOpenCategory: (slug: string) => void;
+  onLogin: (e: React.MouseEvent) => void;
+}) {
+  const [subTab, setSubTab] = useState<string | null>(null);
+  const [deals, setDeals] = useState<any[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/deals")
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((d) => setDeals(d.deals))
+      .catch((e) => setError(e.message));
+  }, []);
+
+  if (error) return <div className="err">할인 정보를 불러오지 못했습니다: {error}</div>;
+  if (!deals) return <div className="loading">불러오는 중…</div>;
+
+  const heroGames = deals.slice(0, 6);
+  const filtered = subTab ? deals.filter((g: any) => g.tags.includes(subTab)) : deals;
+  const wishDeals = wishlist.filter((w: any) => w.discountPercent > 0);
+
+  const subTags = (() => {
+    const count = new Map<string, number>();
+    for (const g of deals) for (const t of g.tags) count.set(t, (count.get(t) ?? 0) + 1);
+    return [...count.entries()].sort((a, b) => b[1] - a[1]).slice(0, 9).map(([n]) => n);
+  })();
+
+  return (
+    <div className="catpage">
+      <div className="carousel-bleed">
+        <Carousel autoMs={8000} slides={heroGames.map((g: any) => <DealsHeroSlide key={g.slug} g={g} onOpen={onOpenGame} />)} />
+      </div>
+      <div className="wrap">
+        <h1 className="cp-title">할인 및 이벤트</h1>
+
+        <div className="cat-tabs">
+          <button type="button" className={"cat-tab" + (!subTab ? " on" : "")} onClick={() => setSubTab(null)}>특집</button>
+          {subTags.map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={"cat-tab" + (subTab === t ? " on" : "")}
+              onClick={() => setSubTab(t)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <section className="section">
+          <div className="sec-head"><h2 className="sec-title">찜 목록에 있는 할인 게임</h2></div>
+          {user ? (
+            wishDeals.length ? (
+              <div className="cheap">
+                {wishDeals.slice(0, 5).map((g: any) => <DealCard key={g.slug} g={g} size="sm" onOpen={onOpenGame} />)}
+              </div>
+            ) : (
+              <div className="cp-empty"><p>찜한 게임 중 할인 중인 게임이 없습니다.</p></div>
+            )
+          ) : (
+            <div className="cp-empty">
+              <p>나만을 위해 엄선된 추가 제품을 보려면 로그인하세요.</p>
+              <a className="btn-blue" href="#login" onClick={onLogin}>로그인</a>
+            </div>
+          )}
+        </section>
+
+        <section className="section">
+          <div className="sec-head"><h2 className="sec-title">할인 게임</h2></div>
+          {filtered.length ? (
+            <div className="rel-list">
+              {filtered.slice(0, 20).map((g: any) => (
+                <RelRow key={g.slug} g={g} onOpen={onOpenGame} onHover={() => {}} />
+              ))}
+            </div>
+          ) : (
+            <div className="cp-empty"><p>해당하는 할인 게임이 없습니다.</p></div>
+          )}
+        </section>
+
+        <section className="section">
+          <div className="sec-head"><h2 className="sec-title">카테고리별 검색</h2></div>
+          <div className="cats">
+            {categories.map((c: any) => (
+              <div className="cat" key={c.slug} onClick={() => onOpenCategory(c.slug)}>
+                <div className="veil" style={bgStyle(c.image)} />
+                <b>{c.name}</b>
+                <small>{c.count}종</small>
+              </div>
+            ))}
+          </div>
         </section>
       </div>
     </div>
@@ -592,7 +736,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
-  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale">("store");
+  const [view, setView] = useState<"store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals">("store");
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   // 로그아웃할 때만 올려서 Auth를 새로 마운트한다 (로그인 직후 뜨는 성공 메시지는 유지해야 하므로
@@ -626,9 +770,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale"> = {
-      "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done", "#sale": "sale",
-      "#cart": "cart", "#wishlist": "wishlist",
+    const OF_HASH: Record<string, "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals"> = {
+      "#login": "login", "#signup": "signup", "#create": "create", "#verified": "done",
+      "#cart": "cart", "#wishlist": "wishlist", "#sale": "sale", "#deals": "deals",
     };
     function applyHash() {
       const h = window.location.hash;
@@ -819,10 +963,10 @@ export default function Home() {
 
   const VIEW_HASH: Record<string, string> = {
     login: "login", signup: "signup", create: "create", done: "verified", cart: "cart", wishlist: "wishlist",
-    sale: "sale",
+    sale: "sale", deals: "deals",
   };
 
-  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale", e?: React.MouseEvent) {
+  function goView(v: "store" | AuthView | "game" | "cart" | "wishlist" | "category" | "sale" | "deals", e?: React.MouseEvent) {
     e?.preventDefault();
     window.location.hash = VIEW_HASH[v] ?? "";
     setView(v);
@@ -850,6 +994,11 @@ export default function Home() {
     setCategorySlug(slug);
     setView("category");
     window.scrollTo({ top: 0 });
+  }
+
+  /** 태그 이름(예: "RPG")으로 카테고리 페이지 슬러그를 찾는다. 못 찾으면 이름을 그대로 슬러그로 쓴다. */
+  function catSlugByName(name: string) {
+    return data?.categories?.find((c: any) => c.name === name)?.slug ?? name;
   }
 
   function handleSearchInput(v: string) {
@@ -1081,7 +1230,7 @@ export default function Home() {
               <section className="section"><div className="wrap align-feat">
                 <div className="sec-head">
                   <h2 className="sec-title">할인 및 이벤트</h2>
-                  <button className="more-btn">더 보기</button>
+                  <button className="more-btn" onClick={() => goView("deals")}>더 보기</button>
                 </div>
                 <Carousel
                   autoMs={9000}
@@ -1123,7 +1272,9 @@ export default function Home() {
                     <div className="spot-body">
                       {s.games.map((g: any) => <SpotCard key={g.slug} g={g} onOpen={openModal} />)}
                     </div>
-                    <div className="spot-foot"><button className="more-btn">더 보기</button></div>
+                    <div className="spot-foot">
+                      <button className="more-btn" onClick={() => openCategory(catSlugByName(s.tag))}>더 보기</button>
+                    </div>
                   </div>
                 ))}
               </div></section>
@@ -1149,9 +1300,9 @@ export default function Home() {
                       : <div className="loading">해당하는 게임이 없습니다.</div>}
                     <div className="rel-foot">
                       더 보기:
-                      <button className="more-btn">인기 신규 출시 게임</button>
+                      <button className="more-btn" onClick={() => openCategory(catSlugByName("대규모 멀티플레이어"))}>멀티플레이 게임</button>
                       <span>또는</span>
-                      <button className="more-btn">신규 출시 게임 전체</button>
+                      <button className="more-btn" onClick={() => openCategory(catSlugByName("무료 플레이"))}>무료 플레이 게임</button>
                     </div>
                   </div>
                   <aside className="rel-side">
@@ -1265,6 +1416,17 @@ export default function Home() {
           user={user}
           wishlist={wishlist}
           onOpenGame={openModal}
+          onLogin={(e) => goView("login", e)}
+        />
+      )}
+
+      {view === "deals" && data && (
+        <DealsPage
+          categories={data.categories}
+          user={user}
+          wishlist={wishlist}
+          onOpenGame={openModal}
+          onOpenCategory={openCategory}
           onLogin={(e) => goView("login", e)}
         />
       )}
