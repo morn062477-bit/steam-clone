@@ -938,6 +938,45 @@ export default function Home() {
   // (game→game, category→category처럼 view는 그대로인 채 내용만 바뀌는 이동도 잡아야 해서).
   useEffect(() => { setHoverInfo(null); }, [view, modalSlug, categorySlug]);
 
+  // 화면(view)이 바뀔 때마다 브라우저 탭 제목을 실제 스팀처럼 그 화면에 맞게 바꾼다.
+  // SPA라 URL이 안 바뀌니, layout.tsx의 고정 title 대신 여기서 직접 document.title을 갱신한다.
+  useEffect(() => {
+    const findGame = (slug: string | null) => {
+      if (!slug || !data) return null;
+      const pools: any[][] = [
+        data.featured ?? [],
+        data.deals ?? [],
+        data.cheap ?? [],
+        ...(data.tabs ?? []).map((t: any) => t.games ?? []),
+        cart,
+        wishlist,
+      ];
+      for (const pool of pools) {
+        const found = pool.find((g: any) => g.slug === slug);
+        if (found) return found;
+      }
+      return null;
+    };
+
+    const titles: Record<View, string> = {
+      store: "Steam에 오신 것을 환영합니다.",
+      game: modalSlug ? findGame(modalSlug)?.name ?? "게임 정보" : "게임 정보",
+      cart: "장바구니 - Steam",
+      wishlist: "위시리스트 - Steam",
+      category: "카테고리 - Steam",
+      sale: "특별 할인 - Steam",
+      deals: "할인 및 이벤트 - Steam",
+      library: "내 라이브러리 - Steam",
+      price: "결제 - Steam",
+      login: "로그인 - Steam",
+      signup: "가입하기 - Steam",
+      create: "계정 만들기 - Steam",
+      done: "가입 완료 - Steam",
+    };
+
+    document.title = titles[view] ?? "Steam에 오신 것을 환영합니다.";
+  }, [view, modalSlug, data, cart, wishlist]);
+
   /** 상점 첫 화면 데이터를 새로 받아온다. 첫 진입과 "홈" 클릭에서 같이 쓴다. */
   function loadHome() {
     setData(null);
