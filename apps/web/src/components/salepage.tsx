@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import SaleHoverCard, { type SaleHoverInfo } from "@/components/salehovercard";
+import HoverVideo from "@/components/hovervideo";
 
 /**
  * 사이버펑크 게임 축제 이벤트 페이지.
@@ -52,6 +53,48 @@ function Price({ g }: { g: any }) {
   );
 }
 
+/**
+ * 맞춤 추천 슬라이드 한 장. 영상이 배경 전체를 채우고, 정보 패널(캡슐 이미지/태그/
+ * 설명/출시일/가격)은 그 위 우상단에 겹쳐서 뜬다. 슬라이드당 게임 하나, 영상도
+ * 하나만 튼다. 슬라이드 자동 전환은 SalePage에서 처리한다.
+ */
+function FeatRecCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
+  const art = g.screenshots?.[0]?.url || g.headerImage;
+
+  return (
+    <div className="feat feat-sale">
+      {/* 영상 영역은 클릭해도 게임 페이지로 안 넘어간다(재생/일시정지 + 진행바만 동작) */}
+      <div className="feat-art" style={bgStyle(art)}>
+        {g.previewVideoUrl && <HoverVideo src={g.previewVideoUrl} seekBar />}
+        {g.discountPercent > 0 && <span className="badge-live"><i />{g.discountLabel}</span>}
+        <span className="feat-sale-label">예고편 | {g.name}</span>
+      </div>
+
+      <div className="feat-sale-panel" onClick={() => onOpen(g.slug)}>
+        <div className="feat-sale-cap" style={bgStyle(g.libraryImage || g.headerImage)}>
+          <button
+            type="button"
+            className="feat-sale-star1"
+            aria-label="위시리스트에 추가"
+            onClick={(e) => e.stopPropagation()}
+          >
+            ☆
+          </button>
+        </div>
+        <div className="feat-sale-tags">
+          {(g.tags ?? []).slice(0, 5).map((t: string) => <span key={t} className="pill">{t}</span>)}
+        </div>
+        {g.shortDesc && <p className="feat-sale-desc">{g.shortDesc}</p>}
+                  <div className="feat-sale-date">출시일: {ymd(g.releaseDate)}</div>
+        <div className="feat-sale-foot">
+
+          <Price g={g} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const TABS = ["특집", "게임 검색", "STEAM DECK", "무료 체험판", "출시 예정"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -94,6 +137,10 @@ export default function SalePage({
   const [genre, setGenre] = useState<string | null>(null);
   const [recPage, setRecPage] = useState(0);
   const [hover, setHover] = useState<SaleHoverInfo>(null);
+  // 마우스가 벗어날 때마다 10초 타이머를 새로 시작한다. 그래야 "10초간 안 벗어남"이
+  // 정확히 지켜진다 (그냥 매 10초 체크하면 방금 벗어났는데 바로 넘어가는 경우가 생김).
+  const recTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [recHovering, setRecHovering] = useState(false);
 
   /** 화면에 쓸 전체 게임 목록 (중복 제거) */
   const all: any[] = useMemo(() => {
@@ -115,17 +162,31 @@ export default function SalePage({
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   }, [all]);
 
+  // 맞춤 추천: Home 특집 캐러셀처럼 슬라이드당 게임 하나. 마우스가 벗어나 있는 채로
+  // 10초가 지나면 다음 슬라이드로 넘어간다. 다시 올라오면 stopRecTimer가 멈추고,
+  // 벗어나면 startRecTimer가 10초를 처음부터 다시 잰다.
+  const recPool = useMemo(() => all.slice(0, 24), [all]);
+  const recPages = Math.max(1, recPool.length);
+
+  const stopRecTimer = () => { if (recTimerRef.current) clearInterval(recTimerRef.current); };
+  const startRecTimer = () => {
+    stopRecTimer();
+    recTimerRef.current = setInterval(() => setRecPage((p) => (p + 1) % recPages), 10000);
+  };
+
+  useEffect(() => {
+    startRecTimer();
+    return stopRecTimer;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recPages]);
+
   if (!data) return <div className="loading">불러오는 중…</div>;
 
   const discounted = all.filter((g) => g.discountPercent > 0);
   const popular = more ? discounted : discounted.slice(0, 12);
 
-  // 맞춤 추천은 3개씩 넘기는 캐러셀. 화살표로 페이지를 바꾸고 아래 막대가 위치를 보여준다.
-  const REC_PER_PAGE = 3;
-  const recPool = all.slice(0, 24);
-  const recPages = Math.max(1, Math.ceil(recPool.length / REC_PER_PAGE));
   const page = Math.min(recPage, recPages - 1);
-  const recommend = recPool.slice(page * REC_PER_PAGE, page * REC_PER_PAGE + REC_PER_PAGE);
+  const recommend = recPool.slice(page, page + 1);
 
   // 탭별로 목록을 바꾼다
   const byTab = (rows: any[]) => {
@@ -165,63 +226,61 @@ export default function SalePage({
           ))}
         </div>
       </div>
-
+    
       <div className="sp-quote">
         절대 뒤돌아보지 말라고 하죠. 사이버펑크는 언제나 미래를 살아가라고 합니다. 한번 생각해 보세요.
       </div>
-
+      <div className="손정민">
+        예고편 탐색
+      </div>
       <div className="sp-body">
         {tab === "특집" && (
           <>
             {/* 맞춤 추천. 세로 카드 3장을 좌우 화살표로 넘기고, 아래 막대가 현재 위치를 보여준다. */}
             <section className="sp-panel sp-rec-panel">
-              <h2 className="sp-h2">맞춤 추천</h2>
-              <div className="sp-rec-wrap">
+
+              <div
+                className="sp-rec-wrap"
+                onMouseEnter={() => { stopRecTimer(); setRecHovering(true); }}
+                onMouseLeave={() => { startRecTimer(); setRecHovering(false); }}
+              >
                 <button
                   type="button"
-                  className="sp-rec-arrow left"
+                  className="arrow prev"
                   aria-label="이전 추천"
                   disabled={page === 0}
-                  onClick={() => setRecPage((p) => Math.max(0, p - 1))}
+                  onClick={() => { setRecPage((p) => Math.max(0, p - 1)); startRecTimer(); }}
                 >
                   ‹
                 </button>
 
                 <div className="sp-rec">
                   {recommend.map((g) => (
-                    <div key={g.slug} className="sp-rec-card" onClick={() => onOpenGame(g.slug)}>
-                      {/* 600x900 세로 이미지. 스팀이 안 주는 게임은 가로 헤더로 대체 */}
-                      <div className="art" style={bgStyle(g.libraryImage || g.headerImage)} />
-                      {/* 카드 아래쪽에 겹쳐 놓는 줄. 왼쪽 플랫폼 아이콘, 오른쪽 가격 */}
-                      <div className="sp-rec-foot">
-                        <div className="sp-plat">
-                          {g.platforms?.windows && <span title="Windows">⊞</span>}
-                          {g.platforms?.mac && <span title="macOS"></span>}
-                          {g.platforms?.linux && <span title="Linux">🐧</span>}
-                        </div>
-                        <Price g={g} />
-                      </div>
-                    </div>
+                    <FeatRecCard key={g.slug} g={g} onOpen={onOpenGame} />
                   ))}
                 </div>
 
                 <button
                   type="button"
-                  className="sp-rec-arrow right"
+                  className="arrow next"
                   aria-label="다음 추천"
                   disabled={page >= recPages - 1}
-                  onClick={() => setRecPage((p) => Math.min(recPages - 1, p + 1))}
+                  onClick={() => { setRecPage((p) => Math.min(recPages - 1, p + 1)); startRecTimer(); }}
                 >
                   ›
                 </button>
               </div>
 
-              <div className="sp-rec-track">
+              {/* 다음 슬라이드까지 남은 10초를 보여주는 막대. 슬라이드가 바뀔 때마다(자동/수동
+                  둘 다) key가 바뀌어 애니메이션이 처음부터 다시 시작한다. 호버 중엔 멈춘 채로 둔다. */}
+              <div className="sp-rec-timer">
                 <div
-                  className="sp-rec-thumb"
-                  style={{ width: `${100 / recPages}%`, left: `${(100 / recPages) * page}%` }}
+                  key={page}
+                  className="sp-rec-timer-fill"
+                  style={{ animationPlayState: recHovering ? "paused" : "running" }}
                 />
               </div>
+
             </section>
 
             {/* 포인트 상점 배너. 문구/그림이 한 장에 다 들어 있는 PNG 를 그대로 얹는다. */}

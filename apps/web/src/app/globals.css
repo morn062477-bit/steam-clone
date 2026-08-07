@@ -463,6 +463,7 @@ button{font-family:inherit;cursor:pointer;border:0}
   background:transparent;color:#8897a5;font-size:110px;line-height:1;z-index:5;
 }
 .arrow:hover{color:#c7d5e0}
+.arrow:disabled{opacity:.25;cursor:default}
 .arrow.prev{left:-50}
 .arrow.next{right:-50}
 .dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
@@ -498,6 +499,36 @@ button{font-family:inherit;cursor:pointer;border:0}
 .rank b{color:#fff}
 .price-tag{display:flex;align-items:stretch;font-size:13px;border-radius:2px;overflow:hidden}
 .feat-tags{display:flex;flex-wrap:wrap;gap:4px;margin:12px 0 0}
+
+/* ---------- 세일 페이지 맞춤 추천 카드(.feat-sale): 실제 스팀 "예고편 탐색"처럼
+   영상(왼쪽, 남는 공간 다 차지)과 정보 패널(오른쪽, 고정폭)이 나란히 배치된다.
+   page.tsx의 .feat/.feat-info(상점 특집 카드)는 그대로 두고, 이 카드만 다르게 하려고
+   .feat-sale로 범위를 좁혀서 오버라이드한다. ---------- */
+.feat-sale{cursor:default}
+.feat-sale .feat-art{flex:1 1 auto;height:460px;cursor:default}
+.feat-sale-label{
+  position:absolute;left:0;top:0;background:rgba(0,0,0,.75);color:#fff;font-size:13px;
+  font-weight:600;padding:8px 14px;z-index:2;
+}
+.feat-sale-panel{
+  flex:0 0 450px;background:var(--bg-panel);padding:14px;display:flex;flex-direction:column;
+  min-width:0;cursor:pointer;
+}
+.feat-sale-cap{
+  width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;
+  background-color:#0e1621;border-radius:2px;position:relative;margin:0 0 10px -20px;
+  z-index:3;box-shadow:0 8px 20px rgba(0,0,0,.5);
+}
+.feat-sale-star1{
+  position:flex;right:8px;top:8px;width:28px;height:28px;background:#66c0f4;margin:0 0 10px 405px;
+  color:#edf2f5;font-size:25px;line-height:1;border-radius:2px;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;
+}
+.feat-sale-star:hover{background:#66c0f4;color:#0e1621}
+.feat-sale-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.feat-sale-desc{position:relative;color:#868e96;font-size:13px;line-height:1.6;margin-bottom:10px}
+.feat-sale-foot{margin-top:auto;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.feat-sale-date{color:#8f98a0;font-size:13px;margin-top: 25;}
 
 /* ---------- 할인 및 이벤트 ---------- */
 .deals{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:15px;background:#243953;padding:14px}
@@ -606,6 +637,18 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 카드 호버 시 트레일러 영상 재생 ---------- */
 .hover-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none}
+/* seekBar용. 영상 위에 2초 이상 머물러야 진행 바가 뜨고(active), 벗어나면 바로 사라진다.
+   영상 자체는 클릭하면 재생/일시정지 하도록 pointer-events를 켜둔다(hovervideo.tsx의
+   handleVideoClick이 카드 이동으로 새지 않게 stopPropagation 처리). */
+.hover-video-wrap{position:absolute;inset:0}
+.hover-video-wrap .hover-video{pointer-events:auto;cursor:pointer}
+.hover-video-seek{
+  position:absolute;left:0;right:0;bottom:14px;height:32px;display:flex;align-items:center;
+  cursor:pointer;z-index:4;opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.hover-video-seek.active{opacity:1;pointer-events:auto}
+.hover-video-seek-track{width:100%;height:6px;background:rgba(255,255,255,.25);border-radius:3px}
+.hover-video-seek-fill{height:100%;background:#66c0f4;border-radius:3px}
 
 /* ---------- 게임 상세 모달 ---------- */
 .modal-back{position:fixed;inset:0;background:rgba(6,10,15,.82);z-index:100;display:none;overflow-y:auto;padding:40px 12px}
@@ -1432,7 +1475,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   margin-top:-92px;background:none;
 }
 .sp-tabbar-in{
-  max-width:1520px;margin:0 auto;display:flex;justify-content:center;gap:26px;padding:26px 12px;
+  max-width:1850px;margin:0 auto;display:flex;justify-content:center;gap:26px;padding:26px 5px;
   background:linear-gradient(180deg,rgba(58,102,146,.85),rgba(30,56,82,.85));
   box-shadow:0 4px 18px rgba(0,0,0,.35);
 }
@@ -1443,68 +1486,50 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 
 .sp-quote{
   position:relative;z-index:1;max-width:1200px;margin:0 auto;
-  background:rgba(20,28,38,.85);color:#fff;font-size:15px;font-weight:700;
+  background:rgba(20,28,38,.85);color:#fff;font-size:20px;font-weight:700;
   text-align:center;padding:16px 20px;
 }
-
+.손정민{
+  z-index:1;max-width:1200px;margin:0 auto;
+  color:#fff;font-size:20px;font-weight:500;
+  padding:5px 20px;
+}
 .sp-body{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:18px 12px 60px;display:flex;flex-direction:column;gap:18px}
 /* 패널 배경은 실제 축제 페이지와 같은 단색 #243044.
    원본이 같은 색 두 스톱짜리 linear-gradient 라 결과는 단색과 같다. 그대로 옮겨 둔다. */
-.sp-panel{background-image:linear-gradient(0deg,rgb(36,48,68) 0%,rgb(36,48,68) 100%);padding:16px}
+.sp-panel{background-image:linear-gradient(0deg,rgb(36,48,68) 0%,rgb(36,48,68) 100%);padding:15px}
 .sp-h2{color:#fff;font-size:17px;font-weight:600;margin-bottom:12px}
 
 /* 맞춤 추천. 세로로 긴 카드 3장 + 좌우 화살표 + 아래 위치 막대.
    화살표는 패널 바깥으로 밀어 배경 위에 뜬다(실제 축제 페이지와 같은 배치). */
 .sp-rec-panel{padding-bottom:22px}
 .sp-rec-wrap{position:relative}
-.sp-rec{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+/* 이제 슬라이드당 게임 하나(Home 특집 카드 .feat 재사용)라 그리드가 아니라 그냥 감싸는 통 */
+.sp-rec{display:block}
 
-/* 카드는 이미지가 곧 전체. 이름 줄 없이 아래에 가격만 겹친다 */
-.sp-rec-card{position:relative;cursor:pointer;background:#16202d;overflow:hidden}
-/* 상자는 라이브러리 캡슐 비율(600x900). 같은 비율이라 cover 로도 잘리지 않고 꽉 찬다.
-   세로 이미지가 없어 가로 헤더로 대체된 게임만 좌우가 잘린다. */
-.sp-rec-card .art{
-  width:100%;aspect-ratio:600/900;
-  background-size:cover;background-position:center;
-  background-color:#0e1621;
-  transition:transform .25s ease;
-}
-.sp-rec-card:hover .art{transform:scale(1.03)}
-.sp-rec-foot{
-  position:absolute;left:0;right:0;bottom:0;
-  display:flex;align-items:flex-end;justify-content:space-between;gap:8px;
-  padding:8px;background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,0) 100%);
-}
-.sp-plat{display:flex;align-items:center;gap:6px;color:#c7d5e0;font-size:15px;line-height:1}
+/* 좌우 화살표. 다른 캐러셀(page.tsx, gp-similar)과 같은 .arrow를 재사용해 크기를 통일한다 */
+.sp-rec-wrap .arrow.prev{left:-65}
+.sp-rec-wrap .arrow.next{right:-65}
 
-/* 좌우 화살표 */
-.sp-rec-arrow{
-  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
-  width:34px;height:64px;background:none;color:rgba(255,255,255,.55);
-  font-size:40px;line-height:1;cursor:pointer;
+/* 다음 슬라이드까지 남은 10초 카운트다운 막대 */
+.sp-rec-timer{position:relative;height:3px;margin-top:10px;background:rgba(255,255,255,.12);overflow:hidden}
+.sp-rec-timer-fill{
+  position:absolute;top:0;left:0;bottom:0;width:0%;background:#66c0f4;
+  animation:sp-rec-countdown 10s linear forwards;
 }
-.sp-rec-arrow:hover{color:#fff}
-.sp-rec-arrow:disabled{opacity:.25;cursor:default}
-.sp-rec-arrow.left{left:-46px}
-.sp-rec-arrow.right{right:-46px}
-
-/* 현재 페이지 위치 막대 */
-.sp-rec-track{position:relative;height:4px;margin-top:14px;background:rgba(255,255,255,.12)}
-.sp-rec-thumb{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.55);transition:left .25s ease}
+@keyframes sp-rec-countdown{from{width:0%}to{width:100%}}
 
 /* 화살표를 밖에 둘 자리가 없으면 카드 위로 들여놓는다 */
 @media (max-width:1300px){
-  .sp-rec-arrow{background:rgba(0,0,0,.45)}
-  .sp-rec-arrow.left{left:0}
-  .sp-rec-arrow.right{right:0}
+  .sp-rec-wrap .arrow{background:rgba(0,0,0,.45)}
 }
 
 /* 가격 */
-.sp-price{display:flex;align-items:stretch;font-size:13px}
+.sp-price{display:flex;align-items:stretch;font-size:20px}
 .sp-price .disc{background:var(--green-bg);color:var(--bg-dark);font-weight:700;padding:4px 7px}
 .sp-price .pb-body{background:rgba(0,0,0,.35);display:flex;align-items:center;gap:8px;padding:4px 9px}
-.sp-price .was{color:#7a8b99;text-decoration:line-through;font-size:12px}
-.sp-price .now{color:#c7d5e0}
+.sp-price .was{color:var(--green);text-decoration:line-through;font-size:12px}
+.sp-price .now{color:var(--green)}
 
 /* 포인트 상점 배너. 이미지 한 장이 곧 배너라 패널은 여백만 잡고 그림을 폭에 맞춘다.
    원본 비율(1100x240)이 유지되도록 height:auto 로 둔다. */
