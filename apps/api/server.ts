@@ -298,6 +298,27 @@ async function buildHome() {
 // /api/game/:slug
 // ---------------------------------------------------------------
 
+const reviewCardSelect = {
+  isRecommended: true,
+  content: true,
+  playtimeMinutes: true,
+  helpfulCount: true,
+  createdAt: true,
+  user: { select: { nickname: true, avatarUrl: true } },
+} as const;
+
+function toReviewDto(r: any) {
+  return {
+    nickname: r.user.nickname,
+    avatarUrl: r.user.avatarUrl,
+    isRecommended: r.isRecommended,
+    content: r.content,
+    playtimeHours: Math.round(r.playtimeMinutes / 60),
+    helpfulCount: r.helpfulCount,
+    createdAt: r.createdAt,
+  };
+}
+
 async function buildDetail(slug: string) {
   const now = new Date();
   const g = await prisma.game.findUnique({
@@ -306,6 +327,7 @@ async function buildDetail(slug: string) {
       ...cardArgs(now),
       description: true,
       shortDesc: true,
+      detailVideoUrl: true,
       requiredAge: true,
       metacritic: true,
       supportsWindows: true,
@@ -317,25 +339,26 @@ async function buildDetail(slug: string) {
       reviews: {
         take: 5,
         orderBy: { helpfulCount: 'desc' },
-        select: {
-          isRecommended: true,
-          content: true,
-          playtimeMinutes: true,
-          helpfulCount: true,
-          createdAt: true,
-          user: { select: { nickname: true, avatarUrl: true } },
-        },
+        select: reviewCardSelect,
       },
       _count: { select: { dlcs: true, reviews: true } },
     },
   });
   if (!g) return null;
 
+  const recentReviews = await prisma.review.findMany({
+    where: { game: { slug } },
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+    select: reviewCardSelect,
+  });
+
   const card = toCard(g, now);
   return {
     ...card,
     shortDesc: g.shortDesc,
     description: g.description,
+    detailVideoUrl: g.detailVideoUrl,
     requiredAge: g.requiredAge,
     metacritic: g.metacritic,
     platforms: {
@@ -346,15 +369,8 @@ async function buildDetail(slug: string) {
     reqWindows: g.reqWindows,
     steamAppId: g.steamAppId,
     dlcCount: g._count.dlcs,
-    reviews: g.reviews.map((r) => ({
-      nickname: r.user.nickname,
-      avatarUrl: r.user.avatarUrl,
-      isRecommended: r.isRecommended,
-      content: r.content,
-      playtimeHours: Math.round(r.playtimeMinutes / 60),
-      helpfulCount: r.helpfulCount,
-      createdAt: r.createdAt,
-    })),
+    reviews: g.reviews.map(toReviewDto),
+    recentReviews: recentReviews.map(toReviewDto),
     reviewCountLocal: g._count.reviews,
   };
 }
