@@ -760,6 +760,12 @@ export default function Home() {
   const [recent, setRecent] = useState<string[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
+  // 화면이 바뀌면(카드 클릭, 내비 이동, 뒤로가기 등 경로 무관) 떠 있던 호버 카드를 무조건 지운다.
+  // 카드를 클릭해서 다음 화면으로 넘어가면 그 요소가 통째로 사라지므로 mouseleave가 안 뜬다 -
+  // 그래서 개별 핸들러가 아니라 view/modalSlug/categorySlug를 지켜보는 effect로 처리한다
+  // (game→game, category→category처럼 view는 그대로인 채 내용만 바뀌는 이동도 잡아야 해서).
+  useEffect(() => { setHoverInfo(null); }, [view, modalSlug, categorySlug]);
+
   /** 상점 첫 화면 데이터를 새로 받아온다. 첫 진입과 "홈" 클릭에서 같이 쓴다. */
   function loadHome() {
     setData(null);
@@ -1411,6 +1417,7 @@ export default function Home() {
           <WishlistPage
             wishlist={wishlist}
             cart={cart}
+            userName={user.nickname}
             onBack={() => goView("store")}
             onOpenGame={openModal}
             onRemove={removeFromWishlist}

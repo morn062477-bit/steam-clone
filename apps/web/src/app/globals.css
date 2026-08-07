@@ -848,7 +848,11 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 /* ---------- 상점 내비: 장바구니 / 찜 목록 버튼 (검색창 옆) ---------- */
 
 /* ---------- 장바구니 / 찜 목록 페이지 (store.steampowered.com/cart 구성을 따름) ---------- */
-.cartpage,.wishpage{padding:32px 0 60px}
+.cartpage,.wishpage{
+    padding:32px 0 60px;
+    background: #191d24;
+  }
+.wishpage .wrap{padding-left:3cm;padding-right:3cm}
 .cp-crumb{color:#7d8b99;font-size:13px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
 .cp-crumb a{color:#67c1f5}
 .cp-crumb a:hover{color:#fff}
@@ -893,15 +897,65 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cp-checkout{display:block;text-align:center;width:100%;padding:12px}
 [aria-disabled="true"].btn-blue,[aria-disabled="true"].cp-checkout{opacity:.6;pointer-events:none}
 
-/* 찜 목록: 카트와 같은 줄 스타일 + 담기 버튼만 추가 */
+/* 찜 목록: 실제 Steam 찜 목록 레이아웃(순위·태그·검색/정렬 툴바)을 따른다 */
+.wish-head{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.wish-head-icon{
+  width:48px;height:48px;flex:0 0 auto;background:#2a3f55;color:#7d8b99;
+  display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:2px;
+}
+.wish-head-title{color:#fff;font-size:24px;font-weight:400}
+
+.wish-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.wish-search{
+  flex:1;background:#17222f;border:1px solid #2f4257;color:#c7d5e0;
+  font-size:13px;padding:9px 12px;border-radius:2px;
+}
+.wish-search::placeholder{color:#5f707f}
+.wish-tool-btn{
+  background:#2a3f55;color:#8f9bab;font-size:12px;padding:9px 14px;border-radius:2px;white-space:nowrap;
+}
+.wish-share-btn{padding:9px 12px}
+.wish-tool-btn:disabled{cursor:not-allowed;opacity:.75}
+.wish-sortbox{display:flex;align-items:center;gap:8px;color:#8f9bab;font-size:12px;white-space:nowrap}
+.wish-sort{background:#2a3f55;color:#c7d5e0;font-size:12px;padding:8px 10px;border-radius:2px;border:0}
+.wish-count{color:#8f9bab;font-size:12px;margin-bottom:10px}
+
 .wish-list{display:flex;flex-direction:column;gap:8px}
-.wish-row{display:flex;align-items:center;gap:14px;background:#1f2b3c;padding:12px}
+.wish-row{
+  display:flex;align-items:center;gap:14px;padding:12px;
+  color:#9dacbc;
+  background:linear-gradient(340deg,#19293d 10%,#1b354b 50%,#21334a 80%,#1b2c42 95%);
+  border:1px solid #ffffff05;
+  box-shadow:0 0 12px #0003;
+}
+.wish-drag{color:#5f707f;font-size:14px;cursor:grab;flex:0 0 auto}
+.wish-rank{color:#5f707f;font-size:13px;width:16px;text-align:center;flex:0 0 auto}
+.wish-info{flex:1;min-width:0}
+.wish-toprow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.wish-added{color:#5f707f;font-size:11px;white-space:nowrap}
+.wish-actions-row{display:flex;align-items:center;gap:12px;margin:2px 0}
+.wish-cat-btn{background:#2a3f55;color:#8f9bab;font-size:11px;padding:3px 8px;border-radius:2px}
+.wish-cat-btn:disabled{cursor:not-allowed}
+.wish-cat-btn span{color:#c7d5e0}
+.wish-meta{color:#7d8b99;font-size:12px;margin-bottom:6px}
+.wish-review{color:#a4d007}
+.wish-review.positive{color:#a4d007}
+.wish-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:11px}
+.wish-tags-label{color:#5f707f;margin-right:2px}
+.wish-side{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .wish-cart-btn{
   flex:0 0 auto;background:linear-gradient(to bottom,#799905 5%,#536904 95%);
-  color:#fff;font-size:13px;padding:9px 16px;border-radius:2px;
+  color:#fff;font-size:13px;padding:9px 16px;border-radius:2px;white-space:nowrap;
 }
 .wish-cart-btn:hover{background:linear-gradient(to bottom,#a4d007 5%,#536905 95%)}
 .wish-cart-btn:disabled{background:#3a4048;color:#8f98a0;cursor:default}
+
+@media (max-width:900px){
+  .wish-toolbar{flex-wrap:wrap}
+  .wish-row{flex-wrap:wrap}
+  .wish-side{width:100%;flex-direction:row;align-items:center;justify-content:space-between}
+  .wishpage .wrap{padding-left:16px;padding-right:16px}
+}
 
 @media (max-width:900px){
   .cp-body{flex-direction:column}
