@@ -165,7 +165,7 @@ export default function CartPage({
                 <div className="cp-actions-btns">
                   <a className="btn-grey" href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>쇼핑 계속하기</a>
                   <a
-                    className="btn-blue cp-checkout-btn"
+                    className="btn-blue"
                     href="#"
                     aria-disabled={checkoutBusy}
                     onClick={(e) => { e.preventDefault(); if (!checkoutBusy) onCheckout(); }}
@@ -218,7 +218,7 @@ export default function CartPage({
                 </div>
                 {checkoutError && <p className="cp-summary-note cp-checkout-error">{checkoutError}</p>}
                 <a
-                  className="btn-blue cp-checkout cp-checkout-btn"
+                  className="btn-blue cp-checkout"
                   href="#"
                   aria-disabled={checkoutBusy}
                   onClick={(e) => { e.preventDefault(); if (!checkoutBusy) onCheckout(); }}

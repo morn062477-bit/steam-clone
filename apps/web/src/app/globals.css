@@ -1056,11 +1056,6 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .cp-paymethod.on{background:#1b2838;color:#66c0f4;border-color:#66c0f4}
 .cp-checkout-error{color:#e36f6f}
 .cp-checkout{display:block;text-align:center;width:100%;padding:12px}
-.cp-checkout-btn{
-  background:linear-gradient(to right,#00adff 0%,#1b5ac2 60%);
-  background-position:25%;
-  background-size:330% 100%;
-}
 [aria-disabled="true"].btn-blue,[aria-disabled="true"].cp-checkout{opacity:.6;pointer-events:none}
 
 /* 라이선스 안내. 그림은 cartpage.tsx 의 인라인 SVG(LicenseArt) */
