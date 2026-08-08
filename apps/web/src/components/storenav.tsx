@@ -62,7 +62,6 @@ type Props = {
   searchResults: any[] | null;
   onSearchInput: (v: string) => void;
   onOpenGame: (slug: string) => void;
-  onTag: (tag: string) => void;
   onTab: (key: string) => void;
   onCloseResults: () => void;
   wishlistCount: number | null;
@@ -79,7 +78,6 @@ export default function StoreNav({
   searchResults,
   onSearchInput,
   onOpenGame,
-  onTag,
   onTab,
   onCloseResults,
   wishlistCount,
@@ -132,7 +130,7 @@ export default function StoreNav({
 
   const topGames: any[] = data?.tabs?.find((t: any) => t.key === "top")?.games ?? [];
   const catTiles: any[] = data?.categories?.slice(0, 6) ?? [];
-  const catPills: any[] = data?.categories?.slice(6) ?? [];
+  const catPills: any[] = data?.categories?.slice(6, 10) ?? [];
   const banner1 = topGames[0];
   const banner2 = data?.deals?.[0] ?? topGames[1];
 

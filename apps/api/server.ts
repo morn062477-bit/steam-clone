@@ -180,6 +180,16 @@ function cardArgs(now: Date) {
 // /api/home
 // ---------------------------------------------------------------
 
+/** 어떤 장르 슬러그든, 카탈로그 전체에서 그 장르 리뷰 수 1위 게임의 이미지를 준다. */
+async function genreImage(slug: string) {
+  const g = await prisma.game.findFirst({
+    where: { tags: { some: { tag: { slug } } } },
+    orderBy: { steamReviewTotal: 'desc' },
+    select: { capsuleImage: true, headerImage: true },
+  });
+  return g?.capsuleImage || g?.headerImage || '';
+}
+
 async function buildHome() {
   const now = new Date();
   const sel = cardArgs(now);
@@ -264,21 +274,14 @@ async function buildHome() {
     }),
   );
 
-  // 카테고리 카드 배경: 장르별 대표 게임 1개의 세로 카드
+  // 카테고리 카드 배경: 장르별 대표 게임(카탈로그 전체에서 리뷰 수 1위) 1개의 세로 카드
   const categories = await Promise.all(
-    genreTags.slice(0, 10).map(async (t) => {
-      const g = await prisma.game.findFirst({
-        where: { tags: { some: { tag: { slug: t.slug } } } },
-        orderBy: { steamReviewTotal: 'desc' },
-        select: { capsuleImage: true, headerImage: true },
-      });
-      return {
-        name: t.name,
-        slug: t.slug,
-        count: t._count.games,
-        image: g?.capsuleImage || g?.headerImage || '',
-      };
-    }),
+    genreTags.slice(0, 10).map(async (t) => ({
+      name: t.name,
+      slug: t.slug,
+      count: t._count.games,
+      image: await genreImage(t.slug),
+    })),
   );
 
   // 1만원 미만: 할인 적용 후 최종가 기준
@@ -309,6 +312,66 @@ async function buildHome() {
     cheap,
     stats: { games: await prisma.game.count(), discounts: deals.length },
   };
+}
+
+/**
+ * 로그인 유저의 "선호 카테고리". 보유(LibraryItem) 게임의 장르를 세어 많이 가진 순으로 배열한다.
+ * 라이브러리가 비어 있으면(또는 장르 종류가 10개 미만이면) 인기 장르 고정 목록(fallback)으로
+ * 부족한 자리를 채운다 — 타일 6개 + 알약 4개 = 10개 고정.
+ *
+ * 타일 이미지는 "유저가 보유한 게임" 중에서 고르지 않는다. 보유 게임 수가 적으면 게임 한 개가
+ * 장르 여러 개에 걸쳐 있는 경우가 흔해서, 그러면 서로 다른 장르 타일에 같은 이미지가 반복된다.
+ * 그래서 기본 목록과 똑같이 "카탈로그 전체에서 그 장르 1위 게임"의 이미지를 쓴다.
+ */
+async function buildPreferredCategories(userId: string, fallback: any[]) {
+  const owned = await prisma.libraryItem.findMany({
+    where: { userId },
+    select: {
+      game: {
+        select: {
+          tags: {
+            where: { tag: { kind: 'GENRE' } },
+            select: { tag: { select: { name: true, slug: true } } },
+          },
+        },
+      },
+    },
+  });
+  if (owned.length === 0) return fallback;
+
+  const countBySlug = new Map<string, { name: string; slug: string; count: number }>();
+  for (const { game } of owned) {
+    for (const { tag } of game.tags) {
+      const cur = countBySlug.get(tag.slug);
+      if (!cur) countBySlug.set(tag.slug, { name: tag.name, slug: tag.slug, count: 1 });
+      else cur.count += 1;
+    }
+  }
+
+  const ranked = [...countBySlug.values()].sort((a, b) => b.count - a.count);
+
+  const seen = new Set<string>();
+  const picked: { name: string; slug: string; count: number; image?: string }[] = [];
+  for (const g of ranked) {
+    if (picked.length >= 10) break;
+    picked.push(g);
+    seen.add(g.slug);
+  }
+  // fallback(장르 카탈로그 인기순)의 이미지는 이미 계산돼 있으니 재사용하고, 부족한 자리도 채운다.
+  const fallbackBySlug = new Map(fallback.map((c: any) => [c.slug, c]));
+  for (const c of fallback) {
+    if (picked.length >= 10) break;
+    if (seen.has(c.slug)) continue;
+    picked.push(c);
+    seen.add(c.slug);
+  }
+
+  return Promise.all(
+    picked.map(async (c) => ({
+      ...c,
+      image: fallbackBySlug.get(c.slug)?.image ?? (await genreImage(c.slug)),
+    })),
+  );
 }
 
 // ---------------------------------------------------------------
@@ -947,7 +1010,16 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     if (!homeCache || Date.now() - homeCache.at > HOME_TTL_MS) {
       homeCache = { at: Date.now(), data: await buildHome() };
     }
-    return json(res, homeCache.data);
+    const base = homeCache.data as any;
+
+    // 홈 응답 자체는 유저 공용으로 캐시하지만, "선호 카테고리"만은 매 요청 로그인 유저 기준으로
+    // 다시 계산해서 얹는다 (라이브러리가 비어 있으면 base.categories 그대로).
+    const cookies = parseCookies(req.headers.cookie);
+    const viewer = await getSessionUser(prisma, cookies[SESSION_COOKIE]).catch(() => null);
+    if (!viewer) return json(res, base);
+
+    const categories = await buildPreferredCategories(viewer.id, base.categories);
+    return json(res, { ...base, categories });
   }
 
   if (p.startsWith('/api/game/')) {
