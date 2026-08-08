@@ -538,8 +538,18 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ---------- 할인 및 이벤트 ---------- */
 .deals{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:15px;background:#243953;padding:14px}
+/* 앞의 두 장. 앞 카드 둘이 세로 두 칸을 차지하고 오른쪽 칸에 작은 카드 둘이 쌓인다.
+     [1][2][3]
+     [1][2][4]
+   칸 수와 줄 수는 .deals 그대로라 여기서는 span 만 준다. */
+.deals-tall > :nth-child(-n+2){grid-row:span 2;display:flex;flex-direction:column}
+/* 세로로 늘어난 칸은 그림도 같이 채워야 한다. flex 로 높이가 정해지면
+   아래 .deal-sm .art 의 aspect-ratio 는 무시되므로 서로 부딪히지 않는다. */
+.deals-tall > :nth-child(-n+2) .art{flex:1;height:auto;min-height:180px}
 .deal-sm,.deal-big{position:relative;cursor:pointer;overflow:hidden}
-.deal-sm .art{height:180px;border-radius:2px}
+/* 높이를 180px 로 고정하면 칸 폭이 달라질 때마다 cover 가 잘라내는 양이 달라진다.
+   헤더 이미지와 같은 비율(460x215)로 두면 폭이 얼마든 그림이 상자에 딱 맞는다. */
+.deal-sm .art{aspect-ratio:460/215;height:auto;border-radius:2px}
 .deal-sm .art,.deal-big .art{overflow:hidden;transition:transform .3s ease}
 .deal-sm:hover .art,.deal-big:hover .art{transform:scale(1.02)}
 .tagline{
@@ -594,13 +604,13 @@ button{font-family:inherit;cursor:pointer;border:0}
 .rc{max-width:var(--rc-w);margin:34px auto}
 .rc-title{color:#fff;font-size:17px;font-weight:400;margin-bottom:14px}
 .rc-wrap{position:relative}
-/* 칸 폭을 그림 폭(287.48px)에 맞춘다. minmax 라 자리가 좁아지면 줄어들기만 하고
-   넓어져도 그 이상 늘어나지는 않는다. 4장 + 간격 3개 = 1185.92px.
-   컨테이너(.wrap)가 그보다 훨씬 넓어서 space-between 이면 양끝으로 벌어진다.
-   center 로 두어 남는 자리를 좌우로 나누고 카드끼리는 gap 만큼만 띄운다. */
+/* 칸 폭은 그림 폭(287.48px). 4장 + 간격 3개 = 1185.92px.
+   auto-fit 이라 자리가 좁아지면 칸 수가 알아서 줄고, 넓어져도 287.48px 를 넘지 않는다.
+   화면이 아주 좁으면 min(...,100%)가 걸려 한 칸이 화면을 넘지 않는다.
+   center 로 두어 남는 자리는 좌우로 나누고 카드끼리는 gap 만큼만 띄운다. */
 .rc-grid{
-  display:grid;grid-template-columns:repeat(4,minmax(0,287.48px));gap:12px;
-  justify-content:center;
+  display:grid;gap:12px;justify-content:center;
+  grid-template-columns:repeat(auto-fit,minmax(min(287.48px,100%),287.48px));
 }
 
 .rc-card{position:relative;cursor:pointer;background:#000;overflow:hidden;max-width:287.48px}
@@ -639,9 +649,6 @@ button{font-family:inherit;cursor:pointer;border:0}
   .rc-arrow{background:rgba(0,0,0,.45)}
   .rc-arrow.left{left:0}
   .rc-arrow.right{right:0}
-}
-@media (max-width:900px){
-  .rc-grid{grid-template-columns:repeat(2,minmax(0,287.48px));justify-content:center}
 }
 
 /* ---------- 태그 스포트라이트 ---------- */
@@ -687,10 +694,17 @@ button{font-family:inherit;cursor:pointer;border:0}
 .deals-hero-price .now{color:#c7d5e0;font-weight:600}
 
 /* ---------- 카테고리(장르) 페이지 ---------- */
-/* 탭 바가 100vw 로 넓어질 때 세로 스크롤바 폭만큼 넘칠 수 있어 가로만 잘라 둔다.
-   clip 은 hidden 과 달리 스크롤 컨테이너를 만들지 않아 안쪽 sticky 가 그대로 동작한다.
+/* overflow 는 건드리지 않는다. visible 이 아닌 값을 주면 이 요소가 안쪽 sticky 의
+   기준 상자가 되어 서브탭 바가 상단에 붙지 않는다(전에 clip 을 걸었다가 그랬다).
    배경은 body 의 #1b2838 보다 어두운 남색으로 따로 깐다. */
-.catpage{padding-bottom:60px;overflow-x:clip;background:#131c26}
+.catpage{padding-bottom:60px;background:#131c26}
+
+/* 할인 및 이벤트 페이지 폭. 홈의 특집 카드(.feat)와 좌우 끝을 맞춘다.
+   그 카드는 .carousel-bleed(100vw) 안에서 좌우로 peek 12% 씩 남기므로 76vw 다.
+   즉 왼쪽 끝이 .feat-art 왼쪽, 오른쪽 끝이 .feat-info 오른쪽과 같은 자리에 선다.
+   .wrap 의 max-width:1700px 은 여기서 쓰지 않는다. 특집 카드도 그 상한이 없어서,
+   남겨 두면 넓은 화면에서 둘의 폭이 어긋난다. */
+.dealspage .wrap{width:76vw;max-width:76vw}
 .catpage .cp-title{margin-top:28px;text-align:center;font-size:44px;font-weight:700}
 /* 인기 게임 캐러셀: 위 2개는 크게, 아래 3개는 작게. 박스 배경 없이 카드가 페이지
    위에 바로 떠 있다. 카드는 DealCard(size="sm")를 그대로 쓰고, .art 높이만
@@ -716,28 +730,36 @@ button{font-family:inherit;cursor:pointer;border:0}
    바깥은 늘 화면 폭을 차지하되 배경이 없다. 안쪽 패널만 보이므로 평소에는
    본문 폭 그대로이고, 붙었을 때 화면 끝까지 넓어질 자리가 미리 확보된다.
    (본문 .cat-narrow 안에 갇혀 있으면 그 폭을 넘어설 수 없다) */
+/* 바깥은 본문 폭 그대로 흐름에 둔다. 100vw + 음수 마진으로 화면을 채우려 하면
+   넘친 만큼을 자르려고 조상에 overflow 를 걸어야 하는데, 그러면 그 조상이
+   sticky 의 기준 상자가 되어 정작 상단에 붙지 않는다. 넓히는 일은 안쪽 패널이 맡는다. */
 .cat-tabbar{
   position:sticky;top:var(--nav-h);z-index:20;margin-bottom:24px;
-  width:100vw;margin-left:calc(50% - 50vw);
 }
 .cat-tabbar-in{
   /* 폭을 max-width 가 아니라 width 로 잡아야 .stuck 로 넓어질 때 애니메이션이 먹는다.
      둘 다 계산된 길이라야 transition 이 중간값을 만들 수 있다. */
-  width:var(--rc-w);max-width:calc(100% - 0.6cm);margin:0 auto;
+  width:100%;margin:0 auto;
   display:flex;justify-content:center;flex-wrap:wrap;gap:26px;padding:26px 12px;
   /* 붙었을 때 뒤 내용이 비치면 안 되므로 불투명한 어두운 패널 */
   background:linear-gradient(180deg,#151d26,#0f151c);
   box-shadow:0 4px 18px rgba(0,0,0,.45);
-  transition:width .25s ease;
+  transition:width .25s ease,margin-left .25s ease;
 }
-/* 상단에 붙으면 좌우 0.3cm 만 남기고 화면 끝까지 넓어지면서,
-   불투명 패널이 아니라 뒤가 흐리게 비치는 유리처럼 바뀐다.
-   backdrop-filter 가 요소 뒤에 있는 페이지 내용을 흐리므로, 배경 자체는
-   반투명이어야 그 흐린 그림이 드러난다.
-   .stuck 은 page.tsx 의 useStuck 훅이 sticky 가 걸린 순간을 재서 붙인다. */
+/* 붙으면 화면 양끝에 3mm(0.3cm)씩만 남기고 넓어지면서, 불투명 패널이 아니라
+   뒤가 흐리게 비치는 유리처럼 바뀐다. backdrop-filter 는 요소 뒤 내용을 흐리므로
+   배경 자체가 반투명이어야 그 흐린 그림이 드러난다.
+   .stuck 은 page.tsx 의 useStuck 훅이 sticky 가 걸린 순간을 재서 붙인다.
+   50% 는 이 패널을 담은 상자(.cat-narrow) 기준이라, 거기서 반 화면만큼 왼쪽으로
+   당기면 화면 왼쪽 끝에 닿는다. 거기에 0.3cm 를 더해 여백을 남긴다.
+   폭이 화면을 넘지 않으므로 가로 스크롤도 생기지 않는다. */
 .cat-tabbar.stuck .cat-tabbar-in{
-  width:calc(100% - 0.6cm);
-  background:rgba(19,28,38,.55);
+  width:calc(100vw - 0.6cm);
+  margin-left:calc(50% - 50vw + 0.3cm);
+  /* 색은 평소와 같은 두 색 그대로 두고 알파만 낮춘다. 단색 반투명으로 덮으면
+     평평해 보이는데, 원래 그라데이션을 유지한 채 뒤가 비치면 색이 자연스럽게
+     번져 보인다. blur 가 뒤 내용을 뭉개 줘서 글자는 그대로 읽힌다. */
+  background:linear-gradient(180deg,rgba(21,29,38,.55),rgba(15,21,28,.55));
   backdrop-filter:blur(18px);
   -webkit-backdrop-filter:blur(18px);
 }
@@ -2240,4 +2262,102 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .lib-cap{width:100%;height:auto;aspect-ratio:460/215}
   .lib-toolbar{flex-direction:column;align-items:stretch}
   .lib-search{width:100%}
+}
+
+/* ================================================================
+   좁은 화면 보정
+   ----------------------------------------------------------------
+   body 에 overflow-x:hidden 이 걸려 있어서, 넘친 내용은 스크롤이 아니라
+   그냥 잘려 나간다. 그래서 고정 폭(px)으로 잡힌 곳들이 좁은 화면에서
+   화면 밖으로 밀려 사라졌다. 아래는 그런 자리들을 접거나 폭을 풀어 주는 규칙이다.
+   파일 끝에 모아 두어 앞의 같은 특이도 규칙을 덮는다.
+   ================================================================ */
+
+@media (max-width:1100px){
+  /* 앞의 두 장은 큰 카드 둘이 세로 두 칸을 먹는다. 칸이 좁아지면 그림이 뭉개지므로
+     보통 격자로 되돌린다. */
+  .deals-tall > :nth-child(-n+2){grid-row:auto}
+  .deals-tall > :nth-child(-n+2) .art{flex:none;height:auto;min-height:0}
+}
+
+@media (max-width:980px){
+  /* .deals 는 grid 라 위쪽 규칙의 flex-direction:column 이 먹지 않는다.
+     칸 수를 직접 줄이고, 줄 높이 고정도 푼다. */
+  .deals{grid-template-columns:repeat(2,1fr);grid-template-rows:auto}
+
+  /* 폭을 좁게 묶어 둔 구획들. 좁은 화면에서는 화면을 그대로 쓴다. */
+  .dealspage .wrap{width:100%;max-width:none;padding:0 12px}
+  .cat-narrow,.rc{max-width:none}
+
+  /* 장바구니: 오른쪽 요약(390px 고정)이 본문을 밀어내고 있었다 */
+  .cp-body{flex-direction:column}
+  .cp-side{flex:none;width:100%}
+
+  /* 찜 목록 줄의 썸네일(270px 고정) */
+  .wl-row{flex-wrap:wrap}
+  .wl-thumb{flex:0 0 100%;width:100%;height:auto;aspect-ratio:460/215}
+
+  /* 푸터: foot-brand 를 오른쪽으로 밀어 둔 340px 여백이 열들을 화면 밖으로 보낸다 */
+  .foot-grid{flex-wrap:wrap;gap:24px;padding-left:0}
+  .foot-brand{flex:0 0 100%}
+}
+
+@media (max-width:820px){
+  /* 장바구니 줄: 231px 썸네일 + 이름 + 가격이 한 줄에 안 들어간다 */
+  .cp-row{flex-wrap:wrap}
+  .cp-thumb{flex:0 0 100%;width:100%}
+  .cp-rowside{align-items:flex-start}
+  .cp-rec-grid{grid-template-columns:repeat(2,1fr)}
+  .cp-actions{flex-wrap:wrap}
+
+  /* 게임 상세 구매 줄. 가격 칸과 버튼들이 한 줄을 넘으면 접는다 */
+  .gp-buy-foot{flex-wrap:wrap;justify-content:flex-start;gap:8px}
+  .gp-pbg{flex-wrap:wrap}
+  .gp-prices,.gp-disc{flex:0 0 auto}
+
+  /* 보유 게임 안내의 평가 작성 칸 */
+  .gp-owned-actions{flex-direction:column;align-items:flex-start}
+
+  /* 축제 페이지 인기 게임: 줄마다 칸 수를 정해 둔 값을 무시하고 2칸으로 */
+  .sp-grid-row{--cols:2}
+  .sp-rec{grid-template-columns:1fr}
+}
+
+@media (max-width:620px){
+  .cp-rec-grid{grid-template-columns:1fr}
+  .cats,.cheap{grid-template-columns:1fr}
+  .sp-grid-row{--cols:1}
+  .gp-strip{grid-template-columns:repeat(3,1fr)}
+  /* 평가 반응 버튼 네 개가 한 줄에 안 들어간다 */
+  .gp-review-help .btns{flex-wrap:wrap}
+}
+
+/* ---------------- 홈 화면 폭 줄일 때 ---------------- */
+/* 실제 스팀은 좁아질수록 (1) 옆 슬라이드 미리보기를 접고 (2) 특집 카드는
+   그림+정보를 나란히 둔 채로 줄이다가 (3) 더 좁아지면 정보를 그림 아래로 내린다.
+   (1)은 폭 비율이라 CSS 로 못 바꿔서 Carousel 이 useMediaQuery 로 처리한다.
+   여기서는 (2)(3)을 맡는다. .feat / .deals / .cats 등은 홈에서만 쓰는 것들이다. */
+
+@media (max-width:1250px){
+  /* peek 이 접히면 캐러셀이 화면을 꽉 쓰므로 화살표를 가장자리로 보낸다 */
+  .carousel-bleed{width:100%;left:auto;right:auto;margin-left:auto;margin-right:auto}
+  .align-feat,.feat-sec-head{padding:0}
+  /* 550px 고정이면 폭이 줄어도 그림만 세로로 길어 보인다. 비율로 줄인다 */
+  .feat-art{height:auto;aspect-ratio:16/9}
+  .car-slide:not(.active) .feat-art{height:auto}
+}
+
+/* 980~821: 아직 그림과 정보를 나란히 둔다. 그림 몫만 조금 줄인다.
+   (앞의 980 규칙이 여기서 세로로 쌓아 버려서 되돌린다) */
+@media (max-width:980px) and (min-width:821px){
+  .feat{flex-direction:row}
+  .feat-art{flex:0 0 62%;width:auto}
+}
+
+@media (max-width:820px){
+  /* 이제 정보를 그림 아래로 내린다 */
+  .feat{flex-direction:column}
+  .feat-art{flex:none;width:100%}
+  .feat-info{padding:12px 14px}
+  .thumbs{grid-template-columns:repeat(4,1fr)}
 }

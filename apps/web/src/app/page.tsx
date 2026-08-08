@@ -10,6 +10,7 @@ import SalePage from "@/components/salepage";
 import LibraryPage from "@/components/librarypage";
 import RecCarousel from "@/components/reccarousel";
 import useStuck from "@/components/usestuck";
+import useMediaQuery from "@/components/usemediaquery";
 import CartPage from "@/components/cartpage";
 import WishlistPage from "@/components/wishlistpage";
 
@@ -161,7 +162,12 @@ function Reviews({ g }: { g: any }) {
 // ---------------------------------------------------------------
 // 캐러셀
 // ---------------------------------------------------------------
-function Carousel({ slides, autoMs = 0, peek = 0, peekRight = false, arrowInset, className }: { slides: React.ReactNode[]; autoMs?: number; peek?: number; peekRight?: boolean; arrowInset?: number; className?: string }) {
+function Carousel({ slides, autoMs = 0, peek: peekProp = 0, peekRight = false, arrowInset, className }: { slides: React.ReactNode[]; autoMs?: number; peek?: number; peekRight?: boolean; arrowInset?: number; className?: string }) {
+  // 좁은 화면에서는 옆 슬라이드 미리보기를 접는다. peek 은 폭의 비율이라
+  // 화면이 좁아질수록 정작 보여 줄 카드를 크게 깎아 먹는다(12%면 좌우로 24%).
+  const narrow = useMediaQuery("(max-width:1250px)");
+  const peek = narrow ? 0 : peekProp;
+
   const n = slides.length;
   const loop = n > 1;
   // 회전문 트릭: 맨 앞엔 마지막 슬라이드 복제, 맨 뒤엔 첫 슬라이드 복제를 붙여둔다.
@@ -344,9 +350,20 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
   );
 }
 
-function DealCard({ g, size, onOpen }: { g: any; size: "big" | "sm"; onOpen: (slug: string) => void }) {
+function DealCard({
+  g,
+  size,
+  onOpen,
+  artUrl,
+}: {
+  g: any;
+  size: "big" | "sm";
+  onOpen: (slug: string) => void;
+  /** 그림을 직접 지정한다. 세로로 긴 칸처럼 기본 헤더가 안 맞는 자리에 쓴다 */
+  artUrl?: string | null;
+}) {
   const { hover, bind } = useCardHover(g);
-  const art = size === "big" ? (g.capsuleImage || g.headerImage) : g.headerImage;
+  const art = artUrl ?? (size === "big" ? (g.capsuleImage || g.headerImage) : g.headerImage);
   const cls = TAGLINE_CLASS[g.discountLabel] || "season";
   return (
     <div className={`deal-${size}`} onClick={() => onOpen(g.slug)} {...bind}>
@@ -789,7 +806,7 @@ function DealsPage({
   })();
 
   return (
-    <div className="catpage">
+    <div className="catpage dealspage">
       <div className="wrap">
         <Carousel autoMs={8000} slides={heroGames.map((g: any) => (
           <DealsHeroSlide
@@ -1300,7 +1317,25 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const dealSlides = data ? chunk(data.deals, 6).filter((c: any[]) => c.length >= 2) : [];
+  /**
+   * 특가 캐러셀 장 나누기.
+   * 앞의 두 장은 세로 두 칸을 차지하는 큰 카드 2개 + 오른쪽 작은 카드 2개(4장),
+   * 그 뒤로는 지금까지처럼 3x2 격자에 6장씩 채운다.
+   */
+  const dealSlides: { kind: "tall" | "grid"; items: any[] }[] = (() => {
+    if (!data) return [];
+    const rows: any[] = data.deals;
+    const out: { kind: "tall" | "grid"; items: any[] }[] = [];
+    let i = 0;
+    for (let n = 0; n < 2 && i + 4 <= rows.length; n++, i += 4) {
+      out.push({ kind: "tall", items: rows.slice(i, i + 4) });
+    }
+    for (; i < rows.length; i += 6) {
+      const items = rows.slice(i, i + 6);
+      if (items.length >= 2) out.push({ kind: "grid", items });
+    }
+    return out;
+  })();
   const catSlides = data ? chunk(data.categories, 5) : [];
   const cheapSlides = data ? chunk(data.cheap, 5) : [];
   const loginPool = data
@@ -1505,10 +1540,18 @@ export default function Home() {
                   peekRight
                   arrowInset={-3.5}
                   className="deals-carousel"
-                  slides={dealSlides.map((chunkItems: any[], i: number) => (
-                    <div className="deals" key={i}>
-                      {chunkItems.map((g: any) => (
-                        <DealCard key={g.slug} g={g} size="sm" onOpen={openModal} />
+                  slides={dealSlides.map((s, i) => (
+                    <div className={"deals" + (s.kind === "tall" ? " deals-tall" : "")} key={i}>
+                      {s.items.map((g: any, j: number) => (
+                        <DealCard
+                          key={g.slug}
+                          g={g}
+                          size="sm"
+                          onOpen={openModal}
+                          // 앞 두 장의 첫 두 칸은 세로로 길어서 가로 헤더가 크게 잘린다.
+                          // 세로 캡슐이 있으면 그걸 쓴다.
+                          artUrl={s.kind === "tall" && j < 2 ? g.libraryImage || g.headerImage : undefined}
+                        />
                       ))}
                     </div>
                   ))}
