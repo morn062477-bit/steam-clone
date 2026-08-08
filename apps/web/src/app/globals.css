@@ -1861,10 +1861,27 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   background-size:cover;background-position:center top;background-repeat:no-repeat;
 }
 .takeover-bg-mobile{display:none}
+/* 둠 배너 사진은 세로로 긴 사진이라 기본 위치(맨 위)로는 인물이 아래로 잘려서, 조금 올려서 보여준다 */
+.takeover.doom .takeover-bg,
+.takeover.doom .takeover-bg-mobile{background-position:center -60px;}
+/* 사이버펑크 배너 사진 확대 */
+.takeover:not(.doom) .takeover-bg,
+.takeover:not(.doom) .takeover-bg-mobile{background-size:110% auto}
+/* 아래로 갈수록 어두워지는 효과. 사진 위에만 덮이고(::after 는 부모 안에 갇힌다)
+   나중에 나오는 형제 .takeover-sizer(로고)는 그대로 밝게 보인다 */
+.takeover-bg::after,
+.takeover-bg-mobile::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,1) 100%);
+}
 .takeover-sizer{
-  position:relative;display:block;
+  position:relative;display:flex;align-items:center;justify-content:center;
   width:1467px;max-width:100%;height:450px;margin:0 auto;
   cursor:pointer;
+}
+/* 배너 뒷배경 위에 얹는 로고. 버전마다 원본 비율이 달라서 높이만 잡고 폭은 비율대로 */
+.takeover-logo{
+  max-height:100%;max-width:100%;object-fit:contain;pointer-events:none;
 }
 
 @media (max-width:820px){
@@ -1890,7 +1907,9 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
    CSS 다중 배경은 먼저 쓴 쪽이 위에 그려진다. 순서를 바꾸면 띠가 메인을 덮는다.
    폭에 따라 배경 크기를 바꾸는 규칙은 두지 않는다. 늘어난 비율이 어긋난다. */
 .salepage{
-  position:relative;min-height:100vh;
+  /* z-index 를 줘야 스태킹 컨텍스트가 생겨서 .doom::before(z-index:-1)가
+     이 안에서만 뒤로 가라앉는다(밖으로 새면 엉뚱한 부모 뒤에 숨어 안 보인다) */
+  position:relative;z-index:0;min-height:100vh;
   /* 두 겹이 다 없을 때를 대비한 바탕 */
   background-color:#44526e;
   background-image:url('/sale-bg-top.webp'),url('/sale-bg-tile.jpg');
@@ -1903,16 +1922,29 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
      세로는 auto 라 비율이 유지된다. 두 겹이 같은 폭이어야 건물 줄이 이어진다. */
   background-size:calc(150% + 11cm) auto,calc(150% + 11cm) auto;
 }
+/* 둠 버전: 사이버펑크의 두 겹 반복 배경 대신, 사진 한 장을 위에서 깔고
+   아래쪽 18% 를 mask 로 투명하게 녹여 .salepage 바탕색으로 자연스럽게 이어지게 한다 */
+/* 사진 톤(어둡고 붉은)에 맞춰 이어지는 색도 사이버펑크의 파란 톤 대신 어두운 색으로 바꾼다 */
+.salepage.doom{ background-image:none;background-color:#2a1210; }
+.salepage.doom::before{
+  content:"";
+  position:absolute;top:0;left:0;right:0;z-index:-1;
+  width:100%;aspect-ratio:2100/4000;
+  background-image:url('/sale-takeover-2-bg.jpg');
+  background-size:130% 130%;background-position:center top;background-repeat:no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 82%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 82%,transparent 100%);
+  pointer-events:none;
+}
 .sp-takeover{
   position:relative;z-index:1;height:620px;
   background-size:cover;background-position:center top;
   display:flex;align-items:flex-start;justify-content:center;
 }
-/* 축제 로고. public/sale-logo.png 를 넣으면 배너 위에 얹힌다.
-   파일이 없으면 onError 로 스스로 숨어서 배너만 보인다. */
-/* 로고는 원본 크기(940x460) 그대로. 좁은 화면에서만 줄어든다. */
+/* 축제 로고. 버전마다 원본 크기(width/height)가 달라서 높이만 고정하고
+   폭은 salepage.tsx 의 img width/height 속성(원본 비율)을 따른다. */
 .sp-logo{
-  width:940px;height:460px;max-width:100%;object-fit:contain;display:block;
+  height:460px;max-width:100%;object-fit:contain;display:block;
   margin-top:20px;
 }
 
@@ -1936,6 +1968,8 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 /* 스크롤해서 상단에 붙으면 좌우 0.3cm 만 남기고 화면 끝까지 넓어진다.
    .stuck 은 salepage.tsx 가 sticky 가 걸린 순간을 재서 붙인다. */
 .sp-tabbar.stuck .sp-tabbar-in{width:calc(100% - 0.6cm)}
+/* 둠 버전은 파란 사이버펑크 톤 대신 어둡고 붉은 톤으로 */
+.salepage.doom .sp-tabbar-in{background:linear-gradient(180deg,rgba(120,26,26,.85),rgba(46,12,12,.85))}
 .sp-tab{background:none;color:#c7d5e0;font-size:14px;font-weight:600;padding:4px 2px;position:relative}
 .sp-tab:hover{color:#fff}
 .sp-tab.on{color:#fff}
@@ -1959,6 +1993,8 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 /* 패널 배경은 실제 축제 페이지와 같은 단색 #243044.
    원본이 같은 색 두 스톱짜리 linear-gradient 라 결과는 단색과 같다. 그대로 옮겨 둔다. */
 .sp-panel{background-image:linear-gradient(0deg,rgb(36,48,68) 0%,rgb(36,48,68) 100%);padding:15px}
+/* 둠 버전은 패널도 파란 톤 대신, 배경색(#2a1210)과 비슷한 톤의 붉은 색으로 */
+.salepage.doom .sp-panel{background-image:linear-gradient(0deg,rgb(48,22,19) 0%,rgb(48,22,19) 100%)}
 .sp-h2{color:#fff;font-size:17px;font-weight:600;margin-bottom:12px}
 
 /* 맞춤 추천. 세로로 긴 카드 3장 + 좌우 화살표 + 아래 위치 막대.
@@ -1998,6 +2034,11 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   padding:26px;display:flex;align-items:center;justify-content:center;
 }
 .sp-points-img{display:block;width:100%;max-width:1100px;height:auto}
+/* 둠 버전: 패널 배경/이미지는 없애고, 있던 자리(패널 padding 26px*2 +
+   원본 비율(1100x240) 이미지 높이)만큼만 비워 둔다 — 아래 내용이 밀리지 않게 */
+.sp-points-gap{
+  width:100%;max-width:1100px;aspect-ratio:1100/100;
+}
 
 /* 인기 게임 */
 /* 인기 게임. 줄마다 칸 수가 다르다(2-3-4-3-2-3-4).
@@ -2006,12 +2047,6 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .sp-grid-row{display:grid;grid-template-columns:repeat(var(--cols,4),1fr);gap:12px}
 .sp-cap{cursor:pointer;background:#16202d}
 .sp-cap .art{width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;background-color:#0e1621}
-.sp-more{
-  display:block;margin:14px auto 0;background:rgba(255,255,255,.85);color:#1b2838;
-  font-size:14px;padding:8px 22px;border-radius:2px;
-}
-.sp-more:hover{background:#fff}
-
 /* 인기 게임 카드 호버 패널.
    위쪽은 트레일러(로딩 전에는 스크린샷이 비친다), 아래로 헤더 이미지가 걸치고 정보가 이어진다.
    격자에 잘리지 않게 fixed 로 띄운다. 별 버튼만 눌리면 되므로 패널은 클릭을 받는다. */
@@ -2079,6 +2114,9 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .sp-filter-row b{color:#8f98a0;font-weight:400}
 
 .sp-list{flex:1;min-width:0;background:rgba(20,28,38,.85);padding:16px}
+/* 둠 버전은 검색 필터/목록 배경도 다른 패널들과 같은 붉은 톤으로 */
+.salepage.doom .sp-filter,
+.salepage.doom .sp-list{background:rgba(34,18,12,.92);box-shadow:0 4px 18px rgba(0,0,0,.5)}
 .sp-row{display:flex;gap:14px;align-items:center;background:rgba(255,255,255,.06);padding:10px;margin-bottom:8px;cursor:pointer}
 .sp-row:hover{background:rgba(255,255,255,.12)}
 .sp-row .cap{width:170px;height:79px;flex:0 0 auto;background-size:cover;background-position:center;background-color:#0e1621}
