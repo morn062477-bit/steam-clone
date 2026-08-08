@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
+    "build": "prisma generate",
+    "start": "tsx server.ts",
     "db:start": "tsx scripts/start-db.ts",
     "db:push": "prisma db push --schema=prisma/schema.prisma",
     "db:seed": "tsx prisma/seed.ts",

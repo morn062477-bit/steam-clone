@@ -12,10 +12,13 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: process.env.DEV_LAN_ORIGIN ? [process.env.DEV_LAN_ORIGIN] : undefined,
 
   async rewrites() {
+    // 배포된 API 서버 주소는 API_ORIGIN(예: Railway 도메인)으로 넣는다.
+    // 안 넣으면 로컬 개발용 기본값(localhost:4000)을 쓴다.
+    const apiOrigin = process.env.API_ORIGIN ?? "http://localhost:4000";
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:4000/api/:path*",
+        destination: `${apiOrigin}/api/:path*`,
       },
     ];
   },
