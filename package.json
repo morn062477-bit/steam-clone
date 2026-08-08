@@ -20,10 +20,5 @@
       "onFail": "download"
     }
   },
-  "type": "module",
-  "pnpm": {
-    "ignoredBuiltDependencies": [
-      "@embedded-postgres/linux-x64"
-    ]
-  }
+  "type": "module"
 }
