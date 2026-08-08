@@ -25,6 +25,12 @@ function bgStyle(url?: string | null) {
   return url ? { backgroundImage: `url('${url}')` } : undefined;
 }
 
+/** 태그 이름 → DB Tag.slug. 백엔드 시드가 만드는 규칙(소문자화 + 공백을 하이픈으로)과 맞춘다.
+   "모든 장르 및 테마" 목록은 카드에 이미 붙어 있는 태그 이름만 갖고 있어서 slug가 따로 없다. */
+function tagSlug(name: string) {
+  return name.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
 /** 메뉴 옆 화살표. 실제 Steam 도 14px SVG 이고 열리면 180도 돈다. */
 function Caret() {
   return (
@@ -62,7 +68,6 @@ type Props = {
   searchResults: any[] | null;
   onSearchInput: (v: string) => void;
   onOpenGame: (slug: string) => void;
-  onTag: (tag: string) => void;
   onTab: (key: string) => void;
   onCloseResults: () => void;
   wishlistCount: number | null;
@@ -79,7 +84,6 @@ export default function StoreNav({
   searchResults,
   onSearchInput,
   onOpenGame,
-  onTag,
   onTab,
   onCloseResults,
   wishlistCount,
@@ -132,7 +136,7 @@ export default function StoreNav({
 
   const topGames: any[] = data?.tabs?.find((t: any) => t.key === "top")?.games ?? [];
   const catTiles: any[] = data?.categories?.slice(0, 6) ?? [];
-  const catPills: any[] = data?.categories?.slice(6) ?? [];
+  const catPills: any[] = data?.categories?.slice(6, 10) ?? [];
   const banner1 = topGames[0];
   const banner2 = data?.deals?.[0] ?? topGames[1];
 
@@ -293,7 +297,7 @@ export default function StoreNav({
             </div>
             <div className="nd-cat-pills">
               {catPills.map((c: any) => (
-                <a key={c.slug} href="#" onClick={pick(() => onTag(c.name))}>{c.name}</a>
+                <a key={c.slug} href="#" onClick={pick(() => onOpenCategory(c.slug))}>{c.name}</a>
               ))}
               <a className="nd-allpills" href="#" onClick={(e) => e.preventDefault()}>모든 태그 보기 ›</a>
             </div>
@@ -305,7 +309,7 @@ export default function StoreNav({
             </div>
             <div className={"nd-genres" + (genresOpen ? " open" : "")}>
               {genres.map((n) => (
-                <a key={n} href="#" onClick={pick(() => onTag(n))}>{n}</a>
+                <a key={n} href="#" onClick={pick(() => onOpenCategory(tagSlug(n)))}>{n}</a>
               ))}
             </div>
           </div></div>

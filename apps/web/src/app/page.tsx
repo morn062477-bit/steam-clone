@@ -1,10 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StoreNav from "@/components/storenav";
 import Auth, { readUser, writeUser, type AuthView, type User } from "@/components/auth";
 import GamePage from "@/components/gamepage";
-import GameHoverCard, { type HoverInfo } from "@/components/gamehovercard";
 import HoverVideo from "@/components/hovervideo";
 import SalePage from "@/components/salepage";
 import LibraryPage from "@/components/librarypage";
@@ -105,28 +104,6 @@ const TAGLINE_CLASS: Record<string, string> = {
   "시즌 세일": "season",
   "특별 할인": "season",
 };
-
-const HoverCtx = createContext<{ show: (g: any, el: HTMLElement) => void; hide: () => void }>({
-  show: () => {},
-  hide: () => {},
-});
-
-/** 카드에 붙이는 호버 핸들러. 확대/영상용 로컬 state 와 설명 패널을 같이 다룬다.
-   특집 카드처럼 자체 정보 패널이 있는 경우엔 floating=false 로 띄우지 않는다. */
-function useCardHover(g: any, floating = true) {
-  const [hover, setHover] = useState(false);
-  const ctx = useContext(HoverCtx);
-  return {
-    hover,
-    bind: {
-      onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
-        setHover(true);
-        if (floating) ctx.show(g, e.currentTarget);
-      },
-      onMouseLeave: () => { setHover(false); if (floating) ctx.hide(); },
-    },
-  };
-}
 
 function PriceBar({ g, className = "pricebar" }: { g: any; className?: string }) {
   if (g.isFree) return <div className={className}><span className="pb-body"><span className="now">무료 플레이</span></span></div>;
@@ -288,40 +265,19 @@ function Takeover({ onOpen }: { onOpen: () => void }) {
 // 카드들
 // ---------------------------------------------------------------
 function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
-  // 우리 훅(호버 확대·설명) + 브랜치의 썸네일 미리보기를 함께 쓴다.
-  // 특집 카드는 자체 정보 패널이 있어 떠 있는 설명 패널은 띄우지 않는다(false).
-  const { hover, bind } = useCardHover(g, false);
-  const [activeShot, setActiveShot] = useState<string | null>(null);
   const art = g.screenshots?.[0]?.url || g.headerImage;
   const thumbs = (g.screenshots?.slice(1, 5).length ? g.screenshots.slice(1, 5) : g.screenshots?.slice(0, 4)) ?? [];
   return (
-    <div
-      className="feat"
-      onClick={() => onOpen(g.slug)}
-      {...bind}
-      onMouseLeave={(e) => { bind.onMouseLeave(); setActiveShot(null); }}
-    >
-      <div className="feat-art" style={bgStyle(activeShot || art)}>
-        {/* 썸네일을 고르는 동안엔 영상 대신 그 스크린샷을 보여준다 */}
-        {hover && !activeShot && g.previewVideoUrl && (
-          <HoverVideo src={g.previewVideoUrl} />
-        )}
+    <div className="feat" onClick={() => onOpen(g.slug)}>
+      <div className="feat-art" style={bgStyle(art)}>
         {g.discountPercent > 0 && <span className="badge-live"><i />{g.discountLabel}</span>}
       </div>
       <div className="feat-info">
         <h3>{g.name}</h3>
         <Reviews g={g} />
-        {/* 호버하면 스크린샷 자리에 게임 설명을 보여준다 */}
-        {hover && g.shortDesc && <p className="feat-desc">{g.shortDesc}</p>}
         <div className="thumbs">
           {thumbs.map((s: any, i: number) => (
-            <div
-              key={i}
-              className="thumb"
-              style={bgStyle(s.thumb || s.url)}
-              onMouseEnter={() => setActiveShot(s.url || s.thumb)}
-              onMouseLeave={() => setActiveShot(null)}
-            />
+            <div key={i} className="thumb" style={bgStyle(s.thumb || s.url)} />
           ))}
         </div>
         <div className="feat-tags">
@@ -343,44 +299,29 @@ function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
 }
 
 function DealCard({ g, size, onOpen }: { g: any; size: "big" | "sm"; onOpen: (slug: string) => void }) {
-  const { hover, bind } = useCardHover(g);
   const art = size === "big" ? (g.capsuleImage || g.headerImage) : g.headerImage;
   const cls = TAGLINE_CLASS[g.discountLabel] || "season";
   return (
-    <div className={`deal-${size}`} onClick={() => onOpen(g.slug)} {...bind}>
+    <div className={`deal-${size}`} onClick={() => onOpen(g.slug)}>
       <span className={`tagline ${cls}`}>{g.discountLabel || "할인"}</span>
-      <div className="art" style={bgStyle(art)}>
-        {hover && g.previewVideoUrl && (
-          <HoverVideo src={g.previewVideoUrl} />
-        )}
-      </div>
+      <div className="art" style={bgStyle(art)} />
       <PriceBar g={g} />
     </div>
   );
 }
 
 function SpotCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
-  const { hover, bind } = useCardHover(g);
   return (
-    <div className="spot-card" onClick={() => onOpen(g.slug)} {...bind}>
-      <div className="art" style={bgStyle(g.headerImage)}>
-        {hover && g.previewVideoUrl && (
-          <HoverVideo src={g.previewVideoUrl} />
-        )}
-      </div>
+    <div className="spot-card" onClick={() => onOpen(g.slug)}>
+      <div className="art" style={bgStyle(g.headerImage)} />
     </div>
   );
 }
 
 function CheapCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
-  const { hover, bind } = useCardHover(g);
   return (
-    <div className="cheap-card" onClick={() => onOpen(g.slug)} {...bind}>
-      <div className="art" style={bgStyle(g.capsuleImage || g.headerImage)}>
-        {hover && g.previewVideoUrl && (
-          <HoverVideo src={g.previewVideoUrl} />
-        )}
-      </div>
+    <div className="cheap-card" onClick={() => onOpen(g.slug)}>
+      <div className="art" style={bgStyle(g.capsuleImage || g.headerImage)} />
       <PriceBar g={g} />
     </div>
   );
@@ -882,15 +823,8 @@ export default function Home() {
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [hoverInfo, setHoverInfo] = useState<HoverInfo>(null);
   const [recent, setRecent] = useState<string[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
-
-  // 화면이 바뀌면(카드 클릭, 내비 이동, 뒤로가기 등 경로 무관) 떠 있던 호버 카드를 무조건 지운다.
-  // 카드를 클릭해서 다음 화면으로 넘어가면 그 요소가 통째로 사라지므로 mouseleave가 안 뜬다 -
-  // 그래서 개별 핸들러가 아니라 view/modalSlug/categorySlug를 지켜보는 effect로 처리한다
-  // (game→game, category→category처럼 view는 그대로인 채 내용만 바뀌는 이동도 잡아야 해서).
-  useEffect(() => { setHoverInfo(null); }, [view, modalSlug, categorySlug]);
 
   /** 상점 첫 화면 데이터를 새로 받아온다. 첫 진입과 "홈" 클릭에서 같이 쓴다. */
   function loadHome() {
@@ -1224,13 +1158,8 @@ export default function Home() {
         .filter(Boolean)
     : [];
 
-  const hoverCtx = {
-    show: (g: any, el: HTMLElement) => setHoverInfo({ g, rect: el.getBoundingClientRect() }),
-    hide: () => setHoverInfo(null),
-  };
-
   return (
-    <HoverCtx.Provider value={hoverCtx}>
+    <>
       <header className="topbar">
         <div className="wrap">
           {/* 좁은 화면에서만 보이는 햄버거. 상점 내비의 "메뉴" 를 연다 */}
@@ -1375,7 +1304,6 @@ export default function Home() {
           searchResults={searchResults}
           onSearchInput={handleSearchInput}
           onOpenGame={openModal}
-          onTag={searchByTag}
           onTab={goTab}
           onCloseResults={() => setSearchResults(null)}
           wishlistCount={user ? wishlist.length : null}
@@ -1681,8 +1609,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-
-      <GameHoverCard info={hoverInfo} />
-    </HoverCtx.Provider>
+    </>
   );
 }
