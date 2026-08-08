@@ -1481,6 +1481,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   border-radius:2px;cursor:pointer;
 }
 .gp-owned-btn:hover{background:linear-gradient(to bottom,#b9ddff 5%,#8ab5d6 95%);color:#1b3a4d}
+
 .gp-owned-meta{color:#8f98a0;font-size:13px;line-height:1.6}
 .gp-owned-meta .links{display:flex;gap:14px}
 .gp-owned-meta a{color:#67c1f5;font-size:12px}
@@ -1574,9 +1575,19 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   margin-left:2px;padding:8px 12px 0;
   color:#c6d4df;font:13px "Motiva Sans",sans-serif;background:#000;
 }
-.gp-pbtn{border-radius:2px;cursor:pointer;display:inline-flex;padding:0}
+/* 스팀의 a.btn_green_steamui / span.btn_blue_steamui 구조 그대로.
+   바깥은 1px 여백만 두는 껍데기(높이 32px)이고, 라벨은 안쪽 span 이 맡는다
+   (높이 30px, 좌우 15px, 15px). 30 + 1 + 1 = 32 로 검사기 값과 맞는다.
+   스팀은 초록을 a(link), 파랑을 span(role=button)으로 쓰지만 여기서는 둘 다
+   button 으로 둔다. 키보드 포커스와 Enter/Space 가 공짜로 따라온다. */
+.gp-pbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:1px;font:12px "Motiva Sans",sans-serif;
+  border-radius:2px;cursor:pointer;
+  transition:background .15s ease,filter .15s ease;
+}
 .gp-pbtn span{
-  display:inline-flex;align-items:center;
+  display:inline-flex;align-items:center;justify-content:center;
   height:30px;padding:0 15px;font:15px "Motiva Sans",sans-serif;
 }
 .gp-pbtn.green{background:linear-gradient(to bottom,#a1cd44 5%,#5c8a15 95%)}
@@ -1585,6 +1596,9 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .gp-pbtn.blue{background:linear-gradient(to bottom,#47bfff 5%,#1a44c2 95%)}
 .gp-pbtn.blue span{color:#c3e1f8}
 .gp-pbtn.blue:hover{background:linear-gradient(to bottom,#66d0ff 5%,#2a5adb 95%)}
+/* 눌리는 순간이 보이게, 그리고 키보드 탭으로 왔을 때 테두리가 드러나게 */
+.gp-pbtn:active{filter:brightness(.9)}
+.gp-pbtn:focus-visible{outline:2px solid #c3e1f8;outline-offset:2px}
 .gp-pbtn:disabled{opacity:.6;cursor:default}
 /* ---------- gp-top 아래 찜/팔로우 줄 ---------- */
 .gp-actionbar{

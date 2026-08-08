@@ -474,6 +474,7 @@ async function buildDetail(slug: string, viewerId?: string | null) {
       description: true,
       shortDesc: true,
       detailVideoUrl: true,
+      playUrl: true,
       requiredAge: true,
       metacritic: true,
       supportsWindows: true,
@@ -550,6 +551,8 @@ async function buildDetail(slug: string, viewerId?: string | null) {
     shortDesc: g.shortDesc,
     description: g.description,
     detailVideoUrl: g.detailVideoUrl,
+    // 브라우저에서 실행되는 게임의 주소. 보유했을 때만 화면이 실행 버튼을 열어 준다.
+    playUrl: g.playUrl,
     requiredAge: g.requiredAge,
     metacritic: g.metacritic,
     platforms: {

@@ -82,6 +82,10 @@ model Game {
   previewVideoUrl String? // 마우스 호버용 (480p)
   detailVideoUrl  String? // 상세 페이지/모달용 (고화질 max)
 
+  // 브라우저에서 바로 실행되는 게임의 주소. 직접 등록한 게임에만 있다.
+  // 이 값이 있고 보유(LibraryItem)까지 했을 때만 "게임 플레이"가 눌린다.
+  playUrl String?
+
   @@index([releaseDate])
   @@index([priceKrw])
   @@index([name])

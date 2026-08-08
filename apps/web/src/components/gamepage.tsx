@@ -123,7 +123,7 @@ function bgStyle(url?: string | null) {
 }
 
 function priceText(g: any) {
-  if (g.isFree) return "무료 플레이";
+  if (g.isFree) return "무료";
   if (g.priceKrw <= 0) return g.comingSoon ? "출시 예정" : "가격 미정";
   return won(g.priceKrw);
 }
@@ -167,6 +167,18 @@ export default function GamePage({
   const [descOpen, setDescOpen] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [claimBusy, setClaimBusy] = useState(false);
+
+  /**
+   * 게임 실행. 새 탭으로 연다.
+   *
+   * 보유(라이브러리에 있음)해야만 열린다. 무료 게임은 "라이브러리에 추가"로,
+   * 유료 게임은 결제로 라이브러리에 들어오므로 두 경우 모두 g.owned 하나로 판별된다.
+   * noopener 를 빼면 열린 창이 window.opener 로 이 페이지를 조작할 수 있다.
+   */
+  function openPlay() {
+    if (!g?.playUrl || !g.owned) return;
+    window.open(g.playUrl, "_blank", "noopener,noreferrer");
+  }
 
   /** 무료 게임을 라이브러리에 담고, 성공하면 상세를 다시 불러와 보유 상태를 반영한다 */
   async function claimFree() {
@@ -439,7 +451,14 @@ export default function GamePage({
             <div className="gp-owned-body">
               <div className="gp-owned-actions">
                 <button type="button" className="gp-owned-btn">Steam 설치</button>
-                <button type="button" className="gp-owned-btn">지금 실행하기</button>
+                <button
+                  type="button"
+                  className="gp-owned-btn"
+                  onClick={openPlay}
+                  title={g.playUrl ? undefined : "아직 실행할 수 있는 게임이 아닙니다."}
+                >
+                  지금 실행하기
+                </button>
                 <div className="gp-owned-meta">
                   <div>보유 시작일: {ymd(g.ownedAt)}</div>
                   <div className="links">
@@ -522,13 +541,30 @@ export default function GamePage({
                 )}
               </div>
               <div className="gp-buy-foot">
-                {/* 무료 게임은 장바구니를 거치지 않는다. 가격과 두 버튼이 검은 테두리
-                    한 덩어리(.gp-pbg) 안에 들어가고, 글자색은 버튼마다 다르다. */}
-                {g.isFree ? (
+                {/* 이미 보유한 게임(무료로 담았든 결제했든)과 무료 게임은 장바구니를 거치지 않는다.
+                    가격과 버튼이 검은 테두리 한 덩어리(.gp-pbg) 안에 들어간다. */}
+                {g.isFree || g.owned ? (
                   <div className="gp-pbg">
-                    <div className="gp-pprice">{priceText(g)}</div>
-                    <button className="gp-pbtn green" type="button"><span>게임 플레이</span></button>
-                    {!g.owned && (
+                    {/* 이미 산 게임에 가격을 다시 보여 줄 이유가 없다 */}
+                    {!g.owned && <div className="gp-pprice">{priceText(g)}</div>}
+                    {/* 모양은 어느 게임에서나 같다. 실행 여부는 openPlay 가 판단하고,
+                        못 여는 이유는 title 로만 알려 준다(흐리게 만들지 않는다). */}
+                    <button
+                      className="gp-pbtn green"
+                      type="button"
+                      onClick={openPlay}
+                      title={
+                        !g.playUrl
+                          ? "아직 실행할 수 있는 게임이 아닙니다."
+                          : !g.owned
+                            ? "라이브러리에 추가한 뒤 이용할 수 있습니다."
+                            : undefined
+                      }
+                    >
+                      <span>게임 플레이</span>
+                    </button>
+                    {/* 라이브러리에 담기는 무료 게임에만 필요하다. 유료 게임은 결제로 들어온다 */}
+                    {g.isFree && !g.owned && (
                       <button className="gp-pbtn blue" type="button" disabled={claimBusy} onClick={claimFree}>
                         <span>{claimBusy ? "담는 중…" : "라이브러리에 추가"}</span>
                       </button>
