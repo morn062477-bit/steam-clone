@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import SaleHoverCard, { type SaleHoverInfo } from "@/components/salehovercard";
 import HoverVideo from "@/components/hovervideo";
 import useStuck from "@/components/usestuck";
+import type { TakeoverVersion } from "@/lib/takeover";
 
 /**
  * 사이버펑크 게임 축제 이벤트 페이지.
@@ -121,12 +122,15 @@ function rowsByPattern<T>(items: T[]) {
 }
 
 export default function SalePage({
+  version,
   data,
   onOpenGame,
   onTag,
   wishedSlugs,
   onWish,
 }: {
+  /** 홈 전면 배너에서 뽑힌 버전을 그대로 받는다(같은 배너를 눌러 들어온 것과 이어지게) */
+  version: TakeoverVersion;
   data: any;
   onOpenGame: (slug: string) => void;
   onTag: (tag: string) => void;
@@ -134,8 +138,8 @@ export default function SalePage({
   wishedSlugs?: Set<string>;
   onWish?: (slug: string) => void;
 }) {
+  const takeover = version;
   const [tab, setTab] = useState<Tab>("특집");
-  const [more, setMore] = useState(false);
   const [q, setQ] = useState("");
   const [genre, setGenre] = useState<string | null>(null);
   const [recPage, setRecPage] = useState(0);
@@ -189,7 +193,7 @@ export default function SalePage({
   if (!data) return <div className="loading">불러오는 중…</div>;
 
   const discounted = all.filter((g) => g.discountPercent > 0);
-  const popular = more ? discounted : discounted.slice(0, 12);
+  const popular = discounted;
 
   const page = Math.min(recPage, recPages - 1);
   const recommend = recPool.slice(page, page + 1);
@@ -207,18 +211,20 @@ export default function SalePage({
     .filter((g) => (q.trim() ? g.name.toLowerCase().includes(q.trim().toLowerCase()) : true));
 
   const news = all.slice(0, 4);
+  // 둠 버전 전용: 필터 없이 장르 "액션"만 그대로 나열
+  const actionGames = all.filter((g) => (g.genres ?? []).includes("액션"));
 
   return (
-    <div className="salepage">
-      {/* 전면 배너. 로고 PNG 가 public/ 에 있으면 그 위에 얹는다. */}
+    <div className={"salepage" + (takeover.key === "doom" ? " doom" : "")}>
+      {/* 전면 배너. 페이지가 열릴 때 뽑힌 버전(사이버펑크/둠)의 로고를 얹는다 */}
       <div className="sp-takeover">
         {/* eslint-disable-next-line @next/next/no-img-element -- 정적 PNG 한 장 */}
         <img
           className="sp-logo"
-          src="/sale-logo.png"
-          alt="2026년 Steam 사이버펑크 게임 축제"
-          width={940}
-          height={460}
+          src={takeover.saleLogo}
+          alt={takeover.saleAlt}
+          width={takeover.saleLogoW}
+          height={takeover.saleLogoH}
         />
       </div>
 
@@ -233,9 +239,11 @@ export default function SalePage({
         </div>
       </div>
     
-      <div className="sp-quote">
-        절대 뒤돌아보지 말라고 하죠. 사이버펑크는 언제나 미래를 살아가라고 합니다. 한번 생각해 보세요.
-      </div>
+      {takeover.key !== "doom" && (
+        <div className="sp-quote">
+          절대 뒤돌아보지 말라고 하죠. 사이버펑크는 언제나 미래를 살아가라고 합니다. 한번 생각해 보세요.
+        </div>
+      )}
       <div className="손정민">
         예고편 탐색
       </div>
@@ -289,17 +297,21 @@ export default function SalePage({
 
             </section>
 
-            {/* 포인트 상점 배너. 문구/그림이 한 장에 다 들어 있는 PNG 를 그대로 얹는다. */}
-            <section className="sp-panel sp-points">
-              {/* eslint-disable-next-line @next/next/no-img-element -- 정적 PNG 한 장 */}
-              <img
-                className="sp-points-img"
-                src="/sale-points.png"
-                alt="새로운 포인트 상점 아이템을 확인해 보세요"
-                width={1100}
-                height={240}
-              />
-            </section>
+            {/* 포인트 상점 배너. 사이버펑크 전용이라 둠 버전은 있던 자리만큼 빈 여백만 남긴다 */}
+            {takeover.key === "doom" ? (
+              <div className="sp-points-gap" />
+            ) : (
+              <section className="sp-panel sp-points">
+                {/* eslint-disable-next-line @next/next/no-img-element -- 정적 PNG 한 장 */}
+                <img
+                  className="sp-points-img"
+                  src="/sale-points.png"
+                  alt="새로운 포인트 상점 아이템을 확인해 보세요"
+                  width={1100}
+                  height={240}
+                />
+              </section>
+            )}
 
             {/* 인기 게임 */}
             <section className="sp-panel">
@@ -327,71 +339,95 @@ export default function SalePage({
                   </div>
                 ))}
               </div>
-              {discounted.length > 12 && (
-                <button className="sp-more" type="button" onClick={() => setMore((v) => !v)}>
-                  {more ? "접기" : "더 보기"}
-                </button>
-              )}
             </section>
           </>
         )}
 
-        {/* 게임 검색: 왼쪽 필터 + 목록. 다른 탭에서도 목록은 같은 모양으로 보여준다 */}
-        <section className="sp-search">
-          <aside className="sp-filter">
-            <h3>필터</h3>
-            <div className="sp-filter-count">{searchRows.length}개 일치</div>
-            <input
-              className="sp-filter-input"
-              placeholder="태그 또는 옵션 검색"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-            <div className="sp-filter-head">상위 장르</div>
-            <div className="sp-filter-list">
-              {genreCounts.map(([name, n]) => (
-                <button
-                  key={name}
-                  type="button"
-                  className={"sp-filter-row" + (genre === name ? " on" : "")}
-                  onClick={() => setGenre(genre === name ? null : name)}
+        {/* 액션(둠과 유사한 장르). 필터 없이 인기 게임과 같은 그리드로 그냥 나열한다 */}
+        {takeover.key === "doom" ? (
+          <section className="sp-panel">
+            <h2 className="sp-h2">액션</h2>
+            {actionGames.length === 0 && <div className="sp-empty">조건에 맞는 게임이 없습니다.</div>}
+            <div className="sp-grid">
+              {rowsByPattern(actionGames).map((row, i) => (
+                <div
+                  key={i}
+                  className="sp-grid-row"
+                  style={{ "--cols": row.cols } as CSSProperties}
                 >
-                  <span>{name}</span>
-                  <b>{n}</b>
-                </button>
+                  {row.items.map((g) => (
+                    <div
+                      key={g.slug}
+                      className="sp-cap"
+                      onClick={() => onOpenGame(g.slug)}
+                      onMouseEnter={(e) => setHover({ g, rect: e.currentTarget.getBoundingClientRect() })}
+                      onMouseLeave={() => setHover((h) => (h?.g.slug === g.slug ? null : h))}
+                    >
+                      <div className="art" style={bgStyle(g.headerImage)} />
+                      <Price g={g} />
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
-          </aside>
-
-          <div className="sp-list">
-            <h2 className="sp-h2">게임 검색</h2>
-            {searchRows.length === 0 && <div className="sp-empty">조건에 맞는 게임이 없습니다.</div>}
-            {searchRows.map((g) => (
-              <div key={g.slug} className="sp-row" onClick={() => onOpenGame(g.slug)}>
-                <div className="cap" style={bgStyle(g.headerImage)} />
-                <div className="sp-row-info">
-                  <div className="nm">{g.name}</div>
-                  <div className="tags">
-                    {(g.tags ?? []).slice(0, 5).map((t: string) => (
-                      <span
-                        key={t}
-                        onClick={(e) => { e.stopPropagation(); onTag(t); }}
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="date">{ymd(g.releaseDate)}</div>
-                  <div className="rev">
-                    {g.reviewDesc ?? "평가 없음"}
-                    {g.reviewTotal ? ` (평가 ${g.reviewTotal.toLocaleString("ko-KR")}개)` : ""}
-                  </div>
-                </div>
-                <Price g={g} />
+          </section>
+        ) : (
+          <section className="sp-search">
+            <aside className="sp-filter">
+              <h3>필터</h3>
+              <div className="sp-filter-count">{searchRows.length}개 일치</div>
+              <input
+                className="sp-filter-input"
+                placeholder="태그 또는 옵션 검색"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+              <div className="sp-filter-head">상위 장르</div>
+              <div className="sp-filter-list">
+                {genreCounts.map(([name, n]) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className={"sp-filter-row" + (genre === name ? " on" : "")}
+                    onClick={() => setGenre(genre === name ? null : name)}
+                  >
+                    <span>{name}</span>
+                    <b>{n}</b>
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </aside>
+
+            <div className="sp-list">
+              <h2 className="sp-h2">게임 검색</h2>
+              {searchRows.length === 0 && <div className="sp-empty">조건에 맞는 게임이 없습니다.</div>}
+              {searchRows.map((g) => (
+                <div key={g.slug} className="sp-row" onClick={() => onOpenGame(g.slug)}>
+                  <div className="cap" style={bgStyle(g.headerImage)} />
+                  <div className="sp-row-info">
+                    <div className="nm">{g.name}</div>
+                    <div className="tags">
+                      {(g.tags ?? []).slice(0, 5).map((t: string) => (
+                        <span
+                          key={t}
+                          onClick={(e) => { e.stopPropagation(); onTag(t); }}
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="date">{ymd(g.releaseDate)}</div>
+                    <div className="rev">
+                      {g.reviewDesc ?? "평가 없음"}
+                      {g.reviewTotal ? ` (평가 ${g.reviewTotal.toLocaleString("ko-KR")}개)` : ""}
+                    </div>
+                  </div>
+                  <Price g={g} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* 예정된 이벤트 및 뉴스 */}
         <section className="sp-panel">

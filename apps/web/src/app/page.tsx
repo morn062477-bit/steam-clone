@@ -7,6 +7,7 @@ import GamePage from "@/components/gamepage";
 import GameHoverCard, { type HoverInfo } from "@/components/gamehovercard";
 import HoverVideo from "@/components/hovervideo";
 import SalePage from "@/components/salepage";
+import { pickTakeoverVersion, type TakeoverVersion } from "@/lib/takeover";
 import LibraryPage from "@/components/librarypage";
 import RecCarousel from "@/components/reccarousel";
 import useStuck from "@/components/usestuck";
@@ -265,23 +266,21 @@ function Carousel({ slides, autoMs = 0, peek = 0, peekRight = false, arrowInset,
  * 얹는다(a.home_page_takeover_sizer). 여기서도 같은 구조로 두어 배너 문구가
  * 이미지 안에 들어간 채로 보이고, 클릭 영역만 따로 관리한다.
  */
-const TAKEOVER_BG =
-  "https://shared.fastly.steamstatic.com/store_item_assets/steam/clusters/frontpage/ae2e81fa141f42bb9e61c3c9/71904d199e17e504a8bf076e0c64e673447c34a1/page_bg_koreana.jpg?t=1785175462";
-const TAKEOVER_BG_MOBILE =
-  "https://shared.fastly.steamstatic.com/store_item_assets/steam/clusters/frontpage/ae2e81fa141f42bb9e61c3c9/7babd82c14405609c9e75ea71bdc1953c08297c3/page_bg_mobile_koreana.jpg?t=1785175462";
-
-function Takeover({ onOpen }: { onOpen: () => void }) {
+function Takeover({ version, onOpen }: { version: TakeoverVersion; onOpen: () => void }) {
   return (
-    <div className="takeover">
-      <div className="takeover-bg" style={{ backgroundImage: `url('${TAKEOVER_BG}')` }} />
-      <div className="takeover-bg-mobile" style={{ backgroundImage: `url('${TAKEOVER_BG_MOBILE}')` }} />
+    <div className={"takeover" + (version.key === "doom" ? " doom" : "")}>
+      <div className="takeover-bg" style={{ backgroundImage: `url('${version.heroBg}')` }} />
+      <div className="takeover-bg-mobile" style={{ backgroundImage: `url('${version.heroBg}')` }} />
       <a
         className="takeover-sizer"
         href="#"
         role="button"
-        aria-label="2026년 Steam 사이버펑크 게임 축제"
+        aria-label={version.saleAlt}
         onClick={(e) => { e.preventDefault(); onOpen(); }}
-      />
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- 정적 PNG 한 장 */}
+        <img className="takeover-logo" src={version.saleLogo} alt={version.saleAlt} />
+      </a>
     </div>
   );
 }
@@ -909,6 +908,8 @@ export default function Home() {
   const [tabIndex, setTabIndex] = useState(0);
   const [relHoverIndex, setRelHoverIndex] = useState(0);
   const [view, setView] = useState<View>("store");
+  // 홈 전면 배너와 세일 페이지가 같은 버전(사이버펑크/둠)을 보여주도록 한 번만 뽑아 공유한다
+  const [takeoverVersion] = useState(pickTakeoverVersion);
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [priceMax, setPriceMax] = useState(10000);
   const [user, setUser] = useState<User | null>(null);
@@ -1480,7 +1481,7 @@ export default function Home() {
           {data && (
             <>
               {/* 상단 히어로는 사이버펑크 전면 배너가 대신한다. */}
-              <Takeover onOpen={() => goView("sale")} />
+              <Takeover version={takeoverVersion} onOpen={() => goView("sale")} />
 
               <section className="section">
                 <div className="wrap">
@@ -1679,6 +1680,7 @@ export default function Home() {
 
       {view === "sale" && (
         <SalePage
+          version={takeoverVersion}
           data={data}
           onOpenGame={openModal}
           onTag={(t) => { goView("store"); searchByTag(t); }}
