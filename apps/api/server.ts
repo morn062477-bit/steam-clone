@@ -1388,6 +1388,16 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
   res.end('404');
 }
 
+// nodemailer(Gmail SMTP) 소켓이 끊길 때처럼, 요청의 Promise 체인 밖에서 터지는
+// 에러는 기본적으로 프로세스 전체를 죽인다. 그러면 지금 처리 중인 다른 요청까지
+// 전부 "socket hang up"으로 끊겨버리므로, 로그만 남기고 서버는 계속 살려둔다.
+process.on('uncaughtException', (err) => {
+  console.error('uncaughtException', err);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('unhandledRejection', err);
+});
+
 createServer((req, res) => {
   handle(req, res).catch((err) => {
     console.error(`${req.method} ${req.url}`, err);
