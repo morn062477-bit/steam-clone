@@ -19,22 +19,31 @@ function hashToken(raw: string) {
   return createHash('sha256').update(raw).digest('hex');
 }
 
-export async function login(
+type SessionUser = { id: string; nickname: string; email: string; avatarUrl: string | null };
+
+/** 계정 이름/이메일 + 비밀번호를 검증하고 User 를 돌려준다. QR 로그인의 수동 로그인 분기에서도 재사용. */
+export async function verifyCredentials(
   prisma: PrismaClient,
-  body: { account?: string; password?: string },
-) {
-  const account = body.account?.trim();
-  const password = body.password ?? '';
-  if (!account || !password) throw new AuthError(400, '계정 이름과 비밀번호를 모두 입력하세요.');
+  account: string | undefined,
+  password: string | undefined,
+): Promise<SessionUser> {
+  const acc = account?.trim();
+  const pw = password ?? '';
+  if (!acc || !pw) throw new AuthError(400, '계정 이름과 비밀번호를 모두 입력하세요.');
 
   const user = await prisma.user.findFirst({
-    where: { OR: [{ nickname: account }, { email: account.toLowerCase() }] },
+    where: { OR: [{ nickname: acc }, { email: acc.toLowerCase() }] },
   });
 
   // 계정 없음/비번 틀림을 구분해 알려주지 않는다 (계정 존재 여부 노출 방지).
-  const valid = user ? await bcrypt.compare(password, user.passwordHash) : false;
+  const valid = user ? await bcrypt.compare(pw, user.passwordHash) : false;
   if (!user || !valid) throw new AuthError(401, '계정 이름 또는 비밀번호가 올바르지 않습니다.');
 
+  return { id: user.id, nickname: user.nickname, email: user.email, avatarUrl: user.avatarUrl };
+}
+
+/** RefreshToken 세션 발급. 일반 로그인과 QR 로그인 승인 양쪽에서 재사용. */
+export async function createSession(prisma: PrismaClient, user: SessionUser) {
   const rawToken = randomBytes(32).toString('hex');
   await prisma.refreshToken.create({
     data: {
@@ -44,11 +53,15 @@ export async function login(
     },
   });
 
-  return {
-    token: rawToken,
-    maxAgeSec: SESSION_TTL_MS / 1000,
-    user: { id: user.id, nickname: user.nickname, email: user.email, avatarUrl: user.avatarUrl },
-  };
+  return { token: rawToken, maxAgeSec: SESSION_TTL_MS / 1000, user };
+}
+
+export async function login(
+  prisma: PrismaClient,
+  body: { account?: string; password?: string },
+) {
+  const user = await verifyCredentials(prisma, body.account, body.password);
+  return createSession(prisma, user);
 }
 
 export async function logout(prisma: PrismaClient, rawToken: string | undefined) {

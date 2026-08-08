@@ -43,7 +43,25 @@ import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import { startSignup, verifyEmail, getSignupStatus, completeSignup, AuthError } from './lib/auth.js';
-import { login, logout, getSessionUser, SESSION_COOKIE, parseCookies, serializeCookie } from './lib/session.js';
+import {
+  login,
+  logout,
+  getSessionUser,
+  verifyCredentials,
+  createSession,
+  SESSION_COOKIE,
+  parseCookies,
+  serializeCookie,
+} from './lib/session.js';
+import {
+  startQrLogin,
+  checkQrTicket,
+  resolveTrustedDevice,
+  issueTrustedDevice,
+  confirmQrLoginWithUser,
+  pollQrLogin,
+  DEVICE_COOKIE,
+} from './lib/qrLogin.js';
 
 // ---------------------------------------------------------------
 // .env 로드 (dotenv 미설치라 직접 파싱)
@@ -1118,6 +1136,72 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
       const body = await readJsonBody(req);
       const result = await completeSignup(prisma, body);
       return json(res, { ok: true, ...result }, 201);
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  if (p === '/api/auth/qr-login/start' && req.method === 'POST') {
+    return json(res, await startQrLogin(prisma, WEB_ORIGIN), 201);
+  }
+
+  if (p === '/api/auth/qr-login/status' && req.method === 'GET') {
+    try {
+      const result = await pollQrLogin(prisma, url.searchParams.get('ticketId') ?? '');
+      if (result.status === 'CONFIRMED') {
+        res.setHeader('Set-Cookie', serializeCookie(SESSION_COOKIE, result.token, result.maxAgeSec));
+        return json(res, { status: result.status, user: result.user });
+      }
+      return json(res, { status: result.status });
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  // 폰이 QR 링크로 처음 들어왔을 때: 티켓이 유효한지, 이 브라우저가 이미 알려진 사용자인지 확인.
+  if (p === '/api/auth/qr-login/info' && req.method === 'GET') {
+    try {
+      await checkQrTicket(prisma, url.searchParams.get('token') ?? '');
+      const cookies = parseCookies(req.headers.cookie);
+      const recognized =
+        (await resolveTrustedDevice(prisma, cookies[DEVICE_COOKIE])) ??
+        (await getSessionUser(prisma, cookies[SESSION_COOKIE]));
+      return json(res, { valid: true, recognized: recognized ? { nickname: recognized.nickname } : null });
+    } catch (err) {
+      if (err instanceof AuthError) return json(res, { valid: false, error: err.message }, err.status);
+      throw err;
+    }
+  }
+
+  // 폰이 승인 버튼을 눌렀을 때. 신원은 기기 쿠키 → 세션 쿠키 → (둘 다 없으면) 전달된 계정/비밀번호 순으로 해석한다.
+  if (p === '/api/auth/qr-login/confirm' && req.method === 'POST') {
+    try {
+      const body = await readJsonBody(req);
+      const token = String(body.token ?? '');
+      if (!token) throw new AuthError(400, '잘못된 요청입니다.');
+
+      const cookies = parseCookies(req.headers.cookie);
+      let user =
+        (await resolveTrustedDevice(prisma, cookies[DEVICE_COOKIE])) ??
+        (await getSessionUser(prisma, cookies[SESSION_COOKIE]));
+
+      const setCookies: string[] = [];
+      if (!user) {
+        user = await verifyCredentials(prisma, body.account, body.password);
+        const session = await createSession(prisma, user);
+        setCookies.push(serializeCookie(SESSION_COOKIE, session.token, session.maxAgeSec));
+        if (body.remember) {
+          const label = String(req.headers['user-agent'] ?? '').slice(0, 120) || null;
+          const device = await issueTrustedDevice(prisma, user.id, label);
+          setCookies.push(serializeCookie(DEVICE_COOKIE, device.token, device.maxAgeSec));
+        }
+      }
+
+      await confirmQrLoginWithUser(prisma, token, user.id);
+      if (setCookies.length) res.setHeader('Set-Cookie', setCookies);
+      return json(res, { ok: true });
     } catch (err) {
       if (err instanceof AuthError) return json(res, { error: err.message }, err.status);
       throw err;

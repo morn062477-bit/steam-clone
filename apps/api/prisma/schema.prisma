@@ -179,13 +179,46 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviews       Review[]
-  reviewVotes   ReviewVote[]
-  cartItems     CartItem[]
-  wishlistItems WishlistItem[]
-  orders        Order[]
-  library       LibraryItem[]
-  refreshTokens RefreshToken[]
+  reviews        Review[]
+  reviewVotes    ReviewVote[]
+  cartItems      CartItem[]
+  wishlistItems  WishlistItem[]
+  orders         Order[]
+  library        LibraryItem[]
+  refreshTokens  RefreshToken[]
+  trustedDevices TrustedDevice[]
+}
+
+// QR 로그인. 데스크탑이 티켓을 만들고, 폰이 그 티켓을 CONFIRMED 로 바꾸면
+// 데스크탑의 다음 폴링이 실제 세션을 발급하며 티켓을 CONSUMED 로 소비한다.
+enum QrLoginStatus {
+  PENDING
+  CONFIRMED
+  CONSUMED
+}
+
+model QrLoginTicket {
+  id        String        @id @default(cuid())
+  tokenHash String        @unique
+  status    QrLoginStatus @default(PENDING)
+  userId    String?
+  expiresAt DateTime
+  createdAt DateTime      @default(now())
+}
+
+// "이 기기 기억하기" — 폰 브라우저에 저장된 토큰으로 다음 QR 로그인부터
+// 비밀번호 없이 승인 버튼만으로 인식되게 한다.
+model TrustedDevice {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  label      String?
+  lastUsedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // 회원가입 시 이메일 인증 전 임시 보관.

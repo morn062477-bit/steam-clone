@@ -85,6 +85,12 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
   const verifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // QR 코드 로그인
+  const [qrTicket, setQrTicket] = useState<{ ticketId: string; qrDataUrl: string } | null>(null);
+  const [qrState, setQrState] = useState<"loading" | "ready" | "expired" | "error">("loading");
+  const [qrRefreshKey, setQrRefreshKey] = useState(0);
+  const qrPollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
   // 계정 만들기
   const [signupId, setSignupId] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState("");
@@ -139,6 +145,58 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verifyEmail, signupId, verified]);
+
+  /**
+   * 로그인 화면에 있는 동안 QR 티켓을 발급하고, 폰이 승인할 때까지 상태를 폴링한다.
+   * 폰 쪽 승인 화면은 app/qr-login/page.tsx.
+   */
+  useEffect(() => {
+    if (view !== "login") return;
+    let cancelled = false;
+    setQrState("loading");
+    setQrTicket(null);
+
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/qr-login/start", { method: "POST" });
+        const data = await res.json().catch(() => null);
+        if (cancelled) return;
+        if (!res.ok || !data?.ticketId) {
+          setQrState("error");
+          return;
+        }
+        setQrTicket({ ticketId: data.ticketId, qrDataUrl: data.qrDataUrl });
+        setQrState("ready");
+
+        qrPollTimer.current = setInterval(async () => {
+          try {
+            const r = await fetch(`/api/auth/qr-login/status?ticketId=${encodeURIComponent(data.ticketId)}`);
+            const d = await r.json().catch(() => ({}));
+            if (d.status === "CONFIRMED" && d.user) {
+              if (qrPollTimer.current) clearInterval(qrPollTimer.current);
+              setLoginMsg({ text: `${d.user.nickname} 님, 로그인되었습니다.`, ok: true });
+              onLogin(d.user);
+              setTimeout(() => onView("store"), 700);
+            } else if (d.status === "EXPIRED" || d.status === "INVALID") {
+              if (qrPollTimer.current) clearInterval(qrPollTimer.current);
+              setQrState("expired");
+            }
+            // PENDING: 계속 대기. CONSUMED: 이미 처리된 드문 중복 폴링이므로 무시.
+          } catch {
+            /* 네트워크 오류는 다음 폴링에서 다시 시도 */
+          }
+        }, 2000);
+      } catch {
+        if (!cancelled) setQrState("error");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (qrPollTimer.current) clearInterval(qrPollTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, qrRefreshKey]);
 
   // ---------- 로그인 ----------
   async function submitLogin(e: React.FormEvent<HTMLFormElement>) {
@@ -293,22 +351,25 @@ export default function Auth({ view, pool, onView, onLogin }: Props) {
               <div className="login-right">
                 <p className="qr-title">또는 <strong>QR 코드로 로그인</strong></p>
                 <div className="qr-code">
-                  <svg viewBox="0 0 21 21" shapeRendering="crispEdges" role="img" aria-label="QR 코드 자리 표시자">
-                    <rect width="21" height="21" fill="#fff" />
-                    <g fill="#000">
-                      <path d="M0 0h7v7H0z" /><path d="M1 1h5v5H1z" fill="#fff" /><path d="M2 2h3v3H2z" />
-                      <path d="M14 0h7v7h-7z" /><path d="M15 1h5v5h-5z" fill="#fff" /><path d="M16 2h3v3h-3z" />
-                      <path d="M0 14h7v7H0z" /><path d="M1 15h5v5H1z" fill="#fff" /><path d="M2 16h3v3H2z" />
-                      <path d="M9 0h1v1H9zM11 1h1v1h-1zM9 2h1v1H9zM12 3h1v1h-1zM9 4h1v1H9zM11 5h1v1h-1z" />
-                      <path d="M0 9h1v1H0zM2 9h1v1H2zM4 10h1v1H4zM1 11h1v1H1zM5 11h1v1H5zM3 12h1v1H3z" />
-                      <path d="M9 9h1v1H9zM11 9h1v1h-1zM13 10h1v1h-1zM10 11h1v1h-1zM12 12h1v1h-1zM9 13h1v1H9z" />
-                      <path d="M16 9h1v1h-1zM18 10h1v1h-1zM20 11h1v1h-1zM17 12h1v1h-1zM19 13h1v1h-1z" />
-                      <path d="M9 16h1v1H9zM11 17h1v1h-1zM13 16h1v1h-1zM10 18h1v1h-1zM12 19h1v1h-1zM9 20h1v1H9z" />
-                      <path d="M16 16h1v1h-1zM18 17h1v1h-1zM20 16h1v1h-1zM17 19h1v1h-1zM19 20h1v1h-1z" />
-                    </g>
-                  </svg>
+                  {qrState === "ready" && qrTicket ? (
+                    <img src={qrTicket.qrDataUrl} alt="QR 코드" width={176} height={176} />
+                  ) : qrState === "expired" ? (
+                    <button type="button" className="qr-refresh" onClick={() => setQrRefreshKey((k) => k + 1)}>
+                      QR 코드가 만료되었습니다
+                      <br />
+                      새로고침
+                    </button>
+                  ) : qrState === "error" ? (
+                    <button type="button" className="qr-refresh" onClick={() => setQrRefreshKey((k) => k + 1)}>
+                      QR 코드를 불러오지 못했습니다
+                      <br />
+                      다시 시도
+                    </button>
+                  ) : (
+                    <div className="qr-placeholder" aria-hidden="true" />
+                  )}
                 </div>
-                <p className="qr-caption"><a href="#">Steam 모바일 앱을 사용하여 QR 코드로 로그인</a></p>
+                <p className="qr-caption">휴대폰 카메라로 QR 코드를 스캔해 로그인하세요</p>
               </div>
             </form>
 
