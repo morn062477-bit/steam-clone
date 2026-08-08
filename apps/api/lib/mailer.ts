@@ -1,36 +1,30 @@
 /**
  * lib/mailer.ts
  *
- * 무료 이메일 발송. Gmail SMTP(nodemailer) 사용 — 비용 없음, 별도 서비스 가입 불필요.
- * GMAIL_USER / GMAIL_APP_PASSWORD 가 .env 에 없으면 실제 발송 대신
- * 콘솔에 인증 링크를 그대로 찍는다. (팀원 로컬에 Gmail 계정이 없어도 개발 가능)
+ * 이메일 발송. Resend HTTPS API 사용 — Gmail SMTP(nodemailer)에서 교체했다.
+ * Railway 같은 클라우드 호스팅은 스팸 방지 목적으로 SMTP 포트(465/587) 아웃바운드를
+ * 막아두는 경우가 많아, Gmail SMTP 연결이 응답 없이 계속 멈춰있다가 타임아웃났다.
+ * Resend는 일반 HTTPS(443) API라 이런 차단에 걸리지 않는다.
  *
- * Gmail 앱 비밀번호 발급: https://myaccount.google.com/apppasswords
- * (Google 계정에 2단계 인증이 켜져 있어야 발급 메뉴가 보인다)
+ * RESEND_API_KEY 가 .env 에 없으면 실제 발송 대신 콘솔에 인증 링크를 그대로 찍는다.
+ * (팀원 로컬에 Resend 계정이 없어도 개발 가능)
+ *
+ * 발급: https://resend.com → API Keys
+ * RESEND_FROM 을 직접 지정하지 않으면 도메인 인증 없이 쓸 수 있는
+ * onboarding@resend.dev 를 기본값으로 쓴다(테스트/데모용).
  */
 
-import nodemailer from 'nodemailer';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // PNG 를 쓴다. SVG(logo_steam_icon.svg)로 붙여서 보내 봤더니 Gmail 이 차단해
 // 깨진 이미지로 떴다. PNG 는 사실상 모든 클라이언트에서 뜬다.
-// logo_steam_icon.png 는 같은 아이콘을 200x200 으로 렌더한 것이라 모양은 동일하다.
 const ASSETS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets');
-const STEAM_LOGO_PNG = readFileSync(path.join(ASSETS_DIR, 'logo_steam_icon.png'));
-const LOGO_CID = 'steam-logo';
+const STEAM_LOGO_PNG_BASE64 = readFileSync(path.join(ASSETS_DIR, 'logo_steam_icon.png')).toString('base64');
 
-const GMAIL_USER = process.env.GMAIL_USER;
-const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-
-const transporter =
-  GMAIL_USER && GMAIL_APP_PASSWORD
-    ? nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
-      })
-    : null;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM = process.env.RESEND_FROM ?? 'Steam 클론 <onboarding@resend.dev>';
 
 export async function sendVerificationEmail(to: string, verifyUrl: string) {
   const subject = 'Steam 클론 - 이메일 주소를 인증해 주세요';
@@ -38,7 +32,7 @@ export async function sendVerificationEmail(to: string, verifyUrl: string) {
   const html = `
     <div style="background:#171a21;max-width:600px;margin:0 auto;padding:40px 36px;font-family:Arial,Helvetica,sans-serif;color:#c7d5e0;">
       <div style="margin-bottom:24px;">
-        <img src="cid:${LOGO_CID}" alt="Steam" height="72" style="height:72px;display:block;" />
+        <img src="data:image/png;base64,${STEAM_LOGO_PNG_BASE64}" alt="Steam" height="72" style="height:72px;display:block;" />
       </div>
       <h1 style="color:#fff;font-size:22px;font-weight:700;line-height:1.4;margin:0 0 24px;">
         계속해서 새로운 Steam 계정을 만들려면 아래에서 이메일 주소를 인증해 주세요.
@@ -71,25 +65,23 @@ export async function sendVerificationEmail(to: string, verifyUrl: string) {
     </div>
   `;
 
-  if (!transporter) {
-    console.log(`[mailer] GMAIL_USER/GMAIL_APP_PASSWORD 미설정 — 실제 발송 대신 링크만 출력합니다.`);
+  if (!RESEND_API_KEY) {
+    console.log(`[mailer] RESEND_API_KEY 미설정 — 실제 발송 대신 링크만 출력합니다.`);
     console.log(`[mailer] -> ${to}: ${verifyUrl}`);
     return;
   }
 
-  await transporter.sendMail({
-    from: `"Steam 클론" <${GMAIL_USER}>`,
-    to,
-    subject,
-    html,
-    attachments: [
-      {
-        filename: 'logo_steam_icon.png',
-        content: STEAM_LOGO_PNG,
-        contentType: 'image/png',
-        cid: LOGO_CID,
-        contentDisposition: 'inline',
-      },
-    ],
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ from: RESEND_FROM, to, subject, html }),
   });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Resend 메일 발송 실패 (${res.status}): ${body}`);
+  }
 }
