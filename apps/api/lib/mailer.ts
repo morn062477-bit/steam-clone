@@ -1,17 +1,21 @@
 /**
  * lib/mailer.ts
  *
- * 이메일 발송. Resend HTTPS API 사용 — Gmail SMTP(nodemailer)에서 교체했다.
+ * 이메일 발송. SendGrid HTTPS API 사용 — Gmail SMTP(nodemailer)에서 교체했다.
  * Railway 같은 클라우드 호스팅은 스팸 방지 목적으로 SMTP 포트(465/587) 아웃바운드를
  * 막아두는 경우가 많아, Gmail SMTP 연결이 응답 없이 계속 멈춰있다가 타임아웃났다.
- * Resend는 일반 HTTPS(443) API라 이런 차단에 걸리지 않는다.
+ * SendGrid는 일반 HTTPS(443) API라 이런 차단에 걸리지 않는다.
  *
- * RESEND_API_KEY 가 .env 에 없으면 실제 발송 대신 콘솔에 인증 링크를 그대로 찍는다.
- * (팀원 로컬에 Resend 계정이 없어도 개발 가능)
+ * Resend 대신 SendGrid를 쓰는 이유: Resend는 도메인 인증 전엔 "가입한 본인 이메일"
+ * 로만 발송 가능하다. SendGrid는 도메인 없이 이메일 주소 하나만 인증하는
+ * "Single Sender Verification"으로 아무 수신자에게나 보낼 수 있다(무료 티어 하루 100통).
  *
- * 발급: https://resend.com → API Keys
- * RESEND_FROM 을 직접 지정하지 않으면 도메인 인증 없이 쓸 수 있는
- * onboarding@resend.dev 를 기본값으로 쓴다(테스트/데모용).
+ * SENDGRID_API_KEY 가 .env 에 없으면 실제 발송 대신 콘솔에 인증 링크를 그대로 찍는다.
+ * (팀원 로컬에 SendGrid 계정이 없어도 개발 가능)
+ *
+ * 설정: https://sendgrid.com 가입 → Settings → Sender Authentication →
+ *   Single Sender Verification 으로 발신자 이메일 인증 → Settings → API Keys 에서 키 발급
+ * SENDGRID_FROM 은 위에서 인증한 그 이메일 주소로 지정해야 한다(안 그러면 거부됨).
  */
 
 import { readFileSync } from 'node:fs';
@@ -23,8 +27,8 @@ import { fileURLToPath } from 'node:url';
 const ASSETS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets');
 const STEAM_LOGO_PNG_BASE64 = readFileSync(path.join(ASSETS_DIR, 'logo_steam_icon.png')).toString('base64');
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM = process.env.RESEND_FROM ?? 'Steam 클론 <onboarding@resend.dev>';
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+const SENDGRID_FROM = process.env.SENDGRID_FROM;
 
 export async function sendVerificationEmail(to: string, verifyUrl: string) {
   const subject = 'Steam 클론 - 이메일 주소를 인증해 주세요';
@@ -65,23 +69,28 @@ export async function sendVerificationEmail(to: string, verifyUrl: string) {
     </div>
   `;
 
-  if (!RESEND_API_KEY) {
-    console.log(`[mailer] RESEND_API_KEY 미설정 — 실제 발송 대신 링크만 출력합니다.`);
+  if (!SENDGRID_API_KEY || !SENDGRID_FROM) {
+    console.log(`[mailer] SENDGRID_API_KEY/SENDGRID_FROM 미설정 — 실제 발송 대신 링크만 출력합니다.`);
     console.log(`[mailer] -> ${to}: ${verifyUrl}`);
     return;
   }
 
-  const res = await fetch('https://api.resend.com/emails', {
+  const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
+      Authorization: `Bearer ${SENDGRID_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ from: RESEND_FROM, to, subject, html }),
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: to }] }],
+      from: { email: SENDGRID_FROM, name: 'Steam 클론' },
+      subject,
+      content: [{ type: 'text/html', value: html }],
+    }),
   });
 
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    throw new Error(`Resend 메일 발송 실패 (${res.status}): ${body}`);
+    throw new Error(`SendGrid 메일 발송 실패 (${res.status}): ${body}`);
   }
 }
