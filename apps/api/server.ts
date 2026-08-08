@@ -69,10 +69,14 @@ import {
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')));
 
-for (const line of readFileSync(path.join(ROOT, '.env'), 'utf-8').split('\n')) {
-  const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*"?(.*?)"?\s*$/);
-  if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
-}
+// 배포 환경(Railway 등)은 .env 파일 없이 플랫폼이 환경변수를 직접 주입하므로,
+// 파일이 없어도 그냥 넘어간다(로컬 개발에서만 이 파일로 값을 채운다).
+try {
+  for (const line of readFileSync(path.join(ROOT, '.env'), 'utf-8').split('\n')) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*"?(.*?)"?\s*$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+  }
+} catch {}
 
 const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT ?? 3000);
