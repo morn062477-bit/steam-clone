@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import StoreNav from "@/components/storenav";
 import Auth, { readUser, writeUser, type AuthView, type User } from "@/components/auth";
 import GamePage from "@/components/gamepage";
+import GameHoverCard, { type HoverInfo } from "@/components/gamehovercard";
 import HoverVideo from "@/components/hovervideo";
 import SalePage from "@/components/salepage";
 import { pickTakeoverVersion, type TakeoverVersion } from "@/lib/takeover";
@@ -13,6 +14,28 @@ import useStuck from "@/components/usestuck";
 import useMediaQuery from "@/components/usemediaquery";
 import CartPage from "@/components/cartpage";
 import WishlistPage from "@/components/wishlistpage";
+
+const HoverCtx = createContext<{ show: (g: any, el: HTMLElement) => void; hide: () => void }>({
+  show: () => {},
+  hide: () => {},
+});
+
+/** 카드에 붙이는 호버 핸들러. 확대/영상용 로컬 state 와 설명 패널을 같이 다룬다.
+   특집 카드처럼 자체 정보 패널이 있는 경우엔 floating=false 로 띄우지 않는다. */
+function useCardHover(g: any, floating = true) {
+  const [hover, setHover] = useState(false);
+  const ctx = useContext(HoverCtx);
+  return {
+    hover,
+    bind: {
+      onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
+        setHover(true);
+        if (floating) ctx.show(g, e.currentTarget);
+      },
+      onMouseLeave: () => { setHover(false); if (floating) ctx.hide(); },
+    },
+  };
+}
 
 const won = (n: number) => "₩ " + Number(n).toLocaleString("ko-KR");
 
@@ -250,8 +273,25 @@ function Carousel({ slides, autoMs = 0, peek: peekProp = 0, peekRight = false, a
  * 이미지 안에 들어간 채로 보이고, 클릭 영역만 따로 관리한다.
  */
 function Takeover({ version, onOpen }: { version: TakeoverVersion; onOpen: () => void }) {
+  // 완성본 배너가 있는 버전은 그 한 장만 깐다. 로고와 게임 패널이 이미 그 안에 있어서
+  // 배경 + 로고를 따로 얹으면 글자가 두 번 나온다.
+  const banner = "heroBanner" in version ? version.heroBanner : null;
+
+  if (banner) {
+    return (
+      <a
+        className="takeover takeover-full"
+        href="#"
+        role="button"
+        aria-label={version.saleAlt}
+        style={{ backgroundImage: `url('${banner}')` }}
+        onClick={(e) => { e.preventDefault(); onOpen(); }}
+      />
+    );
+  }
+
   return (
-    <div className={"takeover" + (version.key === "doom" ? " doom" : "")}>
+    <div className="takeover">
       <div className="takeover-bg" style={{ backgroundImage: `url('${version.heroBg}')` }} />
       <div className="takeover-bg-mobile" style={{ backgroundImage: `url('${version.heroBg}')` }} />
       <a
@@ -272,11 +312,14 @@ function Takeover({ version, onOpen }: { version: TakeoverVersion; onOpen: () =>
 // 카드들
 // ---------------------------------------------------------------
 function FeatCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
+  // 특집 카드는 오른쪽에 자체 정보 패널이 있어 떠 있는 설명 패널은 띄우지 않는다
+  const { hover, bind } = useCardHover(g, false);
   const art = g.screenshots?.[0]?.url || g.headerImage;
   const thumbs = (g.screenshots?.slice(1, 5).length ? g.screenshots.slice(1, 5) : g.screenshots?.slice(0, 4)) ?? [];
   return (
-    <div className="feat" onClick={() => onOpen(g.slug)}>
+    <div className="feat" onClick={() => onOpen(g.slug)} {...bind}>
       <div className="feat-art" style={bgStyle(art)}>
+        {hover && g.previewVideoUrl && <HoverVideo src={g.previewVideoUrl} />}
         {g.discountPercent > 0 && <span className="badge-live"><i />{g.discountLabel}</span>}
       </div>
       <div className="feat-info">
@@ -317,29 +360,40 @@ function DealCard({
   /** 그림을 직접 지정한다. 세로로 긴 칸처럼 기본 헤더가 안 맞는 자리에 쓴다 */
   artUrl?: string | null;
 }) {
+  const { hover, bind } = useCardHover(g);
   const art = artUrl ?? (size === "big" ? (g.capsuleImage || g.headerImage) : g.headerImage);
   const cls = TAGLINE_CLASS[g.discountLabel] || "season";
   return (
-    <div className={`deal-${size}`} onClick={() => onOpen(g.slug)}>
+    <div className={`deal-${size}`} onClick={() => onOpen(g.slug)} {...bind}>
       <span className={`tagline ${cls}`}>{g.discountLabel || "할인"}</span>
-      <div className="art" style={bgStyle(art)} />
+      <div className="art" style={bgStyle(art)}>
+        {hover && g.previewVideoUrl && <HoverVideo src={g.previewVideoUrl} />}
+      </div>
       <PriceBar g={g} />
     </div>
   );
 }
 
 function SpotCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
+  const { hover, bind } = useCardHover(g);
   return (
-    <div className="spot-card" onClick={() => onOpen(g.slug)}>
-      <div className="art" style={bgStyle(g.headerImage)} />
+    <div className="spot-card" onClick={() => onOpen(g.slug)} {...bind}>
+      <div className="art" style={bgStyle(g.headerImage)}>
+        {hover && g.previewVideoUrl && <HoverVideo src={g.previewVideoUrl} />}
+      </div>
     </div>
   );
 }
 
 function CheapCard({ g, onOpen }: { g: any; onOpen: (slug: string) => void }) {
+  const { hover, bind } = useCardHover(g);
   return (
-    <div className="cheap-card" onClick={() => onOpen(g.slug)}>
-      <div className="art" style={bgStyle(g.capsuleImage || g.headerImage)} />
+    <div className="cheap-card" onClick={() => onOpen(g.slug)} {...bind}>
+      {/* capsuleImage 는 184x69 라 카드 폭에서 크게 흐려진다. 같은 가로 비율이면서
+          해상도가 높은 헤더(460x215)를 먼저 쓴다. */}
+      <div className="art" style={bgStyle(g.headerImage || g.capsuleImage)}>
+        {hover && g.previewVideoUrl && <HoverVideo src={g.previewVideoUrl} />}
+      </div>
       <PriceBar g={g} />
     </div>
   );
@@ -671,7 +725,9 @@ function DealsHeroSlide({
         )}
       </div>
       <div className="deals-hero-card">
-        <div className="deals-hero-thumb" onClick={() => onOpen(g.slug)} style={bgStyle(g.capsuleImage || g.headerImage)}>
+        {/* capsuleImage 는 184x69 라 이 상자(약 356px 폭)에서 크게 흐려진다.
+            같은 가로 비율이면서 해상도가 높은 헤더(460x215)를 먼저 쓴다. */}
+        <div className="deals-hero-thumb" onClick={() => onOpen(g.slug)} style={bgStyle(g.headerImage || g.capsuleImage)}>
           {user && (
             <button
               type="button"
@@ -841,6 +897,9 @@ function RelRow({ g, onOpen, onHover }: { g: any; onOpen: (slug: string) => void
 function RelSide({ g }: { g: any }) {
   if (!g) return null;
   const shots = g.screenshots?.slice(0, 4) ?? [];
+  // 맨 위 한 칸은 스크린샷 대신 예고편. 영상이 없는 게임만 스크린샷 넉 장으로 채운다.
+  const hasVideo = Boolean(g.previewVideoUrl);
+  const stills = hasVideo ? shots.slice(0, 3) : shots;
   return (
     <>
       <h4>{g.name}</h4>
@@ -852,7 +911,12 @@ function RelSide({ g }: { g: any }) {
       <div className="tag-pills">
         {g.tags.slice(0, 6).map((t: string) => <span key={t} className="pill">{t}</span>)}
       </div>
-      {shots.map((s: any, i: number) => <div key={i} className="side-shot" style={bgStyle(s.thumb || s.url)} />)}
+      {hasVideo && (
+        <div className="side-shot side-shot-video">
+          <HoverVideo src={g.previewVideoUrl} />
+        </div>
+      )}
+      {stills.map((s: any, i: number) => <div key={i} className="side-shot" style={bgStyle(s.thumb || s.url)} />)}
     </>
   );
 }
@@ -889,6 +953,15 @@ export default function Home() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [hoverInfo, setHoverInfo] = useState<HoverInfo>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  // 화면이 바뀌면(카드 클릭, 내비 이동, 뒤로가기 등 경로 무관) 떠 있던 설명 패널을 지운다.
+  // 카드를 클릭해 다음 화면으로 넘어가면 그 요소가 통째로 사라져 mouseleave 가 안 뜬다.
+  // 그래서 개별 핸들러가 아니라 view/modalSlug/categorySlug 를 지켜보는 effect 로 처리한다
+  // (game→game, category→category 처럼 view 는 그대로인 채 내용만 바뀌는 이동도 잡아야 해서).
+  useEffect(() => { setHoverInfo(null); }, [view, modalSlug, categorySlug]);
 
   // 화면(view)이 바뀔 때마다 브라우저 탭 제목을 실제 스팀처럼 그 화면에 맞게 바꾼다.
   // SPA라 URL이 안 바뀌니, layout.tsx의 고정 title 대신 여기서 직접 document.title을 갱신한다.
@@ -1138,33 +1211,54 @@ export default function Home() {
 
   /** 로그인 성공 시: 게스트 카트가 있으면 서버 카트로 병합, 없으면 그냥 서버 카트를 불러온다. 찜 목록도 같이 불러온다. */
   async function handleLogin(u: User) {
+    // 실제 스팀처럼 화면을 덮고 스팀 로고를 돌리며 장바구니/찜 목록을 받아 온다.
+    // Auth 가 0.7초 뒤 홈으로 넘기므로, 이 덮개가 그 이동을 가려 준다.
+    setLoggingIn(true);
     writeUser(u);
     setUser(u);
-    const guestSlugs = readGuestCart();
-    if (guestSlugs.length > 0) {
-      const res = await fetch("/api/cart/merge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slugs: guestSlugs }),
-      });
-      if (res.ok) setCart(await res.json());
-      writeGuestCart([]);
-    } else {
-      const res = await fetch("/api/cart");
-      if (res.ok) setCart(await res.json());
-    }
-    const wres = await fetch("/api/wishlist");
-    if (wres.ok) setWishlist(await wres.json());
+
+    const work = (async () => {
+      const guestSlugs = readGuestCart();
+      if (guestSlugs.length > 0) {
+        const res = await fetch("/api/cart/merge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slugs: guestSlugs }),
+        });
+        if (res.ok) setCart(await res.json());
+        writeGuestCart([]);
+      } else {
+        const res = await fetch("/api/cart");
+        if (res.ok) setCart(await res.json());
+      }
+      const wres = await fetch("/api/wishlist");
+      if (wres.ok) setWishlist(await wres.json());
+    })().catch(() => {});
+
+    // 응답이 빠르면 한 프레임 깜빡이고 마니 최소 노출 시간을 함께 기다린다
+    await Promise.all([work, new Promise((r) => setTimeout(r, 900))]);
+    setLoggingIn(false);
   }
 
+  /**
+   * 로그아웃. 실제 스팀처럼 "기다려 주세요 / 로그아웃 중…" 화면을 잠깐 보여 주고 홈으로 돌아온다.
+   *
+   * 서버 응답이 아주 빠르면 화면이 깜빡이고 마는데, 그러면 눌린 건지 아닌지 알 수 없다.
+   * 그래서 응답과 최소 표시 시간(0.9초) 중 늦은 쪽을 기다린다.
+   */
   function handleLogout() {
-    fetch("/api/logout", { method: "POST" }).finally(() => {
+    setLoggingOut(true);
+    const done = fetch("/api/logout", { method: "POST" }).catch(() => {});
+    const minShow = new Promise((r) => setTimeout(r, 900));
+
+    Promise.all([done, minShow]).then(() => {
       writeUser(null);
       setUser(null);
       setCart([]);
       setWishlist([]);
       writeGuestCart([]);
       setAuthResetKey((k) => k + 1);
+      setLoggingOut(false);
       goView("store");
     });
   }
@@ -1279,8 +1373,27 @@ export default function Home() {
         .filter(Boolean)
     : [];
 
+  const hoverCtx = {
+    show: (g: any, el: HTMLElement) => setHoverInfo({ g, rect: el.getBoundingClientRect() }),
+    hide: () => setHoverInfo(null),
+  };
+
   return (
-    <>
+    <HoverCtx.Provider value={hoverCtx}>
+      {loggingIn && (
+        <div className="login-wait" role="status" aria-live="polite">
+          {/* eslint-disable-next-line @next/next/no-img-element -- 정적 SVG 한 장 */}
+          <img className="login-mark" src="/logo_steam_icon.svg" alt="" />
+          <span className="sr-only">로그인 중…</span>
+        </div>
+      )}
+      {loggingOut && (
+        <div className="logout-veil" role="status" aria-live="polite">
+          <div className="logout-title">기다려 주세요.</div>
+          <div className="logout-sub">로그아웃 중…</div>
+          <div className="logout-spinner" aria-hidden="true" />
+        </div>
+      )}
       <header className="topbar">
         <div className="wrap">
           {/* 좁은 화면에서만 보이는 햄버거. 상점 내비의 "메뉴" 를 연다 */}
@@ -1739,6 +1852,8 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </>
+
+      <GameHoverCard info={hoverInfo} />
+    </HoverCtx.Provider>
   );
 }

@@ -656,7 +656,9 @@ button{font-family:inherit;cursor:pointer;border:0}
 .spot{flex:1}
 .spot-body{background:var(--blue-box);color:var(--bg-dark);font-size:12px;padding:19px 10px;display:grid;grid-template-columns:1fr 1fr;gap:29px;box-shadow:0 0 12px rgba(0,0,0,.3)}
 .spot-card{position:relative;cursor:pointer;overflow:hidden}
-.spot-card .art{height:150px;border-radius:2px;overflow:hidden;transition:transform .3s ease}
+/* 높이를 못박으면 상자 비율이 헤더 이미지(460x215)와 어긋나 cover 가 잘라낸다.
+   비율로 두면 칸 폭이 얼마든 그림이 딱 맞는다. */
+.spot-card .art{aspect-ratio:460/215;border-radius:2px;overflow:hidden;transition:transform .3s ease}
 .spot-card:hover .art{transform:scale(1.02)}
 .spot-foot{display:flex;justify-content:flex-end;margin-top:10px}
 
@@ -670,8 +672,11 @@ button{font-family:inherit;cursor:pointer;border:0}
   display:flex;flex-direction:column;gap:12px;overflow:auto;
   box-shadow:0 8px 24px rgba(0,0,0,.45);
 }
+/* 세로 방향 flex 라 flex-basis 는 높이다. 170px 로 못박으면 카드 폭과의 비율이
+   헤더 이미지(460x215)와 어긋나 위아래가 잘린다. 비율로 두면 폭이 얼마든 딱 맞는다. */
 .deals-hero-thumb{
-  position:relative;flex:0 0 170px;border-radius:4px;overflow:hidden;cursor:pointer;
+  position:relative;flex:0 0 auto;aspect-ratio:460/215;
+  border-radius:4px;overflow:hidden;cursor:pointer;
   background-size:cover;background-position:center;background-color:#0e1621;
 }
 .deals-hero-wish{
@@ -711,9 +716,9 @@ button{font-family:inherit;cursor:pointer;border:0}
    행마다 다르게 덮어써서 큰 줄/작은 줄을 나눈다(너비는 grid 칼럼 수로 자연히 갈림). */
 .deals-mixed{display:flex;flex-direction:column;gap:15px}
 .dm-lg-row{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-.dm-lg-row .deal-sm .art{height:280px}
+.dm-lg-row .deal-sm .art{aspect-ratio:460/215}
 .dm-sm-row{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-.dm-sm-row .deal-sm .art{height:180px}
+.dm-sm-row .deal-sm .art{aspect-ratio:460/215}
 .catpage .cp-rec{margin-top:40px}
 .catpage .cp-rec-card .cp-price{justify-content:space-between}
 .catpage .cp-price-amt{display:flex;align-items:center;gap:8px}
@@ -811,16 +816,44 @@ button{font-family:inherit;cursor:pointer;border:0}
 .tab.on{color:#fff}
 .tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--blue)}
 .releases{display:flex;gap:14px}
-.rel-list{flex:1;background:#16202d;box-shadow:0 0 12px rgba(0,0,0,.3);min-width:0}
-.rel-row{display:flex;align-items:center;gap:14px;padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.25);cursor:pointer}
-.rel-row:hover{background:linear-gradient(to right,#3d4450,#2a3f5a)}
+/* 줄 사이를 1.5mm 씩 띄운다. 그 틈으로 페이지 바탕이 보여야 줄이 나뉘어 보이므로,
+   패널 배경을 목록이 아니라 줄 하나하나가 갖는다(전에는 목록이 갖고 줄은 밑줄로 나눴다). */
+.rel-list{flex:1;min-width:0;display:flex;flex-direction:column;gap:1.5mm;color:#c6d4df;font-size:12px}
+/* 아래 값들은 실제 스팀 신규 출시 목록 검사기에서 그대로 옮긴 것이다.
+   .tab_item_content(안쪽 여백 7px) / .tab_item_title(16px #fff)
+   .tab_item_tags, .tab_item_release_date(12px #ffffff80, 위 여백 11px)
+   .discount_pct(14px #000 바탕 #a1cd44, 여백 0 3px)
+   .discount_original_price(11px #848e94) / .discount_prices(바탕 #00000040, 여백 8px) */
+.rel-row{
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;gap:14px;padding:7px;cursor:pointer;
+  background:#16202d;border-radius:2px;
+}
+/* 호버 색은 단색이 아니라 왼쪽이 밝고 오른쪽으로 가라앉는 그라데이션이다.
+   그런데 그라데이션끼리는 transition 이 걸리지 않아 색이 툭 바뀐다.
+   그래서 겹쳐 둔 층의 opacity 만 부드럽게 올려서 스며들듯 나타나게 한다. */
+.rel-row::before{
+  content:"";position:absolute;inset:0;z-index:0;opacity:0;
+  background:linear-gradient(90deg,#3f6d99 0%,#2a4a67 45%,#213c55 100%);
+  transition:opacity .18s ease;
+}
+.rel-row:hover::before{opacity:1}
+/* 그라데이션 층이 내용 위를 덮지 않게 올려 둔다 */
+.rel-row > *{position:relative;z-index:1}
 .rel-cap{width:184px;height:69px;border-radius:2px;flex:0 0 auto;position:relative;overflow:hidden}
 .rel-meta{flex:1;min-width:0}
-.rel-meta h5{font-size:16px;color:#fff;font-weight:400;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rel-meta .tags{font-size:12px;color:#7b90a3;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rel-meta .date{font-size:12px;color:#5d7183}
-.rel-price{display:flex;align-items:stretch;font-size:13px;margin-left:auto;flex:0 0 auto}
-.rel-price .pb-body{background:rgba(0,0,0,.3)}
+.rel-meta h5{font-size:16px;color:#fff;font-weight:400;margin-bottom:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rel-meta .tags{font-size:12px;color:#c6d4df;margin-bottom:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 출시일만 반투명 흰색이고, 위로 11px 띄운다 */
+.rel-meta .date{font-size:12px;color:rgba(255,255,255,.5);margin-top:11px}
+.rel-price{display:flex;align-items:stretch;font-size:12px;margin-left:auto;flex:0 0 auto}
+.rel-price .disc{
+  background:#a1cd44;color:#000;font-size:14px;font-weight:400;
+  padding:0 3px;display:flex;align-items:center;
+}
+.rel-price .pb-body{background:rgba(0,0,0,.25);gap:6px;padding:8px}
+.rel-price .was{color:#848e94;font-size:11px}
+.rel-price .now{color:#fff;font-size:14px}
 .rel-side{flex:0 0 300px;background:#16202d;padding:14px;box-shadow:0 0 12px rgba(0,0,0,.3);align-self:flex-start}
 .rel-side h4{color:#fff;font-size:18px;font-weight:400;margin-bottom:8px}
 .rel-side .lang{font-size:12px;color:var(--text-dim);margin-bottom:2px}
@@ -828,7 +861,9 @@ button{font-family:inherit;cursor:pointer;border:0}
 .tag-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
 .pill{background:rgba(103,193,245,.14);color:#8fb8d6;font-size:11px;padding:3px 8px;border-radius:2px}
 .side-shot{height:175px;border-radius:2px;margin-bottom:8px}
-.rel-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 12px;font-size:12px;color:var(--text-dim)}
+/* 맨 위 칸은 예고편. .hover-video 가 inset:0 로 깔리므로 기준 상자를 만들어 준다 */
+.side-shot-video{position:relative;overflow:hidden;background:#000}
+.rel-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 12px;font-size:12px;color:var(--text-dim);background:#16202d;border-radius:2px}
 
 /* ---------- 카테고리 ---------- */
 .cats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
@@ -843,7 +878,7 @@ button{font-family:inherit;cursor:pointer;border:0}
 /* ---------- 저가 게임 ---------- */
 .cheap{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
 .cheap-card{position:relative;cursor:pointer;overflow:hidden}
-.cheap-card .art{height:135px;border-radius:2px;overflow:hidden;transition:transform .3s ease}
+.cheap-card .art{aspect-ratio:460/215;border-radius:2px;overflow:hidden;transition:transform .3s ease}
 .cheap-card:hover .art{transform:scale(1.02)}
 .headbtns{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)}
 
@@ -1606,7 +1641,7 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .gp-similar-row::-webkit-scrollbar-thumb{background:#c7d5e0;border-radius:2px}
 .gp-similar-card{flex:0 0 calc((100% - 36px) / 4);cursor:pointer;scroll-snap-align:start}
 .gp-similar-card .art{
-  height:150px;position:relative;
+  aspect-ratio:460/215;position:relative;
   outline:2px solid transparent;transition:outline-color .15s ease;
 }
 .gp-similar-card:hover .art{outline-color:#66c0f4}
@@ -1769,6 +1804,27 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .btn-install svg{width:14px;height:14px;flex:0 0 auto}
 
 
+/* ---------- 카드 호버 설명 패널 ---------- */
+/* 카드가 캐러셀(overflow:hidden) 안에 있어서 자식으로 넣으면 잘린다.
+   페이지 최상단에 fixed 로 하나만 띄우고 위치만 옮긴다.
+   오른쪽에 자리가 없으면 카드 왼쪽으로 뒤집는다 (gamehovercard.tsx 참고). */
+.ghc{
+  position:fixed;z-index:90;pointer-events:none;
+  background:#1b2838;box-shadow:0 0 14px rgba(0,0,0,.75);
+  padding:14px 16px;border-radius:2px;
+}
+.ghc-title{color:#fff;font-size:17px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.ghc-date{color:#8f98a0;font-size:12px;margin-bottom:14px}
+.ghc-desc{color:#c7d5e0;font-size:13px;line-height:1.6;margin-bottom:14px}
+.ghc-label{color:#8f98a0;font-size:12px;margin-bottom:4px}
+.ghc-review{background:rgba(0,0,0,.22);padding:8px 10px;margin-bottom:14px}
+.ghc-review-val{color:#c7d5e0;font-size:13px}
+.ghc-review-val.positive{color:#66c0f4}
+.ghc-tag-list{display:flex;flex-wrap:wrap;gap:4px}
+.ghc-tag-list span{
+  background:#3d4a5c;color:#c7d5e0;font-size:11px;padding:4px 8px;border-radius:2px;
+}
+
 /* ---------- 좁은 화면에서 헤더 접기 ---------- */
 /* 1100px 이하: 하드웨어/플레이 모드/특별 섹션 -> "더 보기"
    820px 이하: 카테고리까지 "더 보기"
@@ -1883,9 +1939,17 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
 .takeover-logo{
   max-height:100%;max-width:100%;object-fit:contain;pointer-events:none;
 }
+/* 완성본 배너 한 장(로고·게임 패널 포함)을 쓰는 버전.
+   높이를 고정하지 않고 원본 비율(3412x900)로 두어 폭이 얼마든 잘리는 데가 없다.
+   그래서 .takeover 의 height:450px 를 덮는다. */
+.takeover-full{
+  display:block;height:auto;aspect-ratio:3412/900;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+}
 
 @media (max-width:820px){
-  .takeover{height:350px}
+  /* 완성본 배너는 비율로 높이가 정해지므로 고정 높이를 씌우면 잘린다 */
+  .takeover:not(.takeover-full){height:350px}
   .takeover-bg{display:none}
   .takeover-bg-mobile{display:block}
   .takeover-sizer{height:350px}
@@ -2376,4 +2440,59 @@ footer{background:#171a21;margin-top:40px;padding:34px 0 60px;color:#556772;font
   .feat-art{flex:none;width:100%}
   .feat-info{padding:12px 14px}
   .thumbs{grid-template-columns:repeat(4,1fr)}
+}
+
+/* ---------- 로그아웃 대기 화면 ---------- */
+/* 실제 스팀처럼 화면 전체를 덮고 "기다려 주세요 / 로그아웃 중…" 을 보여 준다.
+   상단 내비(z-index:70)보다 위에 와야 그 위로 덮인다. */
+.logout-veil{
+  position:fixed;inset:0;z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:#1b2838;color:#dfe6ee;text-align:center;
+}
+.logout-title{font-size:22px;font-weight:400}
+.logout-sub{font-size:14px;color:#8f98a0}
+/* 회전하는 링 하나. 이미지 없이 테두리만으로 그린다 */
+.logout-spinner{
+  width:28px;height:28px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.18);border-top-color:#8f98a0;
+  animation:logout-spin .8s linear infinite;
+}
+@keyframes logout-spin{to{transform:rotate(360deg)}}
+/* 움직임을 줄이는 설정이면 회전 대신 은은하게 깜빡인다 */
+@media (prefers-reduced-motion:reduce){
+  .logout-spinner{animation:logout-fade 1.2s ease-in-out infinite}
+}
+@keyframes logout-fade{50%{opacity:.35}}
+
+/* ---------- 로그인 대기 화면 ---------- */
+/* 이름은 .login-wait 다. .login-veil 은 로그인 화면이 배경 타일을 덮는 데 이미 쓰고 있어서
+   그 이름을 쓰면 로그인하지 않아도 이 고리가 같이 그려진다.
+   로그아웃과 달리 글자 없이, 뒤 화면을 어둡게 덮고 스팀 로고만 보여 준다.
+   로고 자체를 돌리면 어지러우므로 로고는 두고 둘레의 고리만 돈다. */
+.login-wait{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(11,17,24,.82);
+}
+.login-mark{
+  width:64px;height:64px;display:block;border-radius:50%;
+  box-shadow:0 0 0 3px rgba(255,255,255,.12);
+  position:relative;
+}
+.login-wait::before{
+  content:"";position:absolute;width:78px;height:78px;border-radius:50%;
+  border:3px solid transparent;border-top-color:#66c0f4;
+  animation:login-spin .9s linear infinite;
+}
+@keyframes login-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){
+  .login-wait::before{animation:login-fade 1.2s ease-in-out infinite}
+}
+@keyframes login-fade{50%{opacity:.3}}
+
+/* 화면에는 안 보이고 스크린리더만 읽는 문구 */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
 }

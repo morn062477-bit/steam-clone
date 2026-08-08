@@ -15,6 +15,13 @@ export const TAKEOVER_VERSIONS = [
   {
     key: "doom",
     heroBg: "/sale-takeover-2-bg.jpg",
+    /**
+     * 홈 전면 배너용 완성본 한 장(3412x900). 로고와 게임 패널이 이미 들어 있어서
+     * 이게 있으면 heroBg + 로고를 따로 얹지 않고 이 한 장만 깐다.
+     */
+    heroBanner: "/sale-takeover-2-hero.jpg",
+    heroBannerW: 3412,
+    heroBannerH: 900,
     saleLogo: "/sale-takeover-2-logo.png",
     saleAlt: "BETHESDA SOFTWORKS 40주년 기념 40% 할인",
     saleLogoW: 1200,
